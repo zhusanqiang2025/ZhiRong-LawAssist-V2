@@ -46,19 +46,15 @@ FROM docker.1ms.run/node:lts-alpine AS frontend-builder
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 # 安装必要的构建工具（Python 用于 node-gyp 编译）
-RUN apk add --no-cache python3 make g++
+RUN apk add --no-cache python3 make g++ --virtual=.build-deps
 
 WORKDIR /app/frontend
 
 # 复制前端依赖文件
 COPY frontend/package*.json ./
 
-# 配置 npm 并安装依赖
-RUN npm config set registry https://registry.npmmirror.com && \
-    npm config set unsafe-perm true
-
-# 安装依赖
-RUN npm install
+# 安装依赖（使用 --legacy-peer-deps 解决版本冲突）
+RUN npm install --registry=https://registry.npmmirror.com --legacy-peer-deps
 
 # 复制前端源码
 COPY frontend/ ./
