@@ -55,8 +55,10 @@ COPY frontend/package*.json ./
 
 # 配置 npm 并安装依赖
 RUN npm config set registry https://registry.npmmirror.com && \
-    npm config set unsafe-perm true && \
-    npm ci --prefer-offline --no-audit
+    npm config set unsafe-perm true
+
+# 安装依赖
+RUN npm install
 
 # 复制前端源码
 COPY frontend/ ./
