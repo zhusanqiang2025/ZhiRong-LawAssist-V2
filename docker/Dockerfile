@@ -45,8 +45,8 @@ FROM docker.1ms.run/node:lts-alpine AS frontend-builder
 # 使用阿里云 Alpine 镜像源加速 apk 安装
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
-# 安装必要的构建工具（Python 用于 node-gyp 编译）
-RUN apk add --no-cache python3 make g++ --virtual=.build-deps
+# 安装必要的构建工具
+RUN apk add --no-cache python3 make g++ bash
 
 WORKDIR /app/frontend
 
@@ -65,8 +65,8 @@ ARG VITE_ONLYOFFICE_URL=http://localhost:8082
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL
 
-# 构建前端（使用 npm run build）
-RUN npm run build
+# 构建前端（直接使用 node_modules/.bin/vite）
+RUN ./node_modules/.bin/vite build
 
 
 # ============ Stage 3: 最终运行镜像（后端 + 前端） ============
