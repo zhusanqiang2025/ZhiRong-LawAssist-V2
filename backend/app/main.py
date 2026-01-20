@@ -205,8 +205,25 @@ app.mount("/storage", StaticFiles(directory="storage"), name="storage")
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-# __file__ 是 /app/app/main.py，需要向上两级到 /app，然后进入 static/frontend
-frontend_static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "frontend"))
+# 尝试多种方式定位前端静态文件目录
+# 方式1: 相对于 main.py 的路径（/__file__ = /app/app/main.py）
+frontend_static_dir_relative = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "frontend"))
+# 方式2: 直接使用绝对路径
+frontend_static_dir_absolute = "/app/static/frontend"
+
+# 选择存在的路径
+if os.path.exists(frontend_static_dir_absolute):
+    frontend_static_dir = frontend_static_dir_absolute
+    logger.info(f"[Frontend] Using absolute path: {frontend_static_dir}")
+elif os.path.exists(frontend_static_dir_relative):
+    frontend_static_dir = frontend_static_dir_relative
+    logger.info(f"[Frontend] Using relative path: {frontend_static_dir}")
+else:
+    frontend_static_dir = frontend_static_dir_absolute  # 使用绝对路径作为默认值
+    logger.warning(f"[Frontend] Frontend directory not found at:")
+    logger.warning(f"[Frontend]   - Absolute: {frontend_static_dir_absolute}")
+    logger.warning(f"[Frontend]   - Relative: {frontend_static_dir_relative}")
+    logger.warning(f"[Frontend] Will try to continue anyway...")
 
 # 挂载前端静态资源
 if os.path.exists(frontend_static_dir):
@@ -222,6 +239,20 @@ if os.path.exists(frontend_static_dir):
 
 # SPA 前端根路径标记 - 将在文件末尾处理
 _frontend_spa_enabled = os.path.exists(frontend_static_dir)
+
+# 调试日志
+logger.info(f"[Frontend] Static directory check:")
+logger.info(f"[Frontend]   - frontend_static_dir = {frontend_static_dir}")
+logger.info(f"[Frontend]   - exists = {os.path.exists(frontend_static_dir)}")
+logger.info(f"[Frontend]   - _frontend_spa_enabled = {_frontend_spa_enabled}")
+if os.path.exists(frontend_static_dir):
+    try:
+        files = os.listdir(frontend_static_dir)
+        logger.info(f"[Frontend]   - Files in directory: {files[:5]}...")  # 只显示前5个文件
+        index_path = os.path.join(frontend_static_dir, "index.html")
+        logger.info(f"[Frontend]   - index.html exists: {os.path.exists(index_path)}")
+    except Exception as e:
+        logger.error(f"[Frontend]   - Error listing directory: {e}")
 
 # 安全的 CORS 配置
 allowed_origins = [
