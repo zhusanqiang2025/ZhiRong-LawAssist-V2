@@ -34,9 +34,9 @@ WORKDIR /app/vendor
 COPY backend/requirements.txt ./requirements.txt
 
 # 使用清华镜像源安装 Python 依赖
+# 注意：不能使用 --no-deps，因为 uvicorn[standard] 等包需要安装额外依赖
 RUN pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple && \
-    pip install --no-deps -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple || \
-    (pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple)
+    pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 
 # ============ Stage 2: 前端构建（React + Vite） ============
