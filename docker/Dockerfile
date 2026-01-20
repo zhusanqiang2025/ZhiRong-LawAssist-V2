@@ -148,7 +148,9 @@ COPY backend/langgraphs ./langgraphs
 COPY backend/static ./static
 
 # 复制环境变量配置文件
-COPY .env ./env
+# .env 文件在项目根目录，相对于 Dockerfile 的路径是 ../.env
+# 但由于构建上下文是根目录，直接使用 .env 即可
+COPY .env .env
 
 # 从 frontend-builder 复制前端构建产物到 static 目录
 COPY --from=frontend-builder /app/frontend/dist ./static/frontend
