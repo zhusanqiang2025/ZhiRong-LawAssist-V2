@@ -415,7 +415,7 @@ const api: ApiClient = {
   clearChatSession: (sessionId: string) => axiosInstance.delete(`/smart-chat/session/${sessionId}`),
 
   intelligentGuidance: (data: GuidanceRequest) => axiosInstance.post('/smart-chat/guidance', data),
-  legalExpertConsultation: (data: ConsultationRequest) => axiosInstance.post('/api/consultation', data),
+  legalExpertConsultation: (data: ConsultationRequest) => axiosInstance.post('/consultation', data),
   guidanceAnalysisWorkflow: (data: GuidanceRequest) => axiosInstance.post('/smart-chat/guidance-analysis', data),
   expertConsultationWorkflow: (data: ConsultationRequest) => axiosInstance.post('/smart-chat/expert-consultation', data),
 
@@ -436,39 +436,39 @@ const api: ApiClient = {
     const formData = new FormData();
     formData.append('file', file);
     // 不手动设置 Content-Type，让浏览器/axios 自动加上 boundary
-    return axiosInstance.post('/api/contract/upload', formData);
+    return axiosInstance.post('/contract/upload', formData);
   },
 
   extractContractMetadata: (contractId: number) =>
-    axiosInstance.post(`/api/contract/${contractId}/extract-metadata`),
+    axiosInstance.post(`/contract/${contractId}/extract-metadata`),
 
   startDeepReview: (contractId: number, stance: string, metadata?: any, enableCustomRules: boolean = false) =>
-    axiosInstance.post(`/api/contract/${contractId}/deep-review`, {
+    axiosInstance.post(`/contract/${contractId}/deep-review`, {
       stance,
       updated_metadata: metadata,
       enable_custom_rules: enableCustomRules
     }),
 
   getReviewResults: (contractId: number) =>
-    axiosInstance.get(`/api/contract/${contractId}/review-results`),
+    axiosInstance.get(`/contract/${contractId}/review-results`),
 
   // --- 审查意见编辑与修订 ---
   updateReviewItem: (itemId: number, data: { explanation: string; suggestion: string }) =>
-    axiosInstance.put(`/api/contract/review-items/${itemId}`, data),
+    axiosInstance.put(`/contract/review-items/${itemId}`, data),
 
   applyRevisions: (contractId: number, reviewItemIds: number[], autoApply: boolean = false) =>
-    axiosInstance.post(`/api/contract/${contractId}/apply-revisions`, {
+    axiosInstance.post(`/contract/${contractId}/apply-revisions`, {
       review_item_ids: reviewItemIds,
       auto_apply: autoApply
     }),
 
   getRevisionConfig: (contractId: number) =>
-    axiosInstance.get(`/api/contract/${contractId}/revision-config`),
+    axiosInstance.get(`/contract/${contractId}/revision-config`),
 
   downloadContract: async (contractId: number, docType: 'original' | 'revised') => {
     const endpoint = docType === 'revised'
-      ? `/api/contract/${contractId}/download-revised`
-      : `/api/contract/${contractId}/download`;
+      ? `/contract/${contractId}/download-revised`
+      : `/contract/${contractId}/download`;
     const response = await axiosInstance.get(endpoint, {
       responseType: 'blob'
     });
@@ -477,44 +477,44 @@ const api: ApiClient = {
 
   // --- 合同健康度评估（新增）---
   getHealthAssessment: (contractId: number) =>
-    axiosInstance.get(`/api/contract/${contractId}/health-assessment`),
+    axiosInstance.get(`/contract/${contractId}/health-assessment`),
 
   // --- 合同生成接口实现 ---
   analyzeRequirement: (data: ContractGenerationAnalyzeRequest) =>
-    axiosInstance.post('/api/contract-generation/analyze', data),
+    axiosInstance.post('/contract-generation/analyze', data),
 
   generateContract: (formData: FormData) =>
-    axiosInstance.post('/api/contract-generation/generate', formData),
+    axiosInstance.post('/contract-generation/generate', formData),
 
   generateContractFiles: (formData: FormData) =>
-    axiosInstance.post('/api/contract-generation/generate-files', formData),
+    axiosInstance.post('/contract-generation/generate-files', formData),
 
   continueGeneration: (sessionId: string, clarification: string) => {
     const formData = new FormData();
     formData.append('session_id', sessionId);
     formData.append('clarification', clarification);
-    return axiosInstance.post('/api/contract-generation/continue', formData);
+    return axiosInstance.post('/contract-generation/continue', formData);
   },
 
   processDocument: (data: DocumentProcessRequest) =>
-    axiosInstance.post('/api/contract-generation/process-document', data),
+    axiosInstance.post('/contract-generation/process-document', data),
 
   checkContractGenerationHealth: () =>
-    axiosInstance.get('/api/contract-generation/health'),
+    axiosInstance.get('/contract-generation/health'),
 
   // --- 新增：需求澄清表单接口实现 ---
   analyzeAndGetClarificationForm: (data: { user_input: string; uploaded_files?: string[]; planning_mode?: 'multi_model' | 'single_model' }) =>
-    axiosInstance.post('/api/contract-generation/analyze-and-get-form', data),
+    axiosInstance.post('/contract-generation/analyze-and-get-form', data),
 
   generateContractWithFormData: (data: any) =>
-    axiosInstance.post('/api/contract-generation/generate-with-form', data),
+    axiosInstance.post('/contract-generation/generate-with-form', data),
 
   // --- 新增：Step 2 LLM 提取变更/解除信息接口 ---
   extractModificationTerminationInfo: (data: { user_input: string; analysis_result?: any }) =>
-    axiosInstance.post('/api/contract-generation/extract-modification-termination-info', data),
+    axiosInstance.post('/contract-generation/extract-modification-termination-info', data),
 
   getTemplatePreview: (templateId: string) =>
-    axiosInstance.get(`/api/contract-generation/template-preview/${templateId}`),
+    axiosInstance.get(`/contract-generation/template-preview/${templateId}`),
 
   // --- 新增：合同规划专用接口实现 ---
   generateContractPlanOnly: (data: { user_input: string; planning_mode: string; uploaded_files?: File[]; session_id?: string }) => {
@@ -529,7 +529,7 @@ const api: ApiClient = {
         formData.append('uploaded_files', file);
       });
     }
-    return axiosInstance.post('/api/contract-generation/generate-plan-only', formData);
+    return axiosInstance.post('/contract-generation/generate-plan-only', formData);
   },
 
   generateContractsFromPlan: (data: { plan_id: string; session_id?: string }) => {
@@ -538,37 +538,37 @@ const api: ApiClient = {
     if (data.session_id) {
       formData.append('session_id', data.session_id);
     }
-    return axiosInstance.post('/api/contract-generation/generate-from-plan', formData);
+    return axiosInstance.post('/contract-generation/generate-from-plan', formData);
   },
 
   // --- 新增：合同生成历史任务接口实现 ---
   getContractGenerationTasks: (params?: { skip?: number; limit?: number; planning_mode?: string; status?: string }) =>
-    axiosInstance.get('/api/contract-generation/tasks', { params }),
+    axiosInstance.get('/contract-generation/tasks', { params }),
 
   getContractGenerationTaskDetail: (taskId: string) =>
-    axiosInstance.get(`/api/contract-generation/tasks/${taskId}`),
+    axiosInstance.get(`/contract-generation/tasks/${taskId}`),
 
   // --- 文档预览接口 ---
   getDocumentPreviewConfig: (filename: string) =>
-    axiosInstance.get(`/api/document/preview/by-filename/${filename}`),
+    axiosInstance.get(`/document/preview/by-filename/${filename}`),
 
   // --- 法律咨询接口实现 ---
   submitLegalQuestion: (data: ConsultationRequest) =>
-    axiosInstance.post('/api/consultation', data),
+    axiosInstance.post('/consultation', data),
 
   // --- 费用计算接口实现 ---
   calculateCost: (data: any) =>
-    axiosInstance.post('/api/cost-calculation', data),
+    axiosInstance.post('/cost-calculation', data),
 
   // --- 费用计算 V2 接口实现（新增：支持资料上传和信息提取）---
   uploadCostCalcDocuments: (formData: FormData) =>
-    axiosInstance.post('/api/cost-calculation/upload', formData),
+    axiosInstance.post('/cost-calculation/upload', formData),
 
   extractCostCalcCaseInfo: (data: { upload_id: string; file_names: string[] }) =>
-    axiosInstance.post('/api/cost-calculation/extract', data),
+    axiosInstance.post('/cost-calculation/extract', data),
 
   calculateCostV2: (data: any) =>
-    axiosInstance.post('/api/cost-calculation/calculate-v2', data),
+    axiosInstance.post('/cost-calculation/calculate-v2', data),
 
   // --- 风险评估接口实现 ---
   submitRiskAnalysis: (data: any) =>
@@ -623,26 +623,26 @@ export const uploadConsultationFile = async (file: File): Promise<ConsultationFi
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await axiosInstance.post('/api/consultation/upload', formData);
+  const response = await axiosInstance.post('/consultation/upload', formData);
   return response.data;
 };
 
 // 获取已上传文件的信息
 export const getConsultationFile = async (fileId: string): Promise<ConsultationFileInfo> => {
-  const response = await axiosInstance.get(`/api/consultation/file/${fileId}`);
+  const response = await axiosInstance.get(`/consultation/file/${fileId}`);
   return response.data;
 };
 
 // 删除已上传的文件
 export const deleteConsultationFile = async (fileId: string): Promise<{ message: string }> => {
-  const response = await axiosInstance.delete(`/api/consultation/file/${fileId}`);
+  const response = await axiosInstance.delete(`/consultation/file/${fileId}`);
   return response.data;
 };
 
 // 法律咨询（使用 axiosInstance）
 export const consultLaw = async (data: ConsultationRequest): Promise<ConsultationResponse> => {
   // 智能咨询可能需要较长时间（文件分析、LLM调用），设置5分钟超时
-  const response = await axiosInstance.post('/api/consultation', data, {
+  const response = await axiosInstance.post('/consultation', data, {
     timeout: 300000 // 5 分钟超时
   });
   return response.data;
@@ -650,13 +650,13 @@ export const consultLaw = async (data: ConsultationRequest): Promise<Consultatio
 
 // 创建新会话
 export const createNewConsultationSession = async (): Promise<{ session_id: string; message: string }> => {
-  const response = await axiosInstance.post('/api/consultation/new-session');
+  const response = await axiosInstance.post('/consultation/new-session');
   return response.data;
 };
 
 // 重置会话
 export const resetConsultationSession = async (sessionId: string): Promise<{ message: string; session_id: string }> => {
-  const response = await axiosInstance.post(`/api/consultation/reset-session/${sessionId}`);
+  const response = await axiosInstance.post(`/consultation/reset-session/${sessionId}`);
   return response.data;
 };
 
