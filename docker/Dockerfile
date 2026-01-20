@@ -134,8 +134,8 @@ RUN mkdir -p /app/storage /app/uploads /app/logs /app/static
 
 # 复制后端代码
 COPY backend/app ./app
-COPY backend/main.py ./
-COPY backend/app.py ./app.py.bak
+# 注意：不复制 backend/main.py 和 backend/app.py，因为它们是旧版本
+# 正确的入口是 app.main:app
 COPY backend/legal_consultation_graph.py ./
 COPY backend/legal_rag_system.py ./
 COPY backend/contract_review_graph.py ./
