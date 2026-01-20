@@ -309,7 +309,7 @@ const cleanCircularRefs = (obj: any): any => {
 };
 
 export const axiosInstance = axios.create({
-  baseURL: getApiBaseUrl(),
+  baseURL: getApiBaseUrl() + '/api/v1',
   withCredentials: true,
 });
 
@@ -365,71 +365,71 @@ axiosInstance.interceptors.response.use(
 
 const api: ApiClient = {
   // --- 原有接口全部保留（这里省略，复制你原来的） ---
-  registerUser: (data: RegisterRequest) => axiosInstance.post<User>('/api/v1/auth/register', data),
+  registerUser: (data: RegisterRequest) => axiosInstance.post<User>('/auth/register', data),
   loginUser: (data: LoginRequest) => {
     const formData = new URLSearchParams();
     formData.append('username', data.username);
     formData.append('password', data.password);
     console.log('[API] Login request data:', { username: data.username, hasPassword: !!data.password });
     console.log('[API] FormData content:', formData.toString());
-    return axiosInstance.post('/api/v1/auth/login', formData, {
+    return axiosInstance.post('/auth/login', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json'
       },
     });
   },
-  getCurrentUser: () => axiosInstance.post<User>('/api/v1/auth/test-token'),
-  getSystemStats: () => axiosInstance.get('/api/v1/admin/stats'),
-  getUserList: (params) => axiosInstance.get('/api/v1/admin/users', { params }),
-  deleteTemplate: (id) => axiosInstance.delete(`/api/v1/contract/${id}`),
+  getCurrentUser: () => axiosInstance.post<User>('/auth/test-token'),
+  getSystemStats: () => axiosInstance.get('/admin/stats'),
+  getUserList: (params) => axiosInstance.get('/admin/users', { params }),
+  deleteTemplate: (id) => axiosInstance.delete(`/contract/${id}`),
 
-  startWorkflow: (formData: FormData) => axiosInstance.post('/api/v1/workflow/start', formData),
-  getTaskStatus: (taskId: string) => axiosInstance.get(`/api/v1/tasks/${taskId}`),
-  sendModificationRequest: (taskId: string, payload: TaskModificationRequest) => axiosInstance.post('/api/v1/workflow/modify', { task_id: taskId, ...payload }),
-  generateFile: (taskId: string, payload: FileGenerateRequest) => axiosInstance.post('/api/v1/file/generate', { task_id: taskId, ...payload }),
-  createAnalysisTask: (formData: FormData) => axiosInstance.post('/api/v1/analysis/', formData),
-  getTaskHistory: () => axiosInstance.get('/api/v1/tasks/history'),
-  getTaskById: (taskId: string) => axiosInstance.get(`/api/v1/tasks/${taskId}`),
+  startWorkflow: (formData: FormData) => axiosInstance.post('/workflow/start', formData),
+  getTaskStatus: (taskId: string) => axiosInstance.get(`/tasks/${taskId}`),
+  sendModificationRequest: (taskId: string, payload: TaskModificationRequest) => axiosInstance.post('/workflow/modify', { task_id: taskId, ...payload }),
+  generateFile: (taskId: string, payload: FileGenerateRequest) => axiosInstance.post('/file/generate', { task_id: taskId, ...payload }),
+  createAnalysisTask: (formData: FormData) => axiosInstance.post('/analysis/', formData),
+  getTaskHistory: () => axiosInstance.get('/tasks/history'),
+  getTaskById: (taskId: string) => axiosInstance.get(`/tasks/${taskId}`),
 
   // --- 任务管理（新增）---
-  getTasks: (params) => axiosInstance.get('/api/v1/tasks', { params }),
-  getTasksStats: () => axiosInstance.get('/api/v1/tasks/stats'),
-  getUnviewedTasks: () => axiosInstance.get('/api/v1/tasks/unviewed'),
-  markTaskAsViewed: (taskId: string) => axiosInstance.post(`/api/v1/tasks/${taskId}/mark-viewed`),
+  getTasks: (params) => axiosInstance.get('/tasks', { params }),
+  getTasksStats: () => axiosInstance.get('/tasks/stats'),
+  getUnviewedTasks: () => axiosInstance.get('/tasks/unviewed'),
+  markTaskAsViewed: (taskId: string) => axiosInstance.post(`/tasks/${taskId}/mark-viewed`),
 
   smartChat: (message: string, conversationHistory?: ChatMessage[], sessionId?: string) =>
-    axiosInstance.post('/api/v1/smart-chat/chat', {
+    axiosInstance.post('/smart-chat/chat', {
       message,
       conversation_history: conversationHistory || [],
       session_id: sessionId
     }),
   streamChat: (message: string, conversationHistory?: ChatMessage[], sessionId?: string) =>
-    axiosInstance.post('/api/v1/smart-chat/stream-chat', {
+    axiosInstance.post('/smart-chat/stream-chat', {
       message,
       conversation_history: conversationHistory || [],
       session_id: sessionId
     }),
-  getChatSuggestions: () => axiosInstance.get('/api/v1/smart-chat/suggestions'),
-  checkChatHealth: () => axiosInstance.get('/api/v1/smart-chat/health'),
-  clearChatSession: (sessionId: string) => axiosInstance.delete(`/api/v1/smart-chat/session/${sessionId}`),
+  getChatSuggestions: () => axiosInstance.get('/smart-chat/suggestions'),
+  checkChatHealth: () => axiosInstance.get('/smart-chat/health'),
+  clearChatSession: (sessionId: string) => axiosInstance.delete(`/smart-chat/session/${sessionId}`),
 
-  intelligentGuidance: (data: GuidanceRequest) => axiosInstance.post('/api/v1/smart-chat/guidance', data),
+  intelligentGuidance: (data: GuidanceRequest) => axiosInstance.post('/smart-chat/guidance', data),
   legalExpertConsultation: (data: ConsultationRequest) => axiosInstance.post('/api/consultation', data),
-  guidanceAnalysisWorkflow: (data: GuidanceRequest) => axiosInstance.post('/api/v1/smart-chat/guidance-analysis', data),
-  expertConsultationWorkflow: (data: ConsultationRequest) => axiosInstance.post('/api/v1/smart-chat/expert-consultation', data),
+  guidanceAnalysisWorkflow: (data: GuidanceRequest) => axiosInstance.post('/smart-chat/guidance-analysis', data),
+  expertConsultationWorkflow: (data: ConsultationRequest) => axiosInstance.post('/smart-chat/expert-consultation', data),
 
-  getTemplates: (params: TemplateSearchRequest) => axiosInstance.get('/api/v1/contract/', { params }),
-  searchTemplates: (data: TemplateSearchRequest) => axiosInstance.post('/api/v1/contract/search', data),
-  uploadTemplate: (formData: FormData) => axiosInstance.post('/api/v1/contract/upload', formData),
-  downloadTemplate: (templateId: string) => axiosInstance.post(`/api/v1/contract/${templateId}/download`, {}),
-  rateTemplate: (templateId: string, rating: number) => axiosInstance.post(`/api/v1/contract/${templateId}/rate`, { rating }),
-  getTemplateCategories: () => axiosInstance.get('/api/v1/contract/categories/list'),
+  getTemplates: (params: TemplateSearchRequest) => axiosInstance.get('/contract/', { params }),
+  searchTemplates: (data: TemplateSearchRequest) => axiosInstance.post('/contract/search', data),
+  uploadTemplate: (formData: FormData) => axiosInstance.post('/contract/upload', formData),
+  downloadTemplate: (templateId: string) => axiosInstance.post(`/contract/${templateId}/download`, {}),
+  rateTemplate: (templateId: string, rating: number) => axiosInstance.post(`/contract/${templateId}/rate`, { rating }),
+  getTemplateCategories: () => axiosInstance.get('/contract/categories/list'),
 
-  getCategoryList: () => axiosInstance.get('/api/v1/categories/'),
-  createCategory: (data: CategoryCreateRequest) => axiosInstance.post('/api/v1/categories/', data),
-  updateCategory: (id: number, data: Partial<CategoryCreateRequest>) => axiosInstance.put(`/api/v1/categories/${id}`, data),
-  deleteCategory: (id: number) => axiosInstance.delete(`/api/v1/categories/${id}`),
+  getCategoryList: () => axiosInstance.get('/categories/'),
+  createCategory: (data: CategoryCreateRequest) => axiosInstance.post('/categories/', data),
+  updateCategory: (id: number, data: Partial<CategoryCreateRequest>) => axiosInstance.put(`/categories/${id}`, data),
+  deleteCategory: (id: number) => axiosInstance.delete(`/categories/${id}`),
 
   // --- 新合同审查接口（完全替换旧的） ---
   uploadContract: (file: File) => {
@@ -572,42 +572,42 @@ const api: ApiClient = {
 
   // --- 风险评估接口实现 ---
   submitRiskAnalysis: (data: any) =>
-    axiosInstance.post('/api/v1/risk-analysis/submit', data),
+    axiosInstance.post('/risk-analysis/submit', data),
 
   uploadRiskDocument: (file: File, sessionId: string) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('session_id', sessionId);
-    return axiosInstance.post('/api/v1/risk-analysis/upload', formData);
+    return axiosInstance.post('/risk-analysis/upload', formData);
   },
 
   startRiskAnalysis: (sessionId: string) =>
-    axiosInstance.post(`/api/v1/risk-analysis-v2/start/${sessionId}`),
+    axiosInstance.post(`/risk-analysis-v2/start/${sessionId}`),
 
   getRiskAnalysisStatus: (sessionId: string) =>
-    axiosInstance.get(`/api/v1/risk-analysis/status/${sessionId}`),
+    axiosInstance.get(`/risk-analysis/status/${sessionId}`),
 
   getRiskAnalysisResult: (sessionId: string) =>
-    axiosInstance.get(`/api/v1/risk-analysis/result/${sessionId}`),
+    axiosInstance.get(`/risk-analysis/result/${sessionId}`),
 
   // --- 知识图谱法律特征API（新增）---
   getKnowledgeGraphContractTypes: () =>
-    axiosInstance.get('/api/v1/knowledge-graph/contract-types'),
+    axiosInstance.get('/knowledge-graph/contract-types'),
 
   getKnowledgeGraphByKeywords: (query: string) =>
-    axiosInstance.post('/api/v1/knowledge-graph/search-by-keywords', { query }),
+    axiosInstance.post('/knowledge-graph/search-by-keywords', { query }),
 
   getKnowledgeGraphByCategory: (category: string, subcategory?: string) =>
-    axiosInstance.get(`/api/v1/knowledge-graph/categories/${category}/contract-types`, {
+    axiosInstance.get(`/knowledge-graph/categories/${category}/contract-types`, {
       params: subcategory ? { subcategory } : undefined
     }),
 
   getKnowledgeGraphLegalFeatures: (contractName: string) =>
-    axiosInstance.get(`/api/v1/knowledge-graph/legal-features/${contractName}`),
+    axiosInstance.get(`/knowledge-graph/legal-features/${contractName}`),
 
   // --- 全局搜索API ---
   globalSearch: (params: SearchParams) =>
-    axiosInstance.get('/api/v1/search/global', { params }),
+    axiosInstance.get('/search/global', { params }),
 
   // --- 通用 ---
   get: <T = any>(url: string, config?: AxiosRequestConfig) => axiosInstance.get(url, config),
