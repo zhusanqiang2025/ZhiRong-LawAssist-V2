@@ -205,7 +205,8 @@ app.mount("/storage", StaticFiles(directory="storage"), name="storage")
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-frontend_static_dir = os.path.join(os.path.dirname(__file__), "static", "frontend")
+# __file__ 是 /app/app/main.py，需要向上两级到 /app，然后进入 static/frontend
+frontend_static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "frontend"))
 
 # 挂载前端静态资源
 if os.path.exists(frontend_static_dir):
