@@ -6,7 +6,7 @@ variables:
   GIT_SSL_NO_VERIFY: 'true'
   BUILDKIT_PROGRESS: plain
   DEPLOY_SERVER_NAME: azgpu02/$CI_PROJECT_TITLE
-  DEPLOY_HTTP_PORT: 7860
+  DEPLOY_HTTP_PORT: 8000
 
 build_vendor_image:
   image: registry.cn-hangzhou.aliyuncs.com/sync/hub:docker
