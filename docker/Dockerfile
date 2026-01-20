@@ -45,13 +45,18 @@ FROM node:lts-alpine AS frontend-builder
 # 使用阿里云 Alpine 镜像源加速 apk 安装
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
+# 安装必要的构建工具（Python 用于 node-gyp 编译）
+RUN apk add --no-cache python3 make g++
+
 WORKDIR /app/frontend
 
 # 复制前端依赖文件
 COPY frontend/package*.json ./
 
-# 使用淘宝镜像源安装依赖
-RUN npm install --registry=https://registry.npmmirror.com
+# 配置 npm 并安装依赖
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set unsafe-perm true && \
+    npm ci --prefer-offline --no-audit
 
 # 复制前端源码
 COPY frontend/ ./
