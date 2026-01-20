@@ -63,7 +63,7 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL
 
 # 构建前端
-RUN npm run build
+RUN npx vite build
 
 
 # ============ Stage 3: 最终运行镜像（后端 + 前端） ============
