@@ -68,14 +68,21 @@ ENV VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL
 
 # 构建前端（使用 npm run build 并设置 NODE_ENV=production）
 ENV NODE_ENV=production
-RUN echo "=== Starting frontend build ===" && \
+RUN echo "=== Frontend Build Environment ===" && \
+    echo "NODE_ENV=$NODE_ENV" && \
     echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" && \
     echo "VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL" && \
+    echo "Node version: $(node --version)" && \
+    echo "NPM version: $(npm --version)" && \
+    echo "Working directory: $(pwd)" && \
+    echo "Files in directory:" && ls -la && \
+    echo "=== Installing dependencies ===" && \
+    npm install --legacy-peer-deps && \
+    echo "=== Building frontend ===" && \
     npm run build && \
-    echo "=== Build completed, checking output ===" && \
+    echo "=== Checking build output ===" && \
     ls -la dist/ && \
-    echo "=== dist/index.html exists: ===" && \
-    test -f dist/index.html && echo "YES" || echo "NO"
+    if [ -f dist/index.html ]; then echo "✓ Build SUCCESS"; else echo "✗ Build FAILED"; exit 1; fi
 
 
 # ============ Stage 3: 最终运行镜像（后端 + 前端） ============
