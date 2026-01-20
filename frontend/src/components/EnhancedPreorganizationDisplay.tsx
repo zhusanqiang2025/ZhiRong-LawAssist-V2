@@ -409,7 +409,7 @@ const EnhancedPreorganizationDisplay: React.FC<EnhancedPreorganizationDisplayPro
               </Space>
             }
             type="warning"
-            showIcon={<AlertOutlined />}
+            icon={<AlertOutlined />}
             closable
           />
         )}
@@ -419,7 +419,7 @@ const EnhancedPreorganizationDisplay: React.FC<EnhancedPreorganizationDisplayPro
             message="未识别到明显争议"
             description="根据文档分析，各方诉求相对一致，暂未识别到明显争议。"
             type="success"
-            showIcon={<CheckCircleOutlined />}
+            icon={<CheckCircleOutlined />}
           />
         )}
 

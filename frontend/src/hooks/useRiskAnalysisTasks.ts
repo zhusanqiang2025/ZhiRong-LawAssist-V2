@@ -21,7 +21,7 @@ import {
 } from '../utils/taskStorage';
 
 // 分析状态类型
-export type AnalysisStatus = 'idle' | 'analyzing' | 'completed' | 'failed';
+export type AnalysisStatus = 'idle' | 'pending' | 'analyzing' | 'completed' | 'failed';
 
 // 节点进度类型
 export type NodeProgressStatus = 'pending' | 'processing' | 'completed' | 'failed';
@@ -228,7 +228,9 @@ export function useRiskAnalysisTasks(): UseRiskAnalysisTasksResult {
    */
   const createTask = useCallback(async (params: CreateTaskParams): Promise<string | null> => {
     // 检查并发限制
-    const inProgressCount = getInProgressCount();
+    const inProgressCount = Array.from(tasks.values()).filter(
+      task => task.status === 'analyzing' || task.status === 'pending'
+    ).length;
     if (!canCreateNewTask(inProgressCount)) {
       message.warning(`已达到最大并发任务数（${getMaxConcurrentTasks()}），请等待现有任务完成`);
       return null;
@@ -307,7 +309,7 @@ export function useRiskAnalysisTasks(): UseRiskAnalysisTasksResult {
     } finally {
       setIsLoading(false);
     }
-  }, [handleWebSocketMessage, getInProgressCount, activeTaskId]);
+  }, [handleWebSocketMessage, tasks, activeTaskId]);
 
   /**
    * 切换活动任务
@@ -411,8 +413,11 @@ export function useRiskAnalysisTasks(): UseRiskAnalysisTasksResult {
    * 检查是否可以创建新任务
    */
   const canCreateNewCallback = useCallback((): boolean => {
-    return canCreateNewTask(getInProgressCount());
-  }, [getInProgressCount]);
+    const inProgressCount = Array.from(tasks.values()).filter(
+      task => task.status === 'analyzing' || task.status === 'pending'
+    ).length;
+    return canCreateNewTask(inProgressCount);
+  }, [tasks]);
 
   /**
    * 获取进行中的任务数

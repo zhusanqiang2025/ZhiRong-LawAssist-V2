@@ -184,6 +184,8 @@ interface ApiClient {
   getTemplatePreview: (templateId: string) => Promise<AxiosResponse<any>>;
   // 【新增】Step 2 LLM 提取接口
   extractModificationTerminationInfo: (data: { user_input: string; analysis_result?: any }) => Promise<AxiosResponse<any>>;
+  // --- 合同健康度评估 ---
+  getHealthAssessment: (contractId: number) => Promise<AxiosResponse<any>>;
 
   // --- 新增：合同规划专用接口 ---
   generateContractPlanOnly: (data: { user_input: string; planning_mode: string; uploaded_files?: File[]; session_id?: string }) => Promise<AxiosResponse<any>>;

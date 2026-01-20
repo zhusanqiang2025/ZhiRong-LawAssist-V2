@@ -168,6 +168,8 @@ export interface RiskRule {
   rule_name: string;
   rule_prompt: string;
   priority: number;
+  risk_type?: string;
+  default_risk_level?: 'low' | 'medium' | 'high' | 'critical';
 }
 
 // 规则包类型

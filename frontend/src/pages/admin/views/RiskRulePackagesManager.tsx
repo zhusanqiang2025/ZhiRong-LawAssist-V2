@@ -9,6 +9,7 @@ import {
   Modal,
   Form,
   Input,
+  InputNumber,
   Select,
   Switch,
   message,
@@ -19,8 +20,7 @@ import {
   Badge,
   Row,
   Col,
-  Typography,
-  NumberPicker
+  Typography
 } from 'antd';
 import {
   PlusOutlined,

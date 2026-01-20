@@ -753,11 +753,7 @@ const ContractReview: React.FC = () => {
 
       // ⭐ 显示任务已提交提示
       if (response.data.success) {
-        message.success({
-          content: '深度审查任务已提交',
-          description: '正在后台加载审查规则并分析合同...',
-          duration: 5
-        });
+        message.success('深度审查任务已提交，正在后台加载审查规则并分析合同...');
       }
 
       // 轮询结果
@@ -976,11 +972,7 @@ const ContractReview: React.FC = () => {
           "replaceString": searchQuery,
           "matchCase": false
         }).then(() => {
-          message.success({
-            content: `已定位到关键词: "${searchQuery}"`,
-            description: keywords.length > 1 ? `其他关键词: ${keywords.slice(1).join(', ')}` : '',
-            duration: 4
-          });
+          message.success(`已定位到关键词: "${searchQuery}"${keywords.length > 1 ? ` (其他: ${keywords.slice(1).join(', ')})` : ''}`);
         }).catch((err: any) => {
           console.warn('[高亮定位] executeMethod 失败:', err);
           // 降级到方法2
@@ -1050,17 +1042,9 @@ const ContractReview: React.FC = () => {
           }, (result: any) => {
             const nFoundCount = typeof result === 'number' ? result : 0;
             if (nFoundCount > 0) {
-              message.success({
-                content: `已定位到 ${nFoundCount} 处相关内容`,
-                description: `关键词: ${keywords.join(', ')}`,
-                duration: 4
-              });
+              message.success(`已定位到 ${nFoundCount} 处相关内容，关键词: ${keywords.join(', ')}`);
             } else {
-              message.info({
-                content: `未在文档中找到精确匹配`,
-                description: `建议关键词: ${keywords.join(', ')}`,
-                duration: 6
-              });
+              message.info(`未在文档中找到精确匹配，建议关键词: ${keywords.join(', ')}`);
             }
           });
           return;
@@ -1074,11 +1058,7 @@ const ContractReview: React.FC = () => {
 
     // 方法3: 最终降级 - 提示用户手动搜索
     setTimeout(() => {
-      message.info({
-        content: `💡 提示：请按 Ctrl+F 在文档中搜索`,
-        description: `建议关键词: ${keywords.join(', ')}`,
-        duration: 8
-      });
+      message.info(`💡 提示：请按 Ctrl+F 在文档中搜索，建议关键词: ${keywords.join(', ')}`);
     }, 800);
   };
 
@@ -1688,11 +1668,7 @@ const ContractReview: React.FC = () => {
           如果修改了合同内容或调整了审查参数，可以重新启动审查
         </p>
         <Space>
-          <Button type="primary" onClick={() => {
-            if (contractId) {
-              startDeepReview(contractId);
-            }
-          }}>
+          <Button type="primary" onClick={startDeepReview}>
             重新审查
           </Button>
           <Button onClick={() => {

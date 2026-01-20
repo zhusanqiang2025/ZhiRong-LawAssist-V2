@@ -14,7 +14,8 @@ import {
   Button,
   Collapse,
   Statistic,
-  Rate
+  Rate,
+  Badge
 } from 'antd';
 import {
   CheckCircleOutlined,

@@ -182,7 +182,8 @@ const PerspectiveSelector: React.FC<PerspectiveSelectorProps> = ({
           category: pkg.package_category as RulePackageCategory,
           description: pkg.description,
           rule_count: pkg.rules?.length || 0,
-          is_active: pkg.is_active
+          is_active: pkg.is_active,
+          priority: 0  // 默认优先级
         }));
       setAvailablePackages(packages);
     } catch (err: any) {
