@@ -1,0 +1,81 @@
+# backend/requirements_core.txt (核心依赖版)
+# 仅包含应用运行的最基本依赖
+
+# Web框架与服务
+fastapi==0.115.0
+uvicorn[standard]==0.24.0
+
+# 安全与限流
+slowapi==0.1.9
+redis==7.1.0
+
+# 配置与数据模型
+pydantic==2.8.2
+pydantic-settings==2.4.0
+python-dotenv==1.0.0
+
+# 外部服务连接
+requests
+httpx==0.27.0
+
+# 文件处理
+python-multipart==0.0.9
+aiofiles
+python-docx==1.1.0
+pdfplumber==0.11.0
+
+# PDF 处理和 OCR
+pymupdf  # PyMuPDF - 用于 PDF 文字提取和页面渲染
+# rapidocr_onnxruntime  # 注释：需要系统 OpenGL 库支持 (libGL.so.1)
+# OCR 文字识别（需要系统依赖）
+pytesseract  # 需要 tesseract-ocr (已在 Dockerfile 中添加)
+Pillow  # pytesseract 依赖，用于图像处理
+
+# 文件编码检测
+chardet  # 文件编码检测
+
+# --- 数据库、认证与迁移 ---
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# --- 核心修复 ---
+passlib==1.7.4
+bcrypt==4.2.0
+python-jose[cryptography]
+PyJWT>=2.0.0
+
+# LangChain核心依赖（使用兼容版本）
+langchain==0.3.10
+langchain-core==0.3.22
+langchain-openai==0.2.1
+langchain-community==0.3.0
+langgraph==0.2.45
+langgraph-checkpoint==2.0.0
+
+# --- RAG 依赖 ---
+# 向量数据库
+chromadb>=0.4.22
+langchain-chroma==0.1.4  # Chroma 向量数据库 LangChain 集成
+# 文档解析增强
+unstructured[local-inference]==0.14.0
+
+# --- 文档格式转换 ---
+pypandoc  # 文档格式转换（需要系统 pandoc）
+pdf2docx  # PDF 转 DOCX
+htmldocx  # HTML 转 DOCX
+
+# --- OCR ---
+rapidocr_onnxruntime  # OCR 文字识别
+rapidocr_pdf  # PDF OCR 识别
+
+# 邮件验证
+email-validator==2.1.0
+
+# --- 图表生成 ---
+mermaid-py==0.5.0  # Mermaid.js Python 封装
+graphviz==0.20.3   # Graphviz Python 封装
+# cairosvg==2.7.1  # SVG 转 PNG（可选，需要额外系统依赖）
+
+# --- 网络检索 ---
+duckduckgo-search==6.2.6  # 法律信息检索

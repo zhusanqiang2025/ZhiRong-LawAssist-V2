@@ -1,0 +1,24 @@
+{
+  "name": "合同审查增强插件",
+  "nameLocale": {
+    "zh": "合同审查增强插件",
+    "en": "Contract Review Plugin"
+  },
+  "guid": "FADF8F0B-0C89-43C4-8016-2F2316A9E9E1",
+  "version": "1.0.0",
+  "minVersion": "7.0",
+  "variations": [
+    {
+      "description": "合同审查功能：高亮定位原文、应用修订建议",
+      "url": "index.html",
+      "icons": [ "icon.png", "icon@2x.png" ],
+      "isViewer": false,
+      "EditorsSupport": [ "word" ],
+      "isSystem": false,
+      "isVisual": true,
+      "initDataType": "none",
+      "initData": "",
+      "buttons": []
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+# 使用官方Python运行时作为基础镜像
+FROM registry.cn-hangzhou.aliyuncs.com/zhuoxiangqy/docker.io:python_3.11-bookworm
+
+# 设置工作目录
+WORKDIR /app
+
+# 设置时区为中国时区
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN sed -i 's|deb.debian.org|mirrors.cloud.tencent.com|g' /etc/apt/sources.list.d/debian.sources
+
+# 安装基础依赖包和处理库（作为构建步骤的一部分，优化镜像构建）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # 字体支持
+    fonts-noto-cjk \
+    libfontconfig1 \
+    fontconfig \
+    # 图像处理库
+    libjpeg-dev \
+    libpng-dev \
+    libtiff-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libwebp-dev \
+    zlib1g-dev \
+    libopenjp2-7-dev \
+    # 网络工具
+    curl \
+    wget \
+    ca-certificates \
+    # 文件监控工具
+    inotify-tools \
+    # 系统工具
+    locales \
+    tzdata \
+    # Python编译依赖
+    build-essential \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# 复制requirements文件
+COPY requirements.txt .
+
+# 安装Python依赖（运行时环境）
+RUN pip config set global.index-url https://mirrors.cloud.tencent.com/pypi/simple \
+    && pip install --no-cache-dir -r requirements.txt
+
+# 暴露端口
+EXPOSE 7860
+
+# 设置环境变量
+ENV PYTHONUNBUFFERED=1
+ENV GRADIO_SERVER_NAME=0.0.0.0
+ENV GRADIO_SERVER_PORT=7860

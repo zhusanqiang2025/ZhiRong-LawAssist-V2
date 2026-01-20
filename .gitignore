@@ -1,0 +1,127 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# 环境
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 日志文件
+*.log
+logs/
+*.log.*
+logs.txt
+
+# 临时文件
+*.tmp
+*.temp
+tmpclaude-*
+nul
+.cache/
+.temp/
+
+# 生成的图片（保留部分必要的）
+assets/test_new_image_*.jpg
+assets/test.png
+assets/*.tmp
+*.jpg
+*.jpeg
+*.png
+!template/**/*.png
+!template/**/*.jpg
+!template/**/*.otf
+!test_template.png
+!test.png
+
+# 备份文件
+*.bak
+*.backup
+*~
+.~*
+
+# Excel和报告（测试数据）
+*.xlsx
+reports/
+*.xls
+
+# 文档草稿（可选，根据需求删除）
+# 如果某些文档需要提交，可以在这里添加白名单
+docs/history/
+*.md.bak
+
+# 系统文件
+Thumbs.db
+.DS_Store
+*.lnk
+
+# Docker构建产物
+docker-compose.override.yml
+
+# 压缩文件
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# 敏感信息
+api_keys.json
+.env.local
+.env.production
+secrets.json
+
+# Python相关
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# 其他临时目录
+模版/
+.cursor/
+.superdesign/
+.xibao_backup/

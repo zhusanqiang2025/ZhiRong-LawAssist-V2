@@ -1,0 +1,86 @@
+/* frontend/src/pages/DocumentProcessingPage.css */
+.document-processing-page {
+  padding: 0;
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.document-processing-page .ant-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.document-processing-page .ant-card-head-title {
+  font-weight: 600;
+}
+
+.document-processing-page .ant-tabs-tab {
+  font-size: 15px !important;
+  padding: 12px 24px !important;
+}
+
+.document-processing-page .ant-upload-drag {
+  border-radius: 8px !important;
+  background: #fafafa;
+}
+
+.document-processing-page .ant-upload-drag:hover {
+  border-color: #1890ff;
+}
+
+.document-processing-page .ant-list-item {
+  padding: 16px 24px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+}
+
+.document-processing-page .ant-descriptions-item-label {
+  font-weight: 500;
+  background: #fafafa;
+}
+
+/* Tab 内容区域样式 */
+.document-processing-page .preprocess-tab,
+.document-processing-page .editing-tab,
+.document-processing-page .compare-tab {
+  padding: 8px 0;
+}
+
+/* 文件上传区域 */
+.document-processing-page .ant-upload-drag-icon {
+  margin: 20px 0;
+}
+
+/* Progress 样式 */
+.document-processing-page .ant-progress-line {
+  margin: 8px 0;
+}
+
+/* Tag 样式 */
+.document-processing-page .ant-tag {
+  margin-right: 8px;
+}
+
+/* Steps 卡片样式 */
+.document-processing-page .ant-card[style*="width: 32px"] {
+  transition: all 0.3s;
+}
+
+.document-processing-page .ant-card[style*="width: 32px"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .document-processing-page .ant-col {
+    margin-bottom: 16px;
+  }
+
+  .document-processing-page .ant-tabs-tab {
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+  }
+}

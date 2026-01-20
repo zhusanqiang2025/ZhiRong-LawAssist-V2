@@ -1,0 +1,18 @@
+# docker-compose.build.yml - 专门用于构建的配置
+# 使用方法：docker-compose -f docker-compose.build.yml build --no-cache frontend
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=http://localhost:8000
+        - VITE_ONLYOFFICE_URL=http://localhost:8082
+      # 强制禁用缓存
+      cache_from: []
+      # 添加构建时标签，便于追踪
+      labels:
+        - "build.timestamp=${TIMESTAMP}"
+    image: legal_document_assistantv3-frontend:latest
+    # 确保使用最新镜像
+    pull_policy: build

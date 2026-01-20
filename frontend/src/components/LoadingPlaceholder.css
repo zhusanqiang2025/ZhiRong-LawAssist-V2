@@ -1,0 +1,39 @@
+@keyframes pulse {
+    0% {
+        background-color: #f0f2f5;
+    }
+    50% {
+        background-color: #e6e8eb;
+    }
+    100% {
+        background-color: #f0f2f5;
+    }
+}
+
+.placeholder-card .ant-card-head-title {
+    color: var(--text-color-light);
+}
+
+.placeholder-content {
+    padding: 16px;
+}
+
+.placeholder-line {
+    height: 16px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.placeholder-line.title-line {
+    height: 24px;
+    width: 60%;
+    margin-bottom: 32px;
+}
+
+.placeholder-line.short-line {
+    width: 70%;
+}
+.placeholder-line.medium-line {
+    width: 85%;
+}

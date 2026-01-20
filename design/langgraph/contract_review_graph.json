@@ -1,0 +1,78 @@
+{
+  "graph": {
+    "id": "contract-review-poc",
+    "version": "0.1",
+    "nodes": [
+      {
+        "id": "ingest_upload",
+        "type": "http_endpoint",
+        "config": { "path": "/api/contract/upload", "method": "POST" },
+        "outputs": ["save_file"]
+      },
+      {
+        "id": "save_file",
+        "type": "filesystem_write",
+        "config": { "base_path": "storage/uploads" },
+        "outputs": ["try_docx_parse","convert_to_pdf"]
+      },
+      {
+        "id": "try_docx_parse",
+        "type": "python_call",
+        "config": { "module": "backend.app.services.contract_review_service", "fn": "extract_from_docx_if_possible" },
+        "outputs": ["metadata_extracted","convert_to_pdf"]
+      },
+      {
+        "id": "convert_to_pdf",
+        "type": "python_call",
+        "config": { "module": "backend.app.services.converter", "fn": "convert_to_pdf_fallback" },
+        "outputs": ["pdf_ready"]
+      },
+      {
+        "id": "metadata_extracted",
+        "type": "decision",
+        "config": { "condition": "metadata != null" },
+        "outputs": ["persist_metadata","start_review"]
+      },
+      {
+        "id": "persist_metadata",
+        "type": "db_write",
+        "config": { "table": "contract_metadata" },
+        "outputs": ["start_review"]
+      },
+      {
+        "id": "start_review",
+        "type": "llm_chain",
+        "config": { "provider": "DeepSeek", "prompt_template": "contract_review_prompt_v1" },
+        "outputs": ["persist_review_results"]
+      },
+      {
+        "id": "persist_review_results",
+        "type": "db_write",
+        "config": { "table": "review_items" },
+        "outputs": ["notify_frontend"]
+      },
+      {
+        "id": "notify_frontend",
+        "type": "http_callback",
+        "config": { "path": "/api/contract/{id}/review-results", "method": "POST" }
+      }
+    ],
+    "connections": [
+      ["ingest_upload","save_file"],
+      ["save_file","try_docx_parse"],
+      ["save_file","convert_to_pdf"],
+      ["try_docx_parse","metadata_extracted"],
+      ["convert_to_pdf","pdf_ready"],
+      ["metadata_extracted","persist_metadata"],
+      ["persist_metadata","start_review"],
+      ["start_review","persist_review_results"],
+      ["persist_review_results","notify_frontend"]
+    ],
+    "secrets": ["DEEPSEEK_API_KEY","ONLYOFFICE_JWT_SECRET"],
+    "metadata": {
+      "description": "LangGraph draft mapping contract upload -> metadata extraction -> LLM review -> persist -> notify",
+      "author": "copilot",
+      "created_at": "2025-12-23T00:00:00+08:00"
+    }
+  }
+}

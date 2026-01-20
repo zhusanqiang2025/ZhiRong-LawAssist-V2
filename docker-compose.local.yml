@@ -1,0 +1,28 @@
+# docker-compose.local.yml - 本地开发版本
+# 使用轻量级配置，避免网络问题
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: legal_doc_redis_local
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.local
+    container_name: legal_doc_backend_local
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./backend/.env:/app/.env
+    environment:
+      - REDIS_HOST=host.docker.internal
+      - DATABASE_URL=sqlite:///./app.db  # 使用SQLite简化部署
+    depends_on:
+      - redis
+    restart: unless-stopped
+    command: ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

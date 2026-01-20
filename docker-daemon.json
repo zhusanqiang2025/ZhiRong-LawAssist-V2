@@ -1,0 +1,13 @@
+{
+  "registry-mirrors": [
+    "https://docker.m.daocloud.io",
+    "https://dockerhub.icu",
+    "https://docker.1panel.live",
+    "https://hub.rat.dev",
+    "https://docker.chenby.cn",
+    "https://docker.mirrors.ustc.edu.cn"
+  ],
+  "insecure-registries": [],
+  "debug": false,
+  "experimental": false
+}

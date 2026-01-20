@@ -1,0 +1,614 @@
+[
+  {
+    "template_info": {
+      "file_path": "E:\\legal_document_assistant v3\\backend\\..\\storage\\templates\\markdown\\f7952fb9-a085-4593-a0b6-13b0ce6af9e5.md",
+      "relative_path": "..\\storage\\templates\\markdown\\f7952fb9-a085-4593-a0b6-13b0ce6af9e5.md",
+      "filename": "f7952fb9-a085-4593-a0b6-13b0ce6af9e5.md",
+      "size": 5085,
+      "name_hint": ""
+    },
+    "match_result": {
+      "matched": true,
+      "contract_type": "不动产买卖合同",
+      "match_method": "alias_match",
+      "match_score": 0.7,
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "不动产",
+        "complexity": "中等",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "卖方转移不动产所有权，买方支付价款，需办理登记交付",
+        "usage_scenario": "个人或企业买卖房产、土地等不动产",
+        "legal_basis": [
+          "民法典第595条",
+          "民法典第209条"
+        ]
+      },
+      "extracted_structure": null
+    },
+    "extracted_structure": {
+      "sections": [],
+      "clauses": {
+        "保密条款": false,
+        "违约责任": true,
+        "争议解决": true,
+        "终止解除": false,
+        "不可抗力": false,
+        "通知条款": false,
+        "适用法律": false,
+        "生效条件": false,
+        "变更修改": false,
+        "权利义务": true,
+        "付款条款": true,
+        "交付条款": false,
+        "质量条款": false,
+        "知识产权": false,
+        "保证陈述": true,
+        "赔偿条款": false,
+        "转让条款": false,
+        "分包条款": false,
+        "竞业限制": false,
+        "劳动保护": false,
+        "保险条款": false,
+        "担保条款": true,
+        "利息条款": true
+      },
+      "key_terms": {
+        "主体": [],
+        "标的": [],
+        "期限": [
+          "自借款实际放款之日起【 】个月。借款实际放款之日"
+        ],
+        "金额": [
+          "借款人民币【 】万元整（大写：人民币【 】"
+        ]
+      },
+      "structure_summary": "包含 7 个标准条款: 违约责任, 争议解决, 权利义务, 付款条款, 保证陈述, 担保条款, 利息条款"
+    }
+  },
+  {
+    "template_info": {
+      "file_path": "E:\\legal_document_assistant v3\\backend\\..\\storage\\templates\\6393c1f12e4b4099b6f2e5b61d8743ca.md",
+      "relative_path": "..\\storage\\templates\\6393c1f12e4b4099b6f2e5b61d8743ca.md",
+      "filename": "6393c1f12e4b4099b6f2e5b61d8743ca.md",
+      "size": 15813,
+      "name_hint": ""
+    },
+    "match_result": {
+      "matched": true,
+      "contract_type": "不动产买卖合同",
+      "match_method": "alias_match",
+      "match_score": 0.7,
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "不动产",
+        "complexity": "中等",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "卖方转移不动产所有权，买方支付价款，需办理登记交付",
+        "usage_scenario": "个人或企业买卖房产、土地等不动产",
+        "legal_basis": [
+          "民法典第595条",
+          "民法典第209条"
+        ]
+      },
+      "extracted_structure": null
+    },
+    "extracted_structure": {
+      "sections": [
+        {
+          "level": 1,
+          "title": "存量房屋买卖合同"
+        },
+        {
+          "level": 2,
+          "title": "第一部分 房屋情况"
+        },
+        {
+          "level": 3,
+          "title": "房屋情况"
+        },
+        {
+          "level": 2,
+          "title": "第二部分 房款、税费等"
+        },
+        {
+          "level": 3,
+          "title": "房款"
+        },
+        {
+          "level": 3,
+          "title": "付款方式"
+        },
+        {
+          "level": 3,
+          "title": "税费"
+        },
+        {
+          "level": 3,
+          "title": "专项维修资金"
+        },
+        {
+          "level": 2,
+          "title": "第三部分 房屋网签、过户与交付"
+        },
+        {
+          "level": 3,
+          "title": "房屋网签备案"
+        },
+        {
+          "level": 3,
+          "title": "房屋过户登记"
+        },
+        {
+          "level": 3,
+          "title": "房屋交付时间"
+        },
+        {
+          "level": 3,
+          "title": "房屋交付"
+        },
+        {
+          "level": 3,
+          "title": "户口及相关登记"
+        },
+        {
+          "level": 3,
+          "title": "合同变更与解除"
+        },
+        {
+          "level": 2,
+          "title": "第四部分 违约责任"
+        },
+        {
+          "level": 2,
+          "title": "第五部分 配套条款"
+        },
+        {
+          "level": 3,
+          "title": "其他约定"
+        },
+        {
+          "level": 3,
+          "title": "合同联系方式"
+        },
+        {
+          "level": 3,
+          "title": "争议解决"
+        },
+        {
+          "level": 3,
+          "title": "附则"
+        }
+      ],
+      "clauses": {
+        "保密条款": false,
+        "违约责任": true,
+        "争议解决": true,
+        "终止解除": true,
+        "不可抗力": true,
+        "通知条款": true,
+        "适用法律": false,
+        "生效条件": true,
+        "变更修改": true,
+        "权利义务": true,
+        "付款条款": true,
+        "交付条款": true,
+        "质量条款": false,
+        "知识产权": false,
+        "保证陈述": false,
+        "赔偿条款": false,
+        "转让条款": true,
+        "分包条款": false,
+        "竞业限制": false,
+        "劳动保护": false,
+        "保险条款": false,
+        "担保条款": true,
+        "利息条款": true
+      },
+      "key_terms": {
+        "主体": [],
+        "标的": [],
+        "期限": [
+          "15天"
+        ],
+        "金额": [
+          "元，",
+          "人，"
+        ]
+      },
+      "structure_summary": "包含 21 个章节: 存量房屋买卖合同, 第一部分 房屋情况, 房屋情况, 第二部分 房款、税费等, 房款; 包含 13 个标准条款: 违约责任, 争议解决, 终止解除, 不可抗力, 通知条款, 生效条件, 变更修改, 权利义务"
+    }
+  },
+  {
+    "template_info": {
+      "file_path": "E:\\legal_document_assistant v3\\backend\\..\\storage\\templates\\e88bf481f4fd499da76b7b8313e3d4e7.md",
+      "relative_path": "..\\storage\\templates\\e88bf481f4fd499da76b7b8313e3d4e7.md",
+      "filename": "e88bf481f4fd499da76b7b8313e3d4e7.md",
+      "size": 5095,
+      "name_hint": ""
+    },
+    "match_result": {
+      "matched": true,
+      "contract_type": "不动产买卖合同",
+      "match_method": "alias_match",
+      "match_score": 0.7,
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "不动产",
+        "complexity": "中等",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "卖方转移不动产所有权，买方支付价款，需办理登记交付",
+        "usage_scenario": "个人或企业买卖房产、土地等不动产",
+        "legal_basis": [
+          "民法典第595条",
+          "民法典第209条"
+        ]
+      },
+      "extracted_structure": null
+    },
+    "extracted_structure": {
+      "sections": [
+        {
+          "level": 1,
+          "title": "第六条 权利义务"
+        },
+        {
+          "level": 1,
+          "title": "第七条 担保"
+        },
+        {
+          "level": 1,
+          "title": "第八条 其他"
+        }
+      ],
+      "clauses": {
+        "保密条款": false,
+        "违约责任": true,
+        "争议解决": true,
+        "终止解除": false,
+        "不可抗力": false,
+        "通知条款": false,
+        "适用法律": false,
+        "生效条件": false,
+        "变更修改": false,
+        "权利义务": true,
+        "付款条款": true,
+        "交付条款": false,
+        "质量条款": false,
+        "知识产权": false,
+        "保证陈述": true,
+        "赔偿条款": false,
+        "转让条款": false,
+        "分包条款": false,
+        "竞业限制": false,
+        "劳动保护": false,
+        "保险条款": false,
+        "担保条款": true,
+        "利息条款": true
+      },
+      "key_terms": {
+        "主体": [],
+        "标的": [],
+        "期限": [
+          "自借款实际放款之日起【 】个月。借款实际放款之日"
+        ],
+        "金额": [
+          "借款人民币【 】万元整（大写：人民币【 】"
+        ]
+      },
+      "structure_summary": "包含 3 个章节: 第六条 权利义务, 第七条 担保, 第八条 其他; 包含 7 个标准条款: 违约责任, 争议解决, 权利义务, 付款条款, 保证陈述, 担保条款, 利息条款"
+    }
+  },
+  {
+    "template_info": {
+      "file_path": "E:\\legal_document_assistant v3\\storage\\templates\\markdown\\f7952fb9-a085-4593-a0b6-13b0ce6af9e5.md",
+      "relative_path": "..\\storage\\templates\\markdown\\f7952fb9-a085-4593-a0b6-13b0ce6af9e5.md",
+      "filename": "f7952fb9-a085-4593-a0b6-13b0ce6af9e5.md",
+      "size": 5085,
+      "name_hint": ""
+    },
+    "match_result": {
+      "matched": true,
+      "contract_type": "不动产买卖合同",
+      "match_method": "alias_match",
+      "match_score": 0.7,
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "不动产",
+        "complexity": "中等",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "卖方转移不动产所有权，买方支付价款，需办理登记交付",
+        "usage_scenario": "个人或企业买卖房产、土地等不动产",
+        "legal_basis": [
+          "民法典第595条",
+          "民法典第209条"
+        ]
+      },
+      "extracted_structure": null
+    },
+    "extracted_structure": {
+      "sections": [],
+      "clauses": {
+        "保密条款": false,
+        "违约责任": true,
+        "争议解决": true,
+        "终止解除": false,
+        "不可抗力": false,
+        "通知条款": false,
+        "适用法律": false,
+        "生效条件": false,
+        "变更修改": false,
+        "权利义务": true,
+        "付款条款": true,
+        "交付条款": false,
+        "质量条款": false,
+        "知识产权": false,
+        "保证陈述": true,
+        "赔偿条款": false,
+        "转让条款": false,
+        "分包条款": false,
+        "竞业限制": false,
+        "劳动保护": false,
+        "保险条款": false,
+        "担保条款": true,
+        "利息条款": true
+      },
+      "key_terms": {
+        "主体": [],
+        "标的": [],
+        "期限": [
+          "自借款实际放款之日起【 】个月。借款实际放款之日"
+        ],
+        "金额": [
+          "借款人民币【 】万元整（大写：人民币【 】"
+        ]
+      },
+      "structure_summary": "包含 7 个标准条款: 违约责任, 争议解决, 权利义务, 付款条款, 保证陈述, 担保条款, 利息条款"
+    }
+  },
+  {
+    "template_info": {
+      "file_path": "E:\\legal_document_assistant v3\\storage\\templates\\6393c1f12e4b4099b6f2e5b61d8743ca.md",
+      "relative_path": "..\\storage\\templates\\6393c1f12e4b4099b6f2e5b61d8743ca.md",
+      "filename": "6393c1f12e4b4099b6f2e5b61d8743ca.md",
+      "size": 15813,
+      "name_hint": ""
+    },
+    "match_result": {
+      "matched": true,
+      "contract_type": "不动产买卖合同",
+      "match_method": "alias_match",
+      "match_score": 0.7,
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "不动产",
+        "complexity": "中等",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "卖方转移不动产所有权，买方支付价款，需办理登记交付",
+        "usage_scenario": "个人或企业买卖房产、土地等不动产",
+        "legal_basis": [
+          "民法典第595条",
+          "民法典第209条"
+        ]
+      },
+      "extracted_structure": null
+    },
+    "extracted_structure": {
+      "sections": [
+        {
+          "level": 1,
+          "title": "存量房屋买卖合同"
+        },
+        {
+          "level": 2,
+          "title": "第一部分 房屋情况"
+        },
+        {
+          "level": 3,
+          "title": "房屋情况"
+        },
+        {
+          "level": 2,
+          "title": "第二部分 房款、税费等"
+        },
+        {
+          "level": 3,
+          "title": "房款"
+        },
+        {
+          "level": 3,
+          "title": "付款方式"
+        },
+        {
+          "level": 3,
+          "title": "税费"
+        },
+        {
+          "level": 3,
+          "title": "专项维修资金"
+        },
+        {
+          "level": 2,
+          "title": "第三部分 房屋网签、过户与交付"
+        },
+        {
+          "level": 3,
+          "title": "房屋网签备案"
+        },
+        {
+          "level": 3,
+          "title": "房屋过户登记"
+        },
+        {
+          "level": 3,
+          "title": "房屋交付时间"
+        },
+        {
+          "level": 3,
+          "title": "房屋交付"
+        },
+        {
+          "level": 3,
+          "title": "户口及相关登记"
+        },
+        {
+          "level": 3,
+          "title": "合同变更与解除"
+        },
+        {
+          "level": 2,
+          "title": "第四部分 违约责任"
+        },
+        {
+          "level": 2,
+          "title": "第五部分 配套条款"
+        },
+        {
+          "level": 3,
+          "title": "其他约定"
+        },
+        {
+          "level": 3,
+          "title": "合同联系方式"
+        },
+        {
+          "level": 3,
+          "title": "争议解决"
+        },
+        {
+          "level": 3,
+          "title": "附则"
+        }
+      ],
+      "clauses": {
+        "保密条款": false,
+        "违约责任": true,
+        "争议解决": true,
+        "终止解除": true,
+        "不可抗力": true,
+        "通知条款": true,
+        "适用法律": false,
+        "生效条件": true,
+        "变更修改": true,
+        "权利义务": true,
+        "付款条款": true,
+        "交付条款": true,
+        "质量条款": false,
+        "知识产权": false,
+        "保证陈述": false,
+        "赔偿条款": false,
+        "转让条款": true,
+        "分包条款": false,
+        "竞业限制": false,
+        "劳动保护": false,
+        "保险条款": false,
+        "担保条款": true,
+        "利息条款": true
+      },
+      "key_terms": {
+        "主体": [],
+        "标的": [],
+        "期限": [
+          "15天"
+        ],
+        "金额": [
+          "元，",
+          "人，"
+        ]
+      },
+      "structure_summary": "包含 21 个章节: 存量房屋买卖合同, 第一部分 房屋情况, 房屋情况, 第二部分 房款、税费等, 房款; 包含 13 个标准条款: 违约责任, 争议解决, 终止解除, 不可抗力, 通知条款, 生效条件, 变更修改, 权利义务"
+    }
+  },
+  {
+    "template_info": {
+      "file_path": "E:\\legal_document_assistant v3\\storage\\templates\\e88bf481f4fd499da76b7b8313e3d4e7.md",
+      "relative_path": "..\\storage\\templates\\e88bf481f4fd499da76b7b8313e3d4e7.md",
+      "filename": "e88bf481f4fd499da76b7b8313e3d4e7.md",
+      "size": 5095,
+      "name_hint": ""
+    },
+    "match_result": {
+      "matched": true,
+      "contract_type": "不动产买卖合同",
+      "match_method": "alias_match",
+      "match_score": 0.7,
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "不动产",
+        "complexity": "中等",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "卖方转移不动产所有权，买方支付价款，需办理登记交付",
+        "usage_scenario": "个人或企业买卖房产、土地等不动产",
+        "legal_basis": [
+          "民法典第595条",
+          "民法典第209条"
+        ]
+      },
+      "extracted_structure": null
+    },
+    "extracted_structure": {
+      "sections": [
+        {
+          "level": 1,
+          "title": "第六条 权利义务"
+        },
+        {
+          "level": 1,
+          "title": "第七条 担保"
+        },
+        {
+          "level": 1,
+          "title": "第八条 其他"
+        }
+      ],
+      "clauses": {
+        "保密条款": false,
+        "违约责任": true,
+        "争议解决": true,
+        "终止解除": false,
+        "不可抗力": false,
+        "通知条款": false,
+        "适用法律": false,
+        "生效条件": false,
+        "变更修改": false,
+        "权利义务": true,
+        "付款条款": true,
+        "交付条款": false,
+        "质量条款": false,
+        "知识产权": false,
+        "保证陈述": true,
+        "赔偿条款": false,
+        "转让条款": false,
+        "分包条款": false,
+        "竞业限制": false,
+        "劳动保护": false,
+        "保险条款": false,
+        "担保条款": true,
+        "利息条款": true
+      },
+      "key_terms": {
+        "主体": [],
+        "标的": [],
+        "期限": [
+          "自借款实际放款之日起【 】个月。借款实际放款之日"
+        ],
+        "金额": [
+          "借款人民币【 】万元整（大写：人民币【 】"
+        ]
+      },
+      "structure_summary": "包含 3 个章节: 第六条 权利义务, 第七条 担保, 第八条 其他; 包含 7 个标准条款: 违约责任, 争议解决, 权利义务, 付款条款, 保证陈述, 担保条款, 利息条款"
+    }
+  }
+]

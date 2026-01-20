@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>合同审查插件</title>
+    <script type="text/javascript" src="pluginBase.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #plugin-container {
+            padding: 16px;
+            background: #fff;
+        }
+        .search-box {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        .search-box label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #262626;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .btn {
+            padding: 6px 16px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn:hover {
+            background: #40a9ff;
+        }
+        .btn-success {
+            background: #52c41a;
+        }
+        .btn-success:hover {
+            background: #73d13d;
+        }
+        .status {
+            padding: 8px 12px;
+            background: #f0f5ff;
+            border: 1px solid #adc6ff;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1890ff;
+            margin-top: 12px;
+        }
+        .status.success {
+            background: #f6ffed;
+            border-color: #b7eb8f;
+            color: #52c41a;
+        }
+        .status.error {
+            background: #fff2f0;
+            border-color: #ffccc7;
+            color: #ff4d4f;
+        }
+        .status.warning {
+            background: #fffbe6;
+            border-color: #ffe58f;
+            color: #faad14;
+        }
+        textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-family: inherit;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div id="plugin-container">
+        <h3 style="margin-top: 0; color: #262626;">⚖️ 合同审查工具</h3>
+
+        <div class="search-box">
+            <label>🔍 搜索并高亮原文</label>
+            <input type="text" id="searchInput" placeholder="输入要搜索的文本..." />
+            <button class="btn" id="searchBtn">搜索并高亮</button>
+        </div>
+
+        <div class="search-box">
+            <label>📝 应用修订建议</label>
+            <textarea id="originalText" rows="2" placeholder="原文（将被删除）..."></textarea>
+            <textarea id="newText" rows="2" placeholder="建议文本（将被添加）..." style="margin-top: 8px;"></textarea>
+            <button class="btn btn-success" id="applyRevisionBtn" style="margin-top: 8px;">应用修订</button>
+        </div>
+
+        <div id="status" class="status">
+            插件已就绪
+        </div>
+    </div>
+
+    <script type="text/javascript" src="code.js"></script>
+</body>
+</html>

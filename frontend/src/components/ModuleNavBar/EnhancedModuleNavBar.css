@@ -1,0 +1,29 @@
+/* frontend/src/components/ModuleNavBar/EnhancedModuleNavBar.css */
+.enhanced-module-navbar {
+  height: 56px;
+  flex-shrink: 0;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  z-index: 100;
+}
+
+.navbar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #262626;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .enhanced-module-navbar {
+    padding: 0 12px;
+  }
+}

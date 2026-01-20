@@ -1,0 +1,87 @@
+/* 消息行布局 */
+.message-row {
+  display: flex;
+  margin-bottom: 24px;
+  align-items: flex-start;
+}
+
+.message-row.user-row {
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  margin: 0 12px;
+}
+
+.message-bubble-container {
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-row .message-bubble-container {
+  align-items: flex-end;
+}
+
+.message-sender-name {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+/* 气泡样式 */
+.message-bubble {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  position: relative;
+  word-wrap: break-word;
+}
+
+.message-bubble.user {
+  background-color: #1890ff;
+  color: white;
+  border-bottom-right-radius: 2px;
+}
+
+.message-bubble.assistant, 
+.message-bubble.assistant_specialist {
+  background-color: #fff;
+  border: 1px solid #e8e8e8;
+  border-bottom-left-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* 确认卡片特殊样式 */
+.confirmation-card {
+  min-width: 300px;
+}
+
+/* 打字动画 */
+.typing span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: #999;
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing span:nth-child(1) { animation-delay: 0s; }
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+
+/* Markdown 样式微调 */
+.markdown-body p {
+  margin-bottom: 8px;
+}
+.markdown-body ul {
+  padding-left: 1.5em;
+}

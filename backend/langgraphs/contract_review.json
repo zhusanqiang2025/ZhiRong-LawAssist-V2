@@ -1,0 +1,23 @@
+{
+  "name": "contract_review_simple",
+  "description": "Minimal LangGraph spec for contract review: extract metadata then deep review.",
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "extract_metadata",
+      "name": "Extract Metadata",
+      "params": {}
+    },
+    {
+      "id": "n2",
+      "type": "deep_review",
+      "name": "Deep Review",
+      "params": {
+        "stance": "甲方"
+      }
+    }
+  ],
+  "edges": [
+    { "from": "n1", "to": "n2" }
+  ]
+}

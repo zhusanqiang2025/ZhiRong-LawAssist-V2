@@ -1,0 +1,303 @@
+# docker-compose.yml (v4.8 - Celery服务已注释，使用旧系统)
+services:
+  db:
+    image: pgvector/pgvector:pg15
+    container_name: legal_assistant_v3_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-legal_assistant_db}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme_secure_password_123}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d legal_assistant_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: legal_assistant_v3_redis
+    command: redis-server --appendonly yes
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ==================== Celery Worker 服务 (已注释) ====================
+  # 注意：以下 Celery 服务需要先构建镜像安装依赖后才能启动
+  # 当前 CELERY_ENABLED=false，使用旧系统，不需要启动这些服务
+  #
+  # 启用 Celery 的步骤：
+  # 1. 运行：docker-compose build backend
+  # 2. 取消下面所有 celery-* 服务的注释
+  # 3. 修改 .env 中的 CELERY_ENABLED=true
+  # 4. 运行：docker-compose up -d
+
+  # celery-worker-high:
+  #   container_name: legal_assistant_v3_celery_worker_high
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   env_file: .env
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #     - WORKER_NAME=worker-high
+  #     - LANGCHAIN_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+  #     - LANGCHAIN_API_BASE_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
+  #     - MODEL_NAME=Qwen3-235B-A22B-Thinking-2507
+  #     - OPENAI_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+  #     - OPENAI_API_BASE=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
+  #   volumes:
+  #     - ./backend:/app:rw
+  #     - ./storage:/app/storage:rw
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #     db:
+  #       condition: service_healthy
+  #   command: >
+  #     celery -A app.tasks.celery_app worker
+  #     --loglevel=info
+  #     --concurrency=2
+  #     --queue=high_priority
+  #     -n worker-high@%h
+  #     --max-tasks-per-child=100
+  #   restart: always
+  #   networks:
+  #     - app-network
+
+  celery-worker-medium:
+    container_name: legal_assistant_v3_celery_worker_medium
+    image: legal_document_assistantv3-backend:latest
+    env_file: .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - WORKER_NAME=worker-medium
+      - ENABLE_TWO_STAGE_GENERATION=true
+      - LANGCHAIN_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+      - LANGCHAIN_API_BASE_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
+      - MODEL_NAME=Qwen3-235B-A22B-Thinking-2507
+      - OPENAI_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+      - OPENAI_API_BASE=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
+    volumes:
+      - ./backend:/app:rw
+      - ./storage:/app/storage:rw
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    command: >
+      celery -A app.tasks.celery_app worker
+      --loglevel=info
+      --concurrency=2
+      --queues=high_priority,medium_priority,low_priority,default
+      -n worker-medium@%h
+      --max-tasks-per-child=100
+    restart: always
+    networks:
+      - app-network
+
+  # celery-worker-low:
+  #   container_name: legal_assistant_v3_celery_worker_low
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   env_file: .env
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #     - WORKER_NAME=worker-low
+  #     - LANGCHAIN_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+  #     - LANGCHAIN_API_BASE_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
+  #     - MODEL_NAME=Qwen3-235B-A22B-Thinking-2507
+  #     - OPENAI_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+  #     - OPENAI_API_BASE=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
+  #   volumes:
+  #     - ./backend:/app:rw
+  #     - ./storage:/app/storage:rw
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #     db:
+  #       condition: service_healthy
+  #   command: >
+  #     celery -A app.tasks.celery_app worker
+  #     --loglevel=info
+  #     --concurrency=1
+  #     --queue=low_priority
+  #     -n worker-low@%h
+  #     --max-tasks-per-child=100
+  #   restart: always
+  #   networks:
+  #     - app-network
+
+  # celery-beat:
+  #   container_name: legal_assistant_v3_celery_beat
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   env_file: .env
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #   volumes:
+  #     - ./backend:/app:rw
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   command: celery -A app.tasks.celery_app beat --loglevel=info
+  #   restart: always
+  #   networks:
+  #     - app-network
+
+  celery-flower:
+    container_name: legal_assistant_v3_celery_flower
+    image: legal_document_assistantv3-backend:latest
+    env_file: .env
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - FLOWER_PORT=5555
+    ports:
+      - "5555:5555"
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: celery -A app.tasks.celery_app flower --port=5555 --broker=redis://redis:6379/0
+    restart: always
+    networks:
+      - app-network
+
+  # =========================================
+  # 新增服务: ONLYOFFICE 文档服务器
+  # =========================================
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: legal_assistant_v3_onlyoffice
+    restart: always
+    environment:
+      # 开启 JWT 校验，保证文档安全
+      - JWT_ENABLED=true
+      # 使用环境变量配置 JWT 密钥
+      - JWT_SECRET=${ONLYOFFICE_JWT_SECRET:-changeme_onlyoffice_jwt_secret_2025}
+      - JWT_HEADER=Authorization
+      - JWT_IN_BODY=true
+    ports:
+      # 映射到宿主机 8082 端口，前端访问编辑器地址为 http://localhost:8082
+      - "8082:80"
+    volumes:
+      - onlyoffice_data:/var/www/onlyoffice/Data
+      - onlyoffice_log:/var/log/onlyoffice
+      - onlyoffice_cache:/var/lib/onlyoffice/documentserver/App_Data/cache/files
+      - onlyoffice_fonts_cache:/var/www/onlyoffice/documentserver/.cache
+    # 修复缓存目录权限
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /var/www/onlyoffice/documentserver/.cache/pkg
+        chmod -R 777 /var/www/onlyoffice/documentserver/.cache || true
+        chown -R onlyoffice:onlyoffice /var/www/onlyoffice/documentserver/.cache || true
+        /app/ds/run-document-server.sh
+    networks:
+      - app-network
+
+  # =========================================
+
+  backend:
+    container_name: legal_assistant_v3_backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    # <<< 核心修正点 2: 使用 env_file + 显式配置 >>>
+    env_file: .env
+    # 显式声明关键环境变量（直接设置值以确保生效）
+    environment:
+      # LangGraph 合同审查专用配置
+      - LANGCHAIN_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+      - LANGCHAIN_API_BASE_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
+      - MODEL_NAME=Qwen3-235B-A22B-Thinking-2507
+      # OpenAI 兼容 API 配置（用于合同生成模块）
+      - OPENAI_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+      - OPENAI_API_BASE=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
+      # MinerU 和 OCR 服务配置（直接配置以确保生效）
+      - MINERU_API_URL=http://115.190.40.198:7231/v2/parse/file
+      - MINERU_API_TIMEOUT=120
+      - MINERU_ENABLED=true
+      - OCR_API_URL=http://115.190.43.141:8002/ocr/v1/recognize-text
+      - OCR_API_TIMEOUT=60
+      - OCR_ENABLED=true
+      # AI 文档预处理配置
+      - AI_POSTPROCESS_ENABLED=true
+      - AI_POSTPROCESS_MODEL=qwen3-vl:32b-thinking-q8_0
+      - AI_POSTPROCESS_API_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
+      - AI_POSTPROCESS_API_KEY=
+      - AI_POSTPROCESS_TIMEOUT=30
+      - AI_POSTPROCESS_BATCH_SIZE=5
+      - AI_POSTPROCESS_CONFIDENCE_THRESHOLD=0.7
+      - AI_POSTPROCESS_ONLY_AMBIGUOUS=true
+    ports:
+      - "8000:8000"
+    volumes:
+      # 挂载backend代码到/app，便于开发时实时更新
+      - ./backend:/app:rw
+      - ./storage:/app/storage:rw
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      onlyoffice:
+        condition: service_started
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--ws-ping-interval", "20", "--ws-ping-timeout", "300"]
+    restart: always
+    networks:
+      - app-network
+
+  frontend:
+    container_name: legal_assistant_v3_frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      # 构建时传入环境变量
+      args:
+        - VITE_API_BASE_URL=http://localhost:8000
+        - VITE_ONLYOFFICE_URL=http://localhost:8082
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+      - onlyoffice
+    restart: always
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+  redis_data:
+  # 新增 ONLYOFFICE 卷
+  onlyoffice_data:
+  onlyoffice_log:
+  onlyoffice_cache:
+  onlyoffice_fonts_cache:
+
+# <<< 核心修正点 4: 彻底移除 dify_network >>>
+networks:
+  app-network:
+    driver: bridge

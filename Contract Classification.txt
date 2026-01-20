@@ -1,0 +1,287 @@
+民法典典型合同:
+    → 买卖合同:
+        → 动产买卖合同
+        → 不动产买卖合同
+        - contract_type: "买卖合同"
+        - industry: "通用"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 赠与合同
+        - contract_type: "赠与合同"
+        - industry: "通用"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 借款合同:
+        → 个人借款合同
+        → 企业借款合同
+        - contract_type: "借款合同"
+        - industry: "通用"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 保证合同
+        - contract_type: "保证合同"
+        - industry: "通用"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 租赁合同:
+        → 住宅租赁合同
+        → 商业租赁合同
+        - contract_type: "租赁合同"
+        - industry: "房地产"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 承揽合同:
+        → 工程承揽合同
+        → 服务承揽合同
+        - contract_type: "承揽合同"
+        - industry: "建筑 / 服务业"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 建设工程合同:
+        → 总承包合同
+        → 分包合同
+        - contract_type: "建设工程合同"
+        - industry: "建筑"
+        - usage_scene: "企业-企业"
+        - jurisdiction: "中国大陆 / 境外"
+    → 运输合同:
+        → 货物运输合同
+        → 人员运输合同
+        - contract_type: "运输合同"
+        - industry: "物流"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 技术合同:
+        → 技术转让合同
+        → 技术研发合同
+        → 技术服务合同
+        → 技术许可合同
+        - contract_type: "技术合同"
+        - industry: "互联网 / 医疗 / 制造业"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 保管合同
+        - contract_type: "保管合同"
+        - industry: "通用"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 委托合同:
+        → 委托代理合同
+        → 委托管理合同
+        - contract_type: "委托合同"
+        - industry: "通用"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 物业服务合同
+        - contract_type: "物业服务合同"
+        - industry: "房地产"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 行纪合同
+        - contract_type: "行纪合同"
+        - industry: "商业"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 中介合同
+        - contract_type: "中介合同"
+        - industry: "商业"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 合伙合同:
+        → 普通合伙合同
+        → 有限合伙合同
+        - contract_type: "合伙合同"
+        - industry: "商业"
+        - usage_scene: "企业-企业"
+        - jurisdiction: "中国大陆 / 境外"
+
+非典型合同:
+    → 股权类协议:
+        → 股东协议
+        → 股东出资协议
+        → 股权转让协议
+        → 并购协议
+        → 增资扩股协议
+        → 合并或分立协议
+        → 股权激励协议 / 期权激励协议
+        → 股权代持协议
+        → 股权回购协议
+        - contract_type: "股权类协议"
+        - industry: "金融 / 企业"
+        - usage_scene: "企业-企业"
+        - jurisdiction: "中国大陆 / 境外"
+    → 合伙协议:
+        → 普通合伙协议
+        → 有限合伙协议
+        - contract_type: "合伙协议"
+        - industry: "企业"
+        - usage_scene: "企业-企业"
+        - jurisdiction: "中国大陆 / 境外"
+    → 劳动合同及相关协议:
+        → 劳动合同
+        → 劳务派遣协议
+        → 竞业限制协议
+        → 保密协议（作为劳动合同附件）
+        → 员工手册 / 规章制度
+        - contract_type: "劳动合同"
+        - industry: "企业"
+        - usage_scene: "企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 商业与项目类协议:
+        → 加盟/特许经营合同
+        → 知识产权许可/转让合同
+        → 技术服务/开发合同
+        → 债权转让/债务承担协议
+        → 资产重组/业务转让协议
+        → 项目合作协议
+        → 联合经营协议
+        - contract_type: "商业协议"
+        - industry: "商业"
+        - usage_scene: "企业-企业"
+        - jurisdiction: "中国大陆 / 境外"
+
+行业特定合同:
+    → 互联网与科技行业:
+        → 技术合作协议
+        → SaaS服务协议
+        → API使用协议
+        → 用户协议 / 隐私政策
+        → 数据保护协议
+        → 软件授权协议
+        - contract_type: "技术合同"
+        - industry: "互联网"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 金融行业:
+        → 贷款协议
+        → 担保合同
+        → 投资协议
+        → 融资协议
+        → 金融产品协议
+        → 资产管理协议
+        - contract_type: "金融合同"
+        - industry: "金融"
+        - usage_scene: "企业-企业"
+        - jurisdiction: "中国大陆 / 境外"
+    → 房地产行业:
+        → 不动产买卖合同
+        → 租赁合同
+        → 物业管理服务合同
+        → 建设工程合同
+        → 房屋装修合同
+        → 物业托管协议
+        - contract_type: "房地产合同"
+        - industry: "房地产"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 医疗与生命科学行业:
+        → 技术转让协议
+        → 研发合同
+        → 临床试验协议
+        → 医药采购协议
+        → 保密协议
+        → 代理协议
+        - contract_type: "医疗合同"
+        - industry: "医疗"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 教育与培训行业:
+        → 教育服务合同
+        → 合作协议
+        → 培训协议
+        → 教材版权协议
+        - contract_type: "教育合同"
+        - industry: "教育"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    →
+    → 制造业与供应链管理:
+        → 采购合同
+        → 供应链管理协议
+        → 生产合作协议
+        → 质量保证协议
+        → 运输协议
+        → 专利许可协议
+        - contract_type: "供应链合同"
+        - industry: "制造业"
+        - usage_scene: "企业-企业"
+        - jurisdiction: "中国大陆 / 境外"
+    → 文化创意与娱乐行业:
+        → 版权转让协议
+        → 创作合作协议
+        → 经纪合同
+        → 演出合同
+        → 影视合作协议
+        - contract_type: "娱乐合同"
+        - industry: "文化创意 / 娱乐"
+        - usage_scene: "企业-企业 / 企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+
+个人创客及自由职业者合同:
+    → 服务合同:
+        → 视频制作服务合同
+        → 直播/带货合作协议
+        → 内容创作协议
+        → 广告宣传合同
+        → 咨询服务合同
+        - contract_type: "服务合同"
+        - industry: "通用"
+        - usage_scene: "企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 委托合同:
+        → 外包合作协议
+        → 短期项目合作协议
+        - contract_type: "委托合同"
+        - industry: "通用"
+        - usage_scene: "企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 独立承包与分包协议:
+        → 独立承包协议
+        → 分包协议
+        - contract_type: "承包合同"
+        - industry: "自由职业"
+        - usage_scene: "企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 技术开发与知识产权相关协议:
+        → 软件开发合同
+        → 知识产权转让/许可协议
+        - contract_type: "技术合同"
+        - industry: "互联网 / AI"
+        - usage_scene: "企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 短期雇佣与合作协议:
+        → 自由职业者合作协议
+        → 短期雇佣合同
+        - contract_type: "短期雇佣合同"
+        - industry: "自由职业"
+        - usage_scene: "企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+    → 营销与品牌合作协议:
+        → 品牌代言协议
+        → 合作推广协议
+        - contract_type: "营销协议"
+        - industry: "品牌营销 / 电商"
+        - usage_scene: "企业-个人"
+        - jurisdiction: "中国大陆 / 境外"
+
+跨境与国际合同:
+    → 跨境销售协议
+    → 国际代理协议
+    → 国际货物运输合同
+    → 国际技术合作协议
+    → 国际数据保护协议
+    → 国际劳务合同
+    - contract_type: "跨境合同"
+    - industry: "跨境电商 / 国际贸易"
+    - usage_scene: "企业-企业 / 企业-个人"
+    - jurisdiction: "境外"
+
+补充与特殊合同类型:
+    → 电子商务合同
+    → 环保与可持续发展合同
+    → 食品安全合同
+    → 危机管理与应急响应协议
+    - contract_type: "特殊协议"
+    - industry: "通用"
+    - usage_scene: "企业-企业 / 企业-个人"
+    - jurisdiction: "中国大陆 / 境外"

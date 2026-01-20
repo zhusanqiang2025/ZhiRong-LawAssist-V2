@@ -1,0 +1,232 @@
+{
+  "name": "Legal Document Assistant - Boundary Diagram",
+  "generated_at": "2025-12-23T00:00:00+08:00",
+  "components": [
+    {
+      "id": "frontend",
+      "name": "Frontend (React + Vite)",
+      "type": "web_app",
+      "location": "frontend/",
+      "ports": [5173, 8081],
+      "responsibilities": [
+        "用户界面",
+        "文件上传（.docx/.pdf）",
+        "OnlyOffice 嵌入预览/编辑",
+        "触发后端审查/提取 API 调用"
+      ],
+      "key_files": ["frontend/src/pages/ContractReview.tsx", "frontend/src/api/index.ts"]
+    },
+    {
+      "id": "backend_api",
+      "name": "Backend API (FastAPI)",
+      "type": "api",
+      "location": "backend/app/",
+      "ports": [8000],
+      "responsibilities": [
+        "接收文件上传并存储",
+        "触发文档转换与元数据抽取",
+        "启动/管理深度审查任务",
+        "用户认证/授权 (OAuth2/JWT)"
+      ],
+      "key_files": ["backend/app/main.py", "backend/app/api/contract_router.py", "backend/app/api/v1/endpoints/auth.py"]
+    },
+    {
+      "id": "onlyoffice",
+      "name": "OnlyOffice Document Server",
+      "type": "service",
+      "location": "container onlyoffice",
+      "ports": [8082],
+      "responsibilities": [
+        "在线文档预览与协作编辑",
+        "通过内部 URL 拉取后端存储的文件"
+      ],
+      "notes": ["JWT token 用于 OnlyOffice 配置签名 (`backend/app/utils/office_utils.py`)" ]
+    },
+    {
+      "id": "db",
+      "name": "PostgreSQL",
+      "type": "database",
+      "location": "container db",
+      "responsibilities": ["持久化用户、合同、审查结果与规则库"],
+      "notes": ["连接配置在 `.env` / `backend/app/core/config.py`"]
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "type": "cache/message_broker",
+      "location": "container redis",
+      "responsibilities": ["任务队列/会话/速率限制（可选）"]
+    },
+    {
+      "id": "storage",
+      "name": "File Storage",
+      "type": "filesystem",
+      "location": "storage/uploads",
+      "responsibilities": ["保存上传的原始文件、转换生成的 PDF/Docx、OnlyOffice 可访问路径"]
+    },
+    {
+      "id": "llm_provider",
+      "name": "Model Provider (DeepSeek etc.)",
+      "type": "external_api",
+      "responsibilities": [
+        "合同元数据抽取、深度审查的 LLM 推理",
+        "支持多模型路由（DeepSeek / 通义 / GPT）在未来迁移中替换"
+      ],
+      "config_keys": ["DEEPSEEK_API_KEY", "DEEPSEEK_API_URL"]
+    },
+    {
+      "id": "conversion_tools",
+      "name": "Local Conversion Tools",
+      "type": "cli_tools",
+      "responsibilities": [
+        "`.doc`/`.docx` <-> `.pdf` 转换（LibreOffice `soffice`, pandoc/pypandoc）",
+        "备用：`docx` 直接解析 (python-docx) 或 pdfplumber OCR"
+      ],
+      "notes": ["已在 `backend/Dockerfile` 安装 LibreOffice", "代码在 `backend/app/services/converter.py`"]
+    }
+  ],
+  "apis": [
+    {
+      "path": "/api/contract/upload",
+      "method": "POST",
+      "auth": "optional (depends on deployment)",
+      "description": "接收 multipart file 上传，保存原始文件，尝试转换并返回 { contract_id, config, token, filename }",
+      "request": "multipart/form-data { file }",
+      "response": "{ contract_id:int, id:int, config:object?, token:string?, filename:string }",
+      "implemented_in": "backend/app/api/contract_router.py"
+    },
+    {
+      "path": "/api/contract/{contract_id}/extract-metadata",
+      "method": "POST",
+      "auth": "recommended (Bearer JWT)",
+      "description": "基于原始 docx 或转换后的 PDF 提取合同元数据，返回结构化 `ContractMetadataSchema`",
+      "response": "{ metadata: ContractMetadataSchema }",
+      "implemented_in": "backend/app/api/contract_router.py"
+    },
+    {
+      "path": "/api/contract/{contract_id}/deep-review",
+      "method": "POST",
+      "auth": "recommended (Bearer JWT)",
+      "description": "触发深度审查（调用 LLM 服务或 Graph），传入审查立场与确认后的元数据，异步执行审查",
+      "request": "{ stance:string, updated_metadata:object }",
+      "response": "{ success: bool, message?: string }",
+      "implemented_in": "backend/app/api/contract_router.py"
+    },
+    {
+      "path": "/api/contract/{contract_id}/review-results",
+      "method": "GET",
+      "auth": "recommended (Bearer JWT)",
+      "description": "查询审查结果与状态，返回 `review_items` 列表",
+      "response": "{ status, metadata, stance, review_items[] }",
+      "implemented_in": "backend/app/api/contract_router.py"
+    },
+    {
+      "path": "/api/contract/{contract_id}/onlyoffice-config",
+      "method": "GET",
+      "auth": "recommended",
+      "description": "后备接口：返回 OnlyOffice 编辑器所需的 config 与 token（若 upload 未返回）",
+      "response": "{ config: object, token: string }",
+      "implemented_in": "backend/app/api/contract_router.py"
+    },
+    {
+      "path": "/api/v1/auth/login",
+      "method": "POST",
+      "auth": "none (returns token)",
+      "description": "OAuth2PasswordRequestForm 登录，返回 { access_token, token_type }",
+      "implemented_in": "backend/app/api/v1/endpoints/auth.py"
+    },
+    {
+      "path": "/api/v1/auth/test-token",
+      "method": "POST",
+      "auth": "Bearer JWT",
+      "description": "验证 token 并返回当前用户信息",
+      "implemented_in": "backend/app/api/v1/endpoints/auth.py"
+    }
+  ],
+  "data_stores": [
+    {
+      "name": "PostgreSQL",
+      "used_for": ["users", "contracts", "review_items", "rules"],
+      "location": "backend container db"
+    },
+    {
+      "name": "Filesystem (storage/uploads)",
+      "used_for": ["uploaded files", "converted pdf/docx", "onlyoffice accessible files"]
+    },
+    {
+      "name": "Redis",
+      "used_for": ["cache", "task state", "rate limiting"]
+    },
+    {
+      "name": "Vector DB (planned)",
+      "used_for": ["RAG: Chroma/FAISS for法规/案例/模板检索"],
+      "status": "not yet present in repo"
+    }
+  ],
+  "external_dependencies": [
+    { "name": "DeepSeek (LLM)", "type": "model_api", "env": ["DEEPSEEK_API_KEY","DEEPSEEK_API_URL"] },
+    { "name": "OnlyOffice Document Server", "type": "document_server", "container": "onlyoffice" },
+    { "name": "LibreOffice / pandoc", "type": "cli_conversion", "note": "installed in backend image for reliable doc->pdf conversion" },
+    { "name": "Optional: Continue.dev / LangGraph / LangChain", "type": "future_ai_infra", "note": "planned for migration" }
+  ],
+  "data_flows": [
+    {
+      "flow": "Upload -> Preview -> Extract",
+      "steps": [
+        "Frontend uploads file to POST /api/contract/upload",
+        "Backend saves to `storage/uploads/{uuid}.{ext}` and tries conversion (soffice/pypandoc)",
+        "Backend creates ContractDoc DB record and returns contract id + OnlyOffice config/token",
+        "Frontend instantiates OnlyOffice with returned config (or fetches via /onlyoffice-config)",
+        "Frontend calls POST /api/contract/{id}/extract-metadata to request extracted metadata"
+      ]
+    },
+    {
+      "flow": "Start Review -> LLM -> Results",
+      "steps": [
+        "Frontend POST /api/contract/{id}/deep-review with stance & metadata",
+        "Backend orchestration service calls `contract_review_service` which may: parse docx/pdf, call LLM provider(s), apply rules, persist ReviewItems",
+        "Frontend polls GET /api/contract/{id}/review-results or receives websocket/streamed events"
+      ]
+    }
+  ],
+  "security": {
+    "auth": "OAuth2Password (JWT tokens) for protected routes",
+    "sensitive_config": ["SECRET_KEY", "DEEPSEEK_API_KEY", "ONLYOFFICE_JWT_SECRET"],
+    "recommendations": [
+      "确保 `.env` 不提交到代码库",
+      "使用密钥管理（Vault/Secrets Manager）在生产环境保存 API keys",
+      "对上传文件做大小、类型和内容扫描（病毒/秘密）"
+    ]
+  },
+  "failure_points_and_mitigations": [
+    {
+      "point": "Missing `soffice` or pandoc -> doc conversion fails",
+      "mitigation": "Install LibreOffice in backend image (已添加) + 优先从 docx 直接解析 (python-docx)"
+    },
+    {
+      "point": "OnlyOffice 无法拉取后端文件（网络/URL 错误）",
+      "mitigation": "确保 OnlyOffice 与 backend 在同一 Docker 网络并使用内部 URL (`http://backend:8000/storage/uploads/...`)；验证 `ONLYOFFICE_JWT_SECRET` 一致"
+    },
+    {
+      "point": "LLM API key 未配置或无效",
+      "mitigation": "在启动前校验关键 env（DEEPSEEK_API_KEY）并在 UI/日志中友好提示"
+    },
+    {
+      "point": "前端/后端契约不一致（contract_id undefined）",
+      "mitigation": "后端 upload 返回兼容字段（`contract_id`/`id`），前端兼容两种字段（已修复）"
+    }
+  ],
+  "notes": {
+    "next_actions": [
+      "把本 JSON 存为 `design/boundary-diagram.json`（如需我可创建该文件）",
+      "基于该边界图开始设计 LangGraph 节点映射（建议优先做合同审查 PoC）"
+    ],
+    "contact_points": {
+      "ui": "frontend/src/pages/ContractReview.tsx",
+      "api": "backend/app/api/contract_router.py",
+      "llm": "backend/app/services/deepseek_service.py",
+      "conversion": "backend/app/services/converter.py",
+      "review_service": "backend/app/services/contract_review_service.py"
+    }
+  }
+}

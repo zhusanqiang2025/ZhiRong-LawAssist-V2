@@ -1,0 +1,668 @@
+{
+  "timestamp": "2026-01-11T12:24:49.520200",
+  "dry_run": true,
+  "limit": null,
+  "stats": {
+    "total": 66,
+    "tertiary_matched": 59,
+    "secondary_matched": 1,
+    "inferred_matched": 5,
+    "unmatched": 1,
+    "updated": 65,
+    "failed": 0
+  },
+  "unmatched_templates": [
+    "股权转让合同"
+  ],
+  "matched_templates": [
+    {
+      "name": "居间服务协议（中介协议）",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "行纪与中介",
+        "居间合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "保密协议(NDA)",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "意向与框架",
+        "保密协议(通用NDA)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "增资扩股协议",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "股权与投资",
+        "增资扩股协议"
+      ],
+      "confidence": "精确匹配"
+    },
+    {
+      "name": "商品房买卖合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "买卖合同",
+        "不动产买卖合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "技术服务合同框架",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "新媒体代运营服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "机械设备类货物采购合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用采购协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "合伙协议",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "合伙与联营",
+        "普通合伙协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "专家顾问聘用合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "劳动与人力资源",
+        "标准劳动关系",
+        "聘用协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "授权委托书",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "单方声明与承诺",
+        "授权委托书(通用)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "新媒体代运营服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "MV委托制作服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "光伏电站清洗服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "光伏电站运维服务合同（光伏电站）",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "咨询服务合同能源版块EMC项目",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "咨询服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "储能电站EPC合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "建设工程合同",
+        "工程总承包合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "储能电站工程施工合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "建设工程合同",
+        "建设工程施工合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "施工合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "建设工程合同",
+        "建设工程施工合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "光伏电站工程EPC合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "建设工程合同",
+        "工程总承包合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "光伏电站工程施工合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "建设工程合同",
+        "建设工程施工合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "光伏电站工程施工合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "建设工程合同",
+        "建设工程施工合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "光伏电站EPC合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "建设工程合同",
+        "工程总承包合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "小型工程施工合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "建设工程合同",
+        "建设工程施工合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "建设工程设计合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "建设工程合同",
+        "勘察设计合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "工程造价咨询服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "技术开发合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "技术合同",
+        "技术开发合同"
+      ],
+      "confidence": "精确匹配"
+    },
+    {
+      "name": "技术服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "技术合同",
+        "技术服务合同"
+      ],
+      "confidence": "精确匹配"
+    },
+    {
+      "name": "技术咨询合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "技术合同",
+        "技术咨询合同"
+      ],
+      "confidence": "精确匹配"
+    },
+    {
+      "name": "技术开发委托合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "委托合同",
+        "委托代理合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "内部承包合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "建设工程合同",
+        "内部承包合同"
+      ],
+      "confidence": "精确匹配"
+    },
+    {
+      "name": "一般住宅房屋租赁合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "租赁合同",
+        "住宅租赁合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "技术开发合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "技术合同",
+        "技术开发合同"
+      ],
+      "confidence": "精确匹配"
+    },
+    {
+      "name": "房屋租赁",
+      "matched_level": "secondary",
+      "category_path": [
+        "民法典典型合同",
+        "租赁合同"
+      ],
+      "confidence": "二级分类匹配"
+    },
+    {
+      "name": "采购合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用采购协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "企业内训服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "视频拍摄及发布服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "律师事务所（特殊普通合伙）章程",
+      "matched_level": "tertiary",
+      "category_path": [
+        "公司治理与合规",
+        "公司组织文件",
+        "公司章程"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "通用服务合同框架",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "企业（有限合伙）合伙协议（用于登记）",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "合伙与联营",
+        "普通合伙协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "保密协议",
+      "matched_level": "inferred",
+      "category_path": [
+        "劳动与人力资源",
+        "附属协议",
+        "保密协议(劳动版)"
+      ],
+      "confidence": "推断匹配"
+    },
+    {
+      "name": "有限合伙企业合伙协议",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "合伙与联营",
+        "普通合伙协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "上市公司章程",
+      "matched_level": "tertiary",
+      "category_path": [
+        "公司治理与合规",
+        "公司组织文件",
+        "公司章程"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "1.创业公司章程（含创始股东约束条款）",
+      "matched_level": "tertiary",
+      "category_path": [
+        "公司治理与合规",
+        "公司组织文件",
+        "公司章程"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "创业公司章程",
+      "matched_level": "tertiary",
+      "category_path": [
+        "公司治理与合规",
+        "公司组织文件",
+        "公司章程"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "投资协议",
+      "matched_level": "inferred",
+      "category_path": [
+        "非典型商事合同",
+        "股权与投资",
+        "投资合作协议"
+      ],
+      "confidence": "推断匹配"
+    },
+    {
+      "name": "股权激励",
+      "matched_level": "inferred",
+      "category_path": [
+        "劳动与人力资源",
+        "附属协议",
+        "员工期权激励协议"
+      ],
+      "confidence": "推断匹配"
+    },
+    {
+      "name": "股东保密及竞业禁止协议",
+      "matched_level": "tertiary",
+      "category_path": [
+        "劳动与人力资源",
+        "附属协议",
+        "竞业限制协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "股权代持协议书",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "股权与投资",
+        "股权代持协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "股权代持协议（详细版）",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "股权与投资",
+        "股权代持协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "存量房屋买卖合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "民法典典型合同",
+        "买卖合同",
+        "不动产买卖合同"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "海外红人媒体推广服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "增资扩股协议",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "股权与投资",
+        "增资扩股协议"
+      ],
+      "confidence": "精确匹配"
+    },
+    {
+      "name": "插图设计服务合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用服务协议(标准版)"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "采购合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "通用交易底座",
+        "通用采购协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "和解协议",
+      "matched_level": "tertiary",
+      "category_path": [
+        "争议解决与法律程序",
+        "和解与调解",
+        "庭外和解协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "实际控制人一致行动协议（有限公司）",
+      "matched_level": "tertiary",
+      "category_path": [
+        "公司治理与合规",
+        "控制权与投票",
+        "一致行动人协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "合伙协议",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "合伙与联营",
+        "普通合伙协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "1.一般私募基金增资协议（股权投资、有前轮投资）",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "股权与投资",
+        "增资扩股协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "股权激励",
+      "matched_level": "inferred",
+      "category_path": [
+        "劳动与人力资源",
+        "附属协议",
+        "员工期权激励协议"
+      ],
+      "confidence": "推断匹配"
+    },
+    {
+      "name": "有限责任公司章程",
+      "matched_level": "tertiary",
+      "category_path": [
+        "公司治理与合规",
+        "公司组织文件",
+        "公司章程"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "股权激励",
+      "matched_level": "inferred",
+      "category_path": [
+        "劳动与人力资源",
+        "附属协议",
+        "员工期权激励协议"
+      ],
+      "confidence": "推断匹配"
+    },
+    {
+      "name": "股份回购合同",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "股权与投资",
+        "股权回购协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "股权代持协议（简单版）",
+      "matched_level": "tertiary",
+      "category_path": [
+        "非典型商事合同",
+        "股权与投资",
+        "股权代持协议"
+      ],
+      "confidence": "别名匹配"
+    },
+    {
+      "name": "授权委托书",
+      "matched_level": "tertiary",
+      "category_path": [
+        "通用框架与兜底协议",
+        "单方声明与承诺",
+        "授权委托书(通用)"
+      ],
+      "confidence": "别名匹配"
+    }
+  ]
+}

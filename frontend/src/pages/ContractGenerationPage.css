@@ -1,0 +1,274 @@
+/* frontend/src/pages/ContractGenerationPage.css */
+
+/* ==================== 基础容器 ==================== */
+.step-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: #fff;
+  overflow: hidden; /* 防止圆角溢出 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 结果页面的主容器 - 占据屏幕大部分高度 */
+.result-container {
+  /* 视口高度 - 顶部Header(64) - Steps(32+24+24) - 底部Padding(24) */
+  height: calc(100vh - 200px);
+  min-height: 600px;
+  display: flex;
+  flex-direction: column; /* 垂直排列：上面是内容区，下面是工具栏 */
+  border: 1px solid #f0f0f0;
+  overflow: hidden; /* 确保内容不会溢出 */
+}
+
+/* ==================== 上半部分：分屏显示区 ==================== */
+.result-split-view {
+  flex: 1; /* 占据剩余高度 */
+  display: flex; /* 左右布局 */
+  overflow: hidden; /* 防止撑开 */
+  background: #fcfcfc;
+  min-height: 0; /* 关键：允许 flex 子元素正确收缩 */
+}
+
+/* 通用面板样式 */
+.split-pane {
+  flex: 1; /* 各占 50% */
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0; /* 关键：允许 flex 子元素正确收缩 */
+  overflow: hidden; /* 确保内容不溢出 */
+}
+
+/* 左侧：编辑区容器 */
+.edit-pane-container {
+  border-right: 1px solid #e8e8e8;
+  background: #fff;
+}
+
+/* 右侧：预览区容器 */
+.preview-pane-container {
+  background: #fff; /* 预览区背景设为深灰或白 */
+}
+
+/* 区域标题栏 (Header) */
+.pane-header {
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  color: #595959;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 内容滚动区域 */
+.pane-scroll-content {
+  flex: 1;
+  overflow-y: auto; /* 独立滚动条 */
+  overflow-x: hidden;
+  position: relative;
+  min-height: 0; /* 关键：允许 flex 子元素正确收缩 */
+}
+
+/* --- 编辑器样式 --- */
+.contract-editor-textarea {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  box-shadow: none !important;
+  resize: none !important;
+  padding: 20px !important;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: #333 !important;
+  background: transparent !important;
+  outline: none !important;
+}
+
+/* 修复 Ant Design TextArea 的容器样式 */
+.pane-scroll-content .ant-input {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+.pane-scroll-content .ant-col {
+  height: 100% !important;
+}
+
+/* --- 预览器样式 --- */
+.markdown-body {
+  padding: 32px 48px; /* 模拟A4纸内边距 */
+  font-family: 'SimSun', '宋体', serif;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #000;
+  max-width: 900px; /* 限制阅读宽度，防止太宽 */
+  margin: 0 auto;
+}
+
+.markdown-body h1 { font-size: 24px; text-align: center; margin: 24px 0; }
+.markdown-body h2 { font-size: 18px; font-weight: bold; margin: 20px 0 12px; }
+.markdown-body p { margin-bottom: 12px; text-align: justify; }
+
+/* 空状态 */
+.pane-placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+}
+
+/* ==================== 下半部分：底部工具栏 ==================== */
+.result-toolbar {
+  height: 72px; /* 固定高度 */
+  flex-shrink: 0;
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.02);
+  z-index: 10;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 状态胶囊样式 */
+.status-capsule {
+  display: flex;
+  align-items: center;
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  padding: 4px 12px;
+  border-radius: 20px;
+  color: #389e0d;
+  font-size: 13px;
+}
+
+.template-info-text {
+  font-size: 13px;
+  color: #666;
+}
+
+/* 响应式适配 */
+@media (max-width: 1024px) {
+  .result-split-view {
+    flex-direction: column; /* 窄屏变上下 */
+  }
+  .edit-pane-container {
+    border-right: none;
+    border-bottom: 1px solid #e8e8e8;
+  }
+}
+
+/* ==================== 模板匹配卡片 ==================== */
+.template-match-card {
+  transition: all 0.3s ease;
+}
+
+.template-match-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.match-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ==================== 澄清表单卡片 ==================== */
+.clarification-form-card {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.clarification-form-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.clarification-form-card::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 3px;
+}
+
+.clarification-form-card::-webkit-scrollbar-thumb:hover {
+  background: #bfbfbf;
+}
+
+/* ==================== 操作按钮卡片 ==================== */
+.action-buttons-card {
+  border-radius: 8px;
+}
+
+/* ==================== 进度覆盖层 ==================== */
+.progress-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 8px;
+  padding: 40px;
+}
+
+.progress-container {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.progress-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.connection-status {
+  margin-bottom: 24px;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.status-indicator.connected {
+  background: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+
+.status-indicator.disconnected {
+  background: #fffbe6;
+  color: #faad14;
+  border: 1px solid #ffe58f;
+}

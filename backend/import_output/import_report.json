@@ -1,0 +1,1806 @@
+{
+  "scan_time": "2025-12-27T00:25:54.793010",
+  "source_directory": "e:\\legal_document_assistant v3\\backend\\templates_source",
+  "total_files": 254,
+  "categories": {
+    "其他/无": 48,
+    "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）/无": 13,
+    "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）/无": 10,
+    "创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）/无": 4,
+    "合同模板需求统计表_已有合同模板清单_附件(1)/无": 44,
+    "合同模板需求统计表_附件/无": 41,
+    "委托持股合同（有限责任公司股权代持）/无": 11,
+    "存量商品房买卖合同/无": 6,
+    "律师事务所（特殊普通合伙）成套文本/无": 6,
+    "其他/合伙协议": 3,
+    "有限责任公司持股平台（有限合伙企业）设立全套文本/无": 5,
+    "有限责任公司股权激励全套文本（期权+有限合伙持股平台）/无": 17,
+    "有限责任公司股权激励（限制性股权、其他股东代持）成套文本/无": 11,
+    "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本/无": 16,
+    "现金支付式（常规）股权收购合同/无": 5,
+    "简单办公室（写字楼）租赁合同（出租方承担物业费用）/无": 4,
+    "设立有限合伙企业成套文本/无": 4,
+    "买卖合同/货物买卖": 3,
+    "租赁合同/车辆租赁": 3
+  },
+  "files": [
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\20250729技术开发合同模板-v1.docx",
+      "filename": "20250729技术开发合同模板-v1.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\A股上市公司合并协议（上市公司吸收合并非上市公司）.docx",
+      "filename": "A股上市公司合并协议（上市公司吸收合并非上市公司）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\A股上市公司合并协议（非上市公司吸收合并上市公司并重新上市）.docx",
+      "filename": "A股上市公司合并协议（非上市公司吸收合并上市公司并重新上市）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\《财务顾问协议》.docx",
+      "filename": "《财务顾问协议》.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般住宅房屋租赁合同（简单版）.docx",
+      "filename": "一般住宅房屋租赁合同（简单版）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般商品买卖合同（简单版）.docx",
+      "filename": "一般商品买卖合同（简单版）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\1.一般通用出资协议（三方）-依据2024版《公司法》.docx",
+      "filename": "1.一般通用出资协议（三方）-依据2024版《公司法》.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\10.特殊项目独立核算条款.docx",
+      "filename": "10.特殊项目独立核算条款.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\11.计点制动态股权补充条款.docx",
+      "filename": "11.计点制动态股权补充条款.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\12.公司治理结构（依据2018版《公司法》）.docx",
+      "filename": "12.公司治理结构（依据2018版《公司法》）.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\2.丁方出资条款（如有丁方则可使用）.docx",
+      "filename": "2.丁方出资条款（如有丁方则可使用）.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\3.非货币出资说明条款（非货币出资的补充约定）.docx",
+      "filename": "3.非货币出资说明条款（非货币出资的补充约定）.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\4.股东瑕疵出资责任条款（依据2024版《公司法》）.docx",
+      "filename": "4.股东瑕疵出资责任条款（依据2024版《公司法》）.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\5.一票否决权（一般公司不使用；少数情况下使用）.docx",
+      "filename": "5.一票否决权（一般公司不使用；少数情况下使用）.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\6.公司治理补充条款（灵活约定）.docx",
+      "filename": "6.公司治理补充条款（灵活约定）.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\7.不竞争义务条款.docx",
+      "filename": "7.不竞争义务条款.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\8.全职工作（限制性股权）.docx",
+      "filename": "8.全职工作（限制性股权）.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\9.股权激励（期权池）条款.docx",
+      "filename": "9.股权激励（期权池）条款.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）\\一般通用出资协议（详细版+配套条款+依据2024版《公司法》）文本清单.docx",
+      "filename": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）文本清单.docx",
+      "category": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用出资协议（详细版+配套条款+依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）\\1.一般通用增资合同（三方版）.docx",
+      "filename": "1.一般通用增资合同（三方版）.docx",
+      "category": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）\\2.非现金增资（备选条款）.docx",
+      "filename": "2.非现金增资（备选条款）.docx",
+      "category": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）\\3.两个增资方（备选条款）.docx",
+      "filename": "3.两个增资方（备选条款）.docx",
+      "category": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）\\4.非货币出资说明条款（非货币出资的补充约定）.docx",
+      "filename": "4.非货币出资说明条款（非货币出资的补充约定）.docx",
+      "category": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）\\5.公司治理补充条款（灵活约定）.docx",
+      "filename": "5.公司治理补充条款（灵活约定）.docx",
+      "category": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）\\6.不竞争义务条款.docx",
+      "filename": "6.不竞争义务条款.docx",
+      "category": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）\\7.全职工作（限制性股权）.docx",
+      "filename": "7.全职工作（限制性股权）.docx",
+      "category": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）\\8.股权激励（期权池）条款.docx",
+      "filename": "8.股权激励（期权池）条款.docx",
+      "category": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）\\9.特殊项目独立核算条款.docx",
+      "filename": "9.特殊项目独立核算条款.docx",
+      "category": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）\\一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）文本清单.docx",
+      "filename": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）文本清单.docx",
+      "category": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）",
+      "subcategory": null,
+      "relative_path": "一般通用增资合同（无控制权转移+三方详细版+配套条款+ 依据2024版《公司法》）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\上交所上市公司章程（AB股、特别表决权）.docx",
+      "filename": "上交所上市公司章程（AB股、特别表决权）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\上市公司优先股认购协议.docx",
+      "filename": "上市公司优先股认购协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\不良资产收购合作协议三方协议.docx",
+      "filename": "不良资产收购合作协议三方协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\专家顾问聘用合同.docx",
+      "filename": "专家顾问聘用合同.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\企业公益助残计划劳务派遣合作协议.docx",
+      "filename": "企业公益助残计划劳务派遣合作协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\估值调整协议（与创始股东对赌）.docx",
+      "filename": "估值调整协议（与创始股东对赌）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\保密协议.docx",
+      "filename": "保密协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\保密协议（简版）.docx",
+      "filename": "保密协议（简版）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\借款协议.docx",
+      "filename": "借款协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\公司及并购类合同配套协议通用框架.docx",
+      "filename": "公司及并购类合同配套协议通用框架.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\公司吸收合并合同（含双方股东、详细版+依据2024版《公司法》）.docx",
+      "filename": "公司吸收合并合同（含双方股东、详细版+依据2024版《公司法》）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）\\1.创业公司章程（含创始股东约束条款）.docx",
+      "filename": "1.创业公司章程（含创始股东约束条款）.docx",
+      "category": "创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）",
+      "subcategory": null,
+      "relative_path": "创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）\\2.配偶同意章程（同意不分割股权）声明.docx",
+      "filename": "2.配偶同意章程（同意不分割股权）声明.docx",
+      "category": "创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）",
+      "subcategory": null,
+      "relative_path": "创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）\\3.创始股东动态股权协议——根据需要采用.docx",
+      "filename": "3.创始股东动态股权协议——根据需要采用.docx",
+      "category": "创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）",
+      "subcategory": null,
+      "relative_path": "创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）\\创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）文本清单.docx",
+      "filename": "创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）文本清单.docx",
+      "category": "创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）",
+      "subcategory": null,
+      "relative_path": "创业型有限责任公司章程及配套协议（创始股东约束、适用2024版公司法）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\创始股东协议.docx",
+      "filename": "创始股东协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\发行股份及支付现金购买股权协议.docx",
+      "filename": "发行股份及支付现金购买股权协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\可转股债权投资合同（有限责任公司）.docx",
+      "filename": "可转股债权投资合同（有限责任公司）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\保密协议.docx",
+      "filename": "保密协议.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\借款协议.docx",
+      "filename": "借款协议.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\储能电站劳务分包合同模板（适用于我方为发包人）.docx",
+      "filename": "储能电站劳务分包合同模板（适用于我方为发包人）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\储能电站工程EPC合同模板（适用于我方为发包人）-大E和小E.doc",
+      "filename": "储能电站工程EPC合同模板（适用于我方为发包人）-大E和小E.doc",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\储能电站工程EPC合同模板（适用于我方为承包人）-大E和小E.docx",
+      "filename": "储能电站工程EPC合同模板（适用于我方为承包人）-大E和小E.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\储能电站工程施工合同模板（适用于我方为发包人）-施工+采购.docx",
+      "filename": "储能电站工程施工合同模板（适用于我方为发包人）-施工+采购.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\储能电站工程施工合同模板（适用于我方为发包人）-施工.docx",
+      "filename": "储能电站工程施工合同模板（适用于我方为发包人）-施工.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\光伏电站劳务分包合同模板（适用于我方为发包人）.docx",
+      "filename": "光伏电站劳务分包合同模板（适用于我方为发包人）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\光伏电站工程EPC合同模板（适用于我方为发包人）-大E.doc",
+      "filename": "光伏电站工程EPC合同模板（适用于我方为发包人）-大E.doc",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\光伏电站工程EPC合同模板（适用于我方为发包人）-小E.doc",
+      "filename": "光伏电站工程EPC合同模板（适用于我方为发包人）-小E.doc",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\光伏电站工程EPC合同模板（适用于我方为承包人）-大E.docx",
+      "filename": "光伏电站工程EPC合同模板（适用于我方为承包人）-大E.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\光伏电站工程EPC合同模板（适用于我方为承包人）-小E.docx",
+      "filename": "光伏电站工程EPC合同模板（适用于我方为承包人）-小E.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\光伏电站工程施工合同模板（适用于我方为发包人）-施工+采购.docx",
+      "filename": "光伏电站工程施工合同模板（适用于我方为发包人）-施工+采购.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\光伏电站工程施工合同模板（适用于我方为发包人）-施工.docx",
+      "filename": "光伏电站工程施工合同模板（适用于我方为发包人）-施工.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\光伏电站清洗服务合同（光伏电站）-适用于我方为委托方.docx",
+      "filename": "光伏电站清洗服务合同（光伏电站）-适用于我方为委托方.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\光伏电站运维服务合同（光伏电站）-适用于我方为受托方.docx",
+      "filename": "光伏电站运维服务合同（光伏电站）-适用于我方为受托方.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\关于《XX合同》解除的告知函.docx",
+      "filename": "关于《XX合同》解除的告知函.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\咨询服务合同模版-能源版块EMC项目（适用于我方为委托人）.docx",
+      "filename": "咨询服务合同模版-能源版块EMC项目（适用于我方为委托人）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\咨询服务合同模版-能源版块EPC项目（适用于我方为委托人）.docx",
+      "filename": "咨询服务合同模版-能源版块EPC项目（适用于我方为委托人）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\商业管理-欠费催缴函 - 20230720.docx",
+      "filename": "商业管理-欠费催缴函 - 20230720.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\商业管理-租赁合同解除协议-模板20250326 (2).docx",
+      "filename": "商业管理-租赁合同解除协议-模板20250326 (2).docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\商业管理-解约函-（模板）20230720更新.docx",
+      "filename": "商业管理-解约函-（模板）20230720更新.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\委托付款协议.docx",
+      "filename": "委托付款协议.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\委托招商协议.docx",
+      "filename": "委托招商协议.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\安正廉洁合作协议书（模板）.docx",
+      "filename": "安正廉洁合作协议书（模板）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\平安财富中心-房屋租赁合同（定制）.doc",
+      "filename": "平安财富中心-房屋租赁合同（定制）.doc",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\平安财富中心-房屋租赁合同（非定制）.doc",
+      "filename": "平安财富中心-房屋租赁合同（非定制）.doc",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\平安财富中心-欠费催缴函.doc",
+      "filename": "平安财富中心-欠费催缴函.doc",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\平安财富中心-租赁合同解除协议-模板.docx",
+      "filename": "平安财富中心-租赁合同解除协议-模板.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\平安财富中心-解约函（模板）.docx",
+      "filename": "平安财富中心-解约函（模板）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\挂名法定代表人协议.docx",
+      "filename": "挂名法定代表人协议.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\朗朗天地商业租赁合同模板-20250305-定稿.docx",
+      "filename": "朗朗天地商业租赁合同模板-20250305-定稿.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\能源管理项目合同【储能项目】（三方）.docx",
+      "filename": "能源管理项目合同【储能项目】（三方）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\能源管理项目合同【储能项目】（两方）.docx",
+      "filename": "能源管理项目合同【储能项目】（两方）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\能源管理项目合同【分布式光伏】（三方）.docx",
+      "filename": "能源管理项目合同【分布式光伏】（三方）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\能源管理项目合同【分布式光伏】（两方）.docx",
+      "filename": "能源管理项目合同【分布式光伏】（两方）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\解除协议（通用）.docx",
+      "filename": "解除协议（通用）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\附件1：房屋交接单(1).docx",
+      "filename": "附件1：房屋交接单(1).docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\附件1：房屋交接单.docx",
+      "filename": "附件1：房屋交接单.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\附件2：物业管理规定(1).docx",
+      "filename": "附件2：物业管理规定(1).docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\附件2：物业管理规定.docx",
+      "filename": "附件2：物业管理规定.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\附件3：定制装修确认书.docx",
+      "filename": "附件3：定制装修确认书.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\项目设计合同模板（适用于我方为发包人）.docx",
+      "filename": "项目设计合同模板（适用于我方为发包人）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_已有合同模板清单_附件(1)\\项目采购合同模板【光伏_储能项目】（适用于我方为采购方）.docx",
+      "filename": "项目采购合同模板【光伏_储能项目】（适用于我方为采购方）.docx",
+      "category": "合同模板需求统计表_已有合同模板清单_附件(1)",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_已有合同模板清单_附件(1)"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\保密协议.docx",
+      "filename": "保密协议.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\借款协议.docx",
+      "filename": "借款协议.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\储能电站劳务分包合同模板（适用于我方为发包人）.docx",
+      "filename": "储能电站劳务分包合同模板（适用于我方为发包人）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\储能电站工程EPC合同模板（适用于我方为发包人）-大E和小E.doc",
+      "filename": "储能电站工程EPC合同模板（适用于我方为发包人）-大E和小E.doc",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\储能电站工程EPC合同模板（适用于我方为承包人）-大E和小E.docx",
+      "filename": "储能电站工程EPC合同模板（适用于我方为承包人）-大E和小E.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\储能电站工程施工合同模板（适用于我方为发包人）-施工+采购.docx",
+      "filename": "储能电站工程施工合同模板（适用于我方为发包人）-施工+采购.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\储能电站工程施工合同模板（适用于我方为发包人）-施工.docx",
+      "filename": "储能电站工程施工合同模板（适用于我方为发包人）-施工.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\光伏电站劳务分包合同模板（适用于我方为发包人）.docx",
+      "filename": "光伏电站劳务分包合同模板（适用于我方为发包人）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\光伏电站工程EPC合同模板（适用于我方为发包人）-大E.doc",
+      "filename": "光伏电站工程EPC合同模板（适用于我方为发包人）-大E.doc",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\光伏电站工程EPC合同模板（适用于我方为发包人）-小E.doc",
+      "filename": "光伏电站工程EPC合同模板（适用于我方为发包人）-小E.doc",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\光伏电站工程EPC合同模板（适用于我方为承包人）-大E.docx",
+      "filename": "光伏电站工程EPC合同模板（适用于我方为承包人）-大E.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\光伏电站工程EPC合同模板（适用于我方为承包人）-小E.docx",
+      "filename": "光伏电站工程EPC合同模板（适用于我方为承包人）-小E.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\光伏电站工程施工合同模板（适用于我方为发包人）-施工+采购.docx",
+      "filename": "光伏电站工程施工合同模板（适用于我方为发包人）-施工+采购.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\光伏电站工程施工合同模板（适用于我方为发包人）-施工.docx",
+      "filename": "光伏电站工程施工合同模板（适用于我方为发包人）-施工.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\光伏电站清洗服务合同（光伏电站）-适用于我方为委托方.docx",
+      "filename": "光伏电站清洗服务合同（光伏电站）-适用于我方为委托方.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\光伏电站运维服务合同（光伏电站）-适用于我方为受托方.docx",
+      "filename": "光伏电站运维服务合同（光伏电站）-适用于我方为受托方.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\关于《XX合同》解除的告知函.docx",
+      "filename": "关于《XX合同》解除的告知函.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\咨询服务合同模版-能源版块EMC项目（适用于我方为委托人）.docx",
+      "filename": "咨询服务合同模版-能源版块EMC项目（适用于我方为委托人）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\咨询服务合同模版-能源版块EPC项目（适用于我方为委托人）.docx",
+      "filename": "咨询服务合同模版-能源版块EPC项目（适用于我方为委托人）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\商业管理-租赁合同解除协议-模板20250326.docx",
+      "filename": "商业管理-租赁合同解除协议-模板20250326.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\商业管理-解约函-（模板）20230720更新.docx",
+      "filename": "商业管理-解约函-（模板）20230720更新.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\委托招商协议.docx",
+      "filename": "委托招商协议.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\平安财富中心-房屋租赁合同（定制）.doc",
+      "filename": "平安财富中心-房屋租赁合同（定制）.doc",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\平安财富中心-房屋租赁合同（非定制）.doc",
+      "filename": "平安财富中心-房屋租赁合同（非定制）.doc",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\平安财富中心-欠费催缴函.doc",
+      "filename": "平安财富中心-欠费催缴函.doc",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\平安财富中心-租赁合同解除协议-模板.docx",
+      "filename": "平安财富中心-租赁合同解除协议-模板.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\平安财富中心-解约函（模板）.docx",
+      "filename": "平安财富中心-解约函（模板）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\廉洁合作协议书（模板）.docx",
+      "filename": "廉洁合作协议书（模板）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\挂名法定代表人协议.docx",
+      "filename": "挂名法定代表人协议.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\能源管理项目合同【储能项目】（三方）.docx",
+      "filename": "能源管理项目合同【储能项目】（三方）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\能源管理项目合同【储能项目】（两方）.docx",
+      "filename": "能源管理项目合同【储能项目】（两方）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\能源管理项目合同【分布式光伏】（三方）.docx",
+      "filename": "能源管理项目合同【分布式光伏】（三方）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\能源管理项目合同【分布式光伏】（两方）.docx",
+      "filename": "能源管理项目合同【分布式光伏】（两方）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\解除协议（通用）.docx",
+      "filename": "解除协议（通用）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\附件1：房屋交接单(1).docx",
+      "filename": "附件1：房屋交接单(1).docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\附件1：房屋交接单.docx",
+      "filename": "附件1：房屋交接单.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\附件2：物业管理规定(1).docx",
+      "filename": "附件2：物业管理规定(1).docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\附件2：物业管理规定.docx",
+      "filename": "附件2：物业管理规定.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\附件3：定制装修确认书.docx",
+      "filename": "附件3：定制装修确认书.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\项目设计合同模板（适用于我方为发包人）.docx",
+      "filename": "项目设计合同模板（适用于我方为发包人）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\合同模板需求统计表_附件\\已有合同模板清单\\项目采购合同模板【光伏_储能项目】（适用于我方为采购方）.docx",
+      "filename": "项目采购合同模板【光伏_储能项目】（适用于我方为采购方）.docx",
+      "category": "合同模板需求统计表_附件",
+      "subcategory": null,
+      "relative_path": "合同模板需求统计表_附件\\已有合同模板清单"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\和解协议模版.docx",
+      "filename": "和解协议模版.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\增资扩股协议.docx",
+      "filename": "增资扩股协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\1.股权代持协议（详细版）.docx",
+      "filename": "1.股权代持协议（详细版）.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\10.股权代持解除协议.docx",
+      "filename": "10.股权代持解除协议.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\2.股权代持协议（简单版）.docx",
+      "filename": "2.股权代持协议（简单版）.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\3.代持股权声明（单方出具）.docx",
+      "filename": "3.代持股权声明（单方出具）.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\4.配偶确认代持声明.docx",
+      "filename": "4.配偶确认代持声明.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\5.授权委托书（显名股东委托隐名股东行使股东权利）.docx",
+      "filename": "5.授权委托书（显名股东委托隐名股东行使股东权利）.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\6.其他股东等同意代持声明.docx",
+      "filename": "6.其他股东等同意代持声明.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\7.承诺书（挂名股东免责）.docx",
+      "filename": "7.承诺书（挂名股东免责）.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\8.股东显名申请（通知其他股东）.docx",
+      "filename": "8.股东显名申请（通知其他股东）.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\9.股东显名通知（通知公司）.docx",
+      "filename": "9.股东显名通知（通知公司）.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托持股合同（有限责任公司股权代持）\\委托持股合同（有限责任公司股权代持）文本清单.docx",
+      "filename": "委托持股合同（有限责任公司股权代持）文本清单.docx",
+      "category": "委托持股合同（有限责任公司股权代持）",
+      "subcategory": null,
+      "relative_path": "委托持股合同（有限责任公司股权代持）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\委托管理协议.docx",
+      "filename": "委托管理协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\存量商品房买卖合同\\1.存量房屋买卖合同.docx",
+      "filename": "1.存量房屋买卖合同.docx",
+      "category": "存量商品房买卖合同",
+      "subcategory": null,
+      "relative_path": "存量商品房买卖合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\存量商品房买卖合同\\2.交易风险提示.docx",
+      "filename": "2.交易风险提示.docx",
+      "category": "存量商品房买卖合同",
+      "subcategory": null,
+      "relative_path": "存量商品房买卖合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\存量商品房买卖合同\\3.附件：房屋附属设施清单.docx",
+      "filename": "3.附件：房屋附属设施清单.docx",
+      "category": "存量商品房买卖合同",
+      "subcategory": null,
+      "relative_path": "存量商品房买卖合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\存量商品房买卖合同\\4.放弃优先购买权声明.docx",
+      "filename": "4.放弃优先购买权声明.docx",
+      "category": "存量商品房买卖合同",
+      "subcategory": null,
+      "relative_path": "存量商品房买卖合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\存量商品房买卖合同\\5.同意出售房屋声明.docx",
+      "filename": "5.同意出售房屋声明.docx",
+      "category": "存量商品房买卖合同",
+      "subcategory": null,
+      "relative_path": "存量商品房买卖合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\存量商品房买卖合同\\存量商品房买卖合同文本清单.docx",
+      "filename": "存量商品房买卖合同文本清单.docx",
+      "category": "存量商品房买卖合同",
+      "subcategory": null,
+      "relative_path": "存量商品房买卖合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\安正开发合同.docx",
+      "filename": "安正开发合同.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\实际控制人一致行动协议（有限公司）.docx",
+      "filename": "实际控制人一致行动协议（有限公司）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\工程造价咨询服务合同.docx",
+      "filename": "工程造价咨询服务合同.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\律师事务所（特殊普通合伙）成套文本\\1.律师事务所设立流程.docx",
+      "filename": "1.律师事务所设立流程.docx",
+      "category": "律师事务所（特殊普通合伙）成套文本",
+      "subcategory": null,
+      "relative_path": "律师事务所（特殊普通合伙）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\律师事务所（特殊普通合伙）成套文本\\2.律师事务所（特殊普通合伙）合伙协议.docx",
+      "filename": "2.律师事务所（特殊普通合伙）合伙协议.docx",
+      "category": "律师事务所（特殊普通合伙）成套文本",
+      "subcategory": null,
+      "relative_path": "律师事务所（特殊普通合伙）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\律师事务所（特殊普通合伙）成套文本\\3.律师事务所（特殊普通合伙）章程.docx",
+      "filename": "3.律师事务所（特殊普通合伙）章程.docx",
+      "category": "律师事务所（特殊普通合伙）成套文本",
+      "subcategory": null,
+      "relative_path": "律师事务所（特殊普通合伙）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\律师事务所（特殊普通合伙）成套文本\\4.律所入伙协议（特殊普通合伙制）.docx",
+      "filename": "4.律所入伙协议（特殊普通合伙制）.docx",
+      "category": "律师事务所（特殊普通合伙）成套文本",
+      "subcategory": null,
+      "relative_path": "律师事务所（特殊普通合伙）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\律师事务所（特殊普通合伙）成套文本\\5.律师事务所退伙协议.docx",
+      "filename": "5.律师事务所退伙协议.docx",
+      "category": "律师事务所（特殊普通合伙）成套文本",
+      "subcategory": null,
+      "relative_path": "律师事务所（特殊普通合伙）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\律师事务所（特殊普通合伙）成套文本\\律师事务所（特殊普通合伙）成套文本文本清单.docx",
+      "filename": "律师事务所（特殊普通合伙）成套文本文本清单.docx",
+      "category": "律师事务所（特殊普通合伙）成套文本",
+      "subcategory": null,
+      "relative_path": "律师事务所（特殊普通合伙）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\律所单事项委托代理合同.docx",
+      "filename": "律所单事项委托代理合同.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\技术咨询合同.doc",
+      "filename": "技术咨询合同.doc",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\技术开发(委托)合同.doc",
+      "filename": "技术开发(委托)合同.doc",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\技术服务协议.docx",
+      "filename": "技术服务协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\技术服务合同.docx",
+      "filename": "技术服务合同.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\技术转让（技术秘密）合同.doc",
+      "filename": "技术转让（技术秘密）合同.doc",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\投资协议（投资人与创始人共同设立公司模式）.docx",
+      "filename": "投资协议（投资人与创始人共同设立公司模式）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\授权委托.docx",
+      "filename": "授权委托.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\授权委托书.docx",
+      "filename": "授权委托书.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限合伙协议（持股平台型）\\1.合伙协议（用于登记）.docx",
+      "filename": "1.合伙协议（用于登记）.docx",
+      "category": "其他",
+      "subcategory": "合伙协议",
+      "relative_path": "有限合伙协议（持股平台型）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限合伙协议（持股平台型）\\2.合伙协议补充协议.docx",
+      "filename": "2.合伙协议补充协议.docx",
+      "category": "其他",
+      "subcategory": "合伙协议",
+      "relative_path": "有限合伙协议（持股平台型）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限合伙协议（持股平台型）\\有限合伙协议（持股平台型）文本清单.docx",
+      "filename": "有限合伙协议（持股平台型）文本清单.docx",
+      "category": "其他",
+      "subcategory": "合伙协议",
+      "relative_path": "有限合伙协议（持股平台型）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司持股平台（有限合伙企业）设立全套文本\\1.股东会决议.docx",
+      "filename": "1.股东会决议.docx",
+      "category": "有限责任公司持股平台（有限合伙企业）设立全套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司持股平台（有限合伙企业）设立全套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司持股平台（有限合伙企业）设立全套文本\\2.普通合伙人声明.docx",
+      "filename": "2.普通合伙人声明.docx",
+      "category": "有限责任公司持股平台（有限合伙企业）设立全套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司持股平台（有限合伙企业）设立全套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司持股平台（有限合伙企业）设立全套文本\\3.合伙协议.docx",
+      "filename": "3.合伙协议.docx",
+      "category": "有限责任公司持股平台（有限合伙企业）设立全套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司持股平台（有限合伙企业）设立全套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司持股平台（有限合伙企业）设立全套文本\\4.授权书.docx",
+      "filename": "4.授权书.docx",
+      "category": "有限责任公司持股平台（有限合伙企业）设立全套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司持股平台（有限合伙企业）设立全套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司持股平台（有限合伙企业）设立全套文本\\有限责任公司持股平台（有限合伙企业）设立全套文本文本清单.docx",
+      "filename": "有限责任公司持股平台（有限合伙企业）设立全套文本文本清单.docx",
+      "category": "有限责任公司持股平台（有限合伙企业）设立全套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司持股平台（有限合伙企业）设立全套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司章程（简单基础版、适用2024版公司法）.docx",
+      "filename": "有限责任公司章程（简单基础版、适用2024版公司法）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\1.股东会决议.docx",
+      "filename": "1.股东会决议.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\10.合伙企业财产份额转让协议.docx",
+      "filename": "10.合伙企业财产份额转让协议.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\11.确认函形式（有限合伙人确认入伙）.docx",
+      "filename": "11.确认函形式（有限合伙人确认入伙）.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\12.激励对象声明.docx",
+      "filename": "12.激励对象声明.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\13.回购通知.docx",
+      "filename": "13.回购通知.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\14.有限合伙财产份额转让协议（回购）.docx",
+      "filename": "14.有限合伙财产份额转让协议（回购）.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\15.退伙协议.docx",
+      "filename": "15.退伙协议.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\16.退出股权激励声明.docx",
+      "filename": "16.退出股权激励声明.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\2.执行事务合伙人声明.docx",
+      "filename": "2.执行事务合伙人声明.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\3.代持合伙人声明.docx",
+      "filename": "3.代持合伙人声明.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\4.合伙协议（附合伙人名册）.docx",
+      "filename": "4.合伙协议（附合伙人名册）.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\5.股东会决议.docx",
+      "filename": "5.股东会决议.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\6.股权激励计划.docx",
+      "filename": "6.股权激励计划.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\7.股权激励协议（持股平台+激励对象+公司三方签署）.docx",
+      "filename": "7.股权激励协议（持股平台+激励对象+公司三方签署）.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\8.股权激励协议（持股平台+激励对象两方签署）.docx",
+      "filename": "8.股权激励协议（持股平台+激励对象两方签署）.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\9.行权通知.docx",
+      "filename": "9.行权通知.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）\\有限责任公司股权激励全套文本（期权+有限合伙持股平台）文本清单.docx",
+      "filename": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）文本清单.docx",
+      "category": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励全套文本（期权+有限合伙持股平台）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\1.董事会决议.docx",
+      "filename": "1.董事会决议.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\10.股权回购合同.docx",
+      "filename": "10.股权回购合同.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\2.股东会决议.docx",
+      "filename": "2.股东会决议.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\3.股权激励计划.docx",
+      "filename": "3.股权激励计划.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\4.代持股东声明.docx",
+      "filename": "4.代持股东声明.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\5.股权激励协议.docx",
+      "filename": "5.股权激励协议.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\6.激励对象声明.docx",
+      "filename": "6.激励对象声明.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\7.限制性股权解除限制申请.docx",
+      "filename": "7.限制性股权解除限制申请.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\8.限制性股权解除限制通知.docx",
+      "filename": "8.限制性股权解除限制通知.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\9.回购通知.docx",
+      "filename": "9.回购通知.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本\\有限责任公司股权激励（限制性股权、其他股东代持）成套文本文本清单.docx",
+      "filename": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本文本清单.docx",
+      "category": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、其他股东代持）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\1.股东会决议.docx",
+      "filename": "1.股东会决议.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\10.限制性股权解除限制申请.docx",
+      "filename": "10.限制性股权解除限制申请.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\11.限制性股权解除限制通知.docx",
+      "filename": "11.限制性股权解除限制通知.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\12.回购通知.docx",
+      "filename": "12.回购通知.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\13.有限合伙财产份额转让协议（回购）.docx",
+      "filename": "13.有限合伙财产份额转让协议（回购）.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\14.退伙协议.docx",
+      "filename": "14.退伙协议.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\15.退出股权激励声明.docx",
+      "filename": "15.退出股权激励声明.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\2.执行事务合伙人声明.docx",
+      "filename": "2.执行事务合伙人声明.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\3.代持合伙人声明.docx",
+      "filename": "3.代持合伙人声明.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\4.合伙协议（附合伙人名册）.docx",
+      "filename": "4.合伙协议（附合伙人名册）.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\5.股东会决议.docx",
+      "filename": "5.股东会决议.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\6.股权激励计划.docx",
+      "filename": "6.股权激励计划.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\7.股权激励协议.docx",
+      "filename": "7.股权激励协议.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\8.确认函形式（有限合伙人确认入伙）.docx",
+      "filename": "8.确认函形式（有限合伙人确认入伙）.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\9.激励对象声明.docx",
+      "filename": "9.激励对象声明.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本\\有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本文本清单.docx",
+      "filename": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本文本清单.docx",
+      "category": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本",
+      "subcategory": null,
+      "relative_path": "有限责任公司股权激励（限制性股权、持股平台、直接授予股权）成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\猎头合作协议.docx",
+      "filename": "猎头合作协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\现金支付式（常规）股权收购合同\\1.现金支付式（常规）股权收购合同.docx",
+      "filename": "1.现金支付式（常规）股权收购合同.docx",
+      "category": "现金支付式（常规）股权收购合同",
+      "subcategory": null,
+      "relative_path": "现金支付式（常规）股权收购合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\现金支付式（常规）股权收购合同\\2.附件一：目标公司信息披露函.docx",
+      "filename": "2.附件一：目标公司信息披露函.docx",
+      "category": "现金支付式（常规）股权收购合同",
+      "subcategory": null,
+      "relative_path": "现金支付式（常规）股权收购合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\现金支付式（常规）股权收购合同\\3.附件二：特殊债权债务及合同处置方案.docx",
+      "filename": "3.附件二：特殊债权债务及合同处置方案.docx",
+      "category": "现金支付式（常规）股权收购合同",
+      "subcategory": null,
+      "relative_path": "现金支付式（常规）股权收购合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\现金支付式（常规）股权收购合同\\4.附件三：员工接收方案.docx",
+      "filename": "4.附件三：员工接收方案.docx",
+      "category": "现金支付式（常规）股权收购合同",
+      "subcategory": null,
+      "relative_path": "现金支付式（常规）股权收购合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\现金支付式（常规）股权收购合同\\现金支付式（常规）股权收购合同文本清单.docx",
+      "filename": "现金支付式（常规）股权收购合同文本清单.docx",
+      "category": "现金支付式（常规）股权收购合同",
+      "subcategory": null,
+      "relative_path": "现金支付式（常规）股权收购合同"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\现金支付式（常规）资产收购合同.docx",
+      "filename": "现金支付式（常规）资产收购合同.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\简单办公室（写字楼）租赁合同（出租方承担物业费用）\\1.租赁合同.docx",
+      "filename": "1.租赁合同.docx",
+      "category": "简单办公室（写字楼）租赁合同（出租方承担物业费用）",
+      "subcategory": null,
+      "relative_path": "简单办公室（写字楼）租赁合同（出租方承担物业费用）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\简单办公室（写字楼）租赁合同（出租方承担物业费用）\\2.房屋交付确认书.docx",
+      "filename": "2.房屋交付确认书.docx",
+      "category": "简单办公室（写字楼）租赁合同（出租方承担物业费用）",
+      "subcategory": null,
+      "relative_path": "简单办公室（写字楼）租赁合同（出租方承担物业费用）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\简单办公室（写字楼）租赁合同（出租方承担物业费用）\\3.出租方收款收据.docx",
+      "filename": "3.出租方收款收据.docx",
+      "category": "简单办公室（写字楼）租赁合同（出租方承担物业费用）",
+      "subcategory": null,
+      "relative_path": "简单办公室（写字楼）租赁合同（出租方承担物业费用）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\简单办公室（写字楼）租赁合同（出租方承担物业费用）\\简单办公室（写字楼）租赁合同（出租方承担物业费用）文本清单.docx",
+      "filename": "简单办公室（写字楼）租赁合同（出租方承担物业费用）文本清单.docx",
+      "category": "简单办公室（写字楼）租赁合同（出租方承担物业费用）",
+      "subcategory": null,
+      "relative_path": "简单办公室（写字楼）租赁合同（出租方承担物业费用）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\股东保密及竞业禁止协议（股东与公司间）.docx",
+      "filename": "股东保密及竞业禁止协议（股东与公司间）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\股权代持协议书.docx",
+      "filename": "股权代持协议书.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\董事会议事规则.docx",
+      "filename": "董事会议事规则.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\设立有限合伙企业成套文本\\1.有限合伙企业合伙协议.docx",
+      "filename": "1.有限合伙企业合伙协议.docx",
+      "category": "设立有限合伙企业成套文本",
+      "subcategory": null,
+      "relative_path": "设立有限合伙企业成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\设立有限合伙企业成套文本\\2.合伙企业出资确认书.docx",
+      "filename": "2.合伙企业出资确认书.docx",
+      "category": "设立有限合伙企业成套文本",
+      "subcategory": null,
+      "relative_path": "设立有限合伙企业成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\设立有限合伙企业成套文本\\3.全体合伙人对各合伙人认缴或者实际缴付出资的确认书.docx",
+      "filename": "3.全体合伙人对各合伙人认缴或者实际缴付出资的确认书.docx",
+      "category": "设立有限合伙企业成套文本",
+      "subcategory": null,
+      "relative_path": "设立有限合伙企业成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\设立有限合伙企业成套文本\\设立有限合伙企业成套文本文本清单.docx",
+      "filename": "设立有限合伙企业成套文本文本清单.docx",
+      "category": "设立有限合伙企业成套文本",
+      "subcategory": null,
+      "relative_path": "设立有限合伙企业成套文本"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\调解方案模版.docx",
+      "filename": "调解方案模版.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\货物买卖框架合同（极简版）\\1.货物买卖框架合同（极简版）.docx",
+      "filename": "1.货物买卖框架合同（极简版）.docx",
+      "category": "买卖合同",
+      "subcategory": "货物买卖",
+      "relative_path": "货物买卖框架合同（极简版）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\货物买卖框架合同（极简版）\\2.采购订单.docx",
+      "filename": "2.采购订单.docx",
+      "category": "买卖合同",
+      "subcategory": "货物买卖",
+      "relative_path": "货物买卖框架合同（极简版）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\货物买卖框架合同（极简版）\\货物买卖框架合同（极简版）文本清单.docx",
+      "filename": "货物买卖框架合同（极简版）文本清单.docx",
+      "category": "买卖合同",
+      "subcategory": "货物买卖",
+      "relative_path": "货物买卖框架合同（极简版）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\车辆租赁合同（简单通用版）\\1.车辆租赁合同（简单通用版）.docx",
+      "filename": "1.车辆租赁合同（简单通用版）.docx",
+      "category": "租赁合同",
+      "subcategory": "车辆租赁",
+      "relative_path": "车辆租赁合同（简单通用版）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\车辆租赁合同（简单通用版）\\2.车辆交接清单.docx",
+      "filename": "2.车辆交接清单.docx",
+      "category": "租赁合同",
+      "subcategory": "车辆租赁",
+      "relative_path": "车辆租赁合同（简单通用版）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\车辆租赁合同（简单通用版）\\车辆租赁合同（简单通用版）文本清单.docx",
+      "filename": "车辆租赁合同（简单通用版）文本清单.docx",
+      "category": "租赁合同",
+      "subcategory": "车辆租赁",
+      "relative_path": "车辆租赁合同（简单通用版）"
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\软件源代码使用授权协议（配套许可）.docx",
+      "filename": "软件源代码使用授权协议（配套许可）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\采购合同（适用于机械设备类货物采购）.docx",
+      "filename": "采购合同（适用于机械设备类货物采购）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\采购合同（适用物资采购）.docx",
+      "filename": "采购合同（适用物资采购）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\项目前期合作协议.docx",
+      "filename": "项目前期合作协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\项目型公司股东协议.docx",
+      "filename": "项目型公司股东协议.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    },
+    {
+      "file_path": "e:\\legal_document_assistant v3\\backend\\templates_source\\项目投资合作协议（新设公司+股东借款+退还股权）.docx",
+      "filename": "项目投资合作协议（新设公司+股东借款+退还股权）.docx",
+      "category": "其他",
+      "subcategory": null,
+      "relative_path": ""
+    }
+  ]
+}

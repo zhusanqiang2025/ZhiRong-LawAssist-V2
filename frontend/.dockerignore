@@ -1,0 +1,15 @@
+# 忽略 node_modules 文件夹
+node_modules
+
+# 忽略构建输出文件夹
+build
+dist
+
+# 忽略 npm 调试日志
+npm-debug.log*
+
+# 忽略本地环境变量文件
+.env.local
+
+# 忽略 Git 文件夹
+.git

@@ -1,0 +1,19 @@
+# FastAPI Web框架
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+python-multipart>=0.0.6
+
+# Gradio Web框架
+gradio==5.49.0
+
+# HTTP请求库
+requests>=2.31.0
+
+
+# 数据处理
+numpy>=1.24.0
+pandas>=2.0.0
+
+# 系统工具（Python标准库，不需要安装）
+# os, shutil, glob, re, base64, json 等都是Python标准库

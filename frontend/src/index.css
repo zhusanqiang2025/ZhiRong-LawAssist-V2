@@ -1,0 +1,24 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f4f8;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 80%; /* 或者设置为固定宽度，例如 1200px */
+  margin: 0 auto;
+  padding: 20px 100px; /* 增加左右边距 */
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 24px; /* 恢复之前字体大小 */
+}
+
+h3 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-size: 18px; /* 恢复之前字体大小 */
+}

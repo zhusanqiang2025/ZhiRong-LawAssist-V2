@@ -1,0 +1,3118 @@
+{
+  "contract_types": [
+    {
+      "name": "不动产买卖合同",
+      "aliases": [
+        "房屋买卖合同",
+        "房产买卖合同",
+        "二手房买卖合同",
+        "商品房买卖合同",
+        "房地产买卖合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "买卖合同",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "不动产",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "卖方转移不动产所有权，买方支付价款，需办理登记交付",
+        "usage_scenario": "个人或企业买卖房产、土地等不动产",
+        "legal_basis": [
+          "民法典第595条",
+          "民法典第209条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "动产买卖合同",
+      "aliases": [
+        "货物买卖合同",
+        "一般买卖合同",
+        "商品买卖协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "买卖合同",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "动产",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "出卖人转移动产所有权，买受人支付价款",
+        "usage_scenario": "个人或企业买卖动产商品",
+        "legal_basis": [
+          "民法典第595条",
+          "民法典第598条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "公益赠与合同",
+      "aliases": [
+        "慈善捐赠协议",
+        "公益捐赠合同",
+        "公益性赠与协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "赠与合同",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "无对价",
+        "transaction_characteristics": "赠与人无偿转移财产所有权，用于公益目的",
+        "usage_scenario": "向慈善组织或公益项目捐赠财产",
+        "legal_basis": [
+          "民法典第657条",
+          "民法典第658条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "一般赠与合同",
+      "aliases": [
+        "赠与协议",
+        "无偿赠与合同",
+        "个人赠与协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "赠与合同",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "动产",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "无偿给予",
+        "transaction_characteristics": "赠与人无偿转移财产所有权给受赠人",
+        "usage_scenario": "个人或组织无偿赠送财产给他人",
+        "legal_basis": [
+          "民法典第657条",
+          "民法典第658条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "委托贷款合同",
+      "aliases": [
+        "委贷合同",
+        "委托放款协议",
+        "委托借款合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "借款合同",
+      "legal_features": {
+        "transaction_nature": "融资借贷",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "利息形式",
+        "transaction_characteristics": "委托方委托受托方发放贷款，借款人偿还本息",
+        "usage_scenario": "企业委托金融机构发放贷款融资",
+        "legal_basis": [
+          "民法典第679条",
+          "民法典第919条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "民间借款合同",
+      "aliases": [
+        "个人借款合同",
+        "私人借贷协议",
+        "自然人借款合同",
+        "民间借贷协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "借款合同",
+      "legal_features": {
+        "transaction_nature": "融资借贷",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "利息形式",
+        "transaction_characteristics": "出借人提供资金，借款人到期归还本金并支付利息",
+        "usage_scenario": "个人或企业之间借贷资金用于周转或投资",
+        "legal_basis": [
+          "民法典第679条",
+          "民法典第680条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "住宅租赁合同",
+      "aliases": [
+        "房屋租赁合同",
+        "租房合同",
+        "住宅出租合同",
+        "个人租房协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "租赁合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "不动产",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "租金形式",
+        "transaction_characteristics": "出租人交付房屋使用权，承租人支付租金",
+        "usage_scenario": "个人或家庭租赁住宅用于居住",
+        "legal_basis": [
+          "民法典第703条",
+          "民法典第707条"
+        ]
+      },
+      "recommended_template_ids": [
+        "31db41fa-5207-4167-93fa-4351d71d15a4",
+        "b354bbf2-70ed-4775-86d9-8e4b0f81edb4"
+      ]
+    },
+    {
+      "name": "商业租赁合同",
+      "aliases": [
+        "商铺租赁合同",
+        "办公用房租赁合同",
+        "商业房产租赁协议",
+        "写字楼租赁合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "租赁合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "不动产",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "租金形式",
+        "transaction_characteristics": "出租人交付租赁物供使用收益，承租人支付租金",
+        "usage_scenario": "企业租用商铺、办公室等商业房产开展经营活动",
+        "legal_basis": [
+          "民法典第704条",
+          "民法典第705条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "融资租赁合同",
+      "aliases": [
+        "金融租赁合同",
+        "设备融资租赁协议",
+        "融资性租赁合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "租赁合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "动产",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "租金支付",
+        "transaction_characteristics": "出租人购买租赁物供承租人使用，承租人支付租金，期满可转移所有权",
+        "usage_scenario": "企业融资购买大型设备",
+        "legal_basis": [
+          "民法典第735条",
+          "民法典第736条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "加工承揽合同",
+      "aliases": [
+        "承揽合同",
+        "加工合同",
+        "定作加工协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "承揽合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "承揽人按要求完成工作并交付成果，定作人支付报酬",
+        "usage_scenario": "定制产品加工、设备维修或特定工作委托",
+        "legal_basis": [
+          "民法典第770条",
+          "民法典第771条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "定作合同",
+      "aliases": [
+        "定制合同",
+        "定作加工合同",
+        "特定物承揽协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "承揽合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "货物",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "承揽人按定作人要求完成定制工作并交付成果，定作人支付报酬",
+        "usage_scenario": "定制家具、服装、机械零件等个性化产品",
+        "legal_basis": [
+          "民法典第770条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "建设工程施工合同",
+      "aliases": [
+        "施工合同",
+        "工程合同",
+        "建工合同",
+        "土建施工协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "建设工程合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "工程",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "按合同支付",
+        "transaction_characteristics": "承包人完成工程建设，发包人支付工程价款",
+        "usage_scenario": "用于房屋建筑、道路桥梁等基础设施建设项目",
+        "legal_basis": [
+          "民法典第788条",
+          "民法典第789条"
+        ]
+      },
+      "recommended_template_ids": [
+        "c9ce5191-dd60-4347-9e55-8eba3ebfeeb7",
+        "cd8fecc0-875b-41c8-8db9-ce7704437e17",
+        "103f7ef5-4b8f-4baf-9fc0-82498f7d5e5e",
+        "12f72f96-ae04-406a-a5c1-a3af9c5a2a8b",
+        "9497f232-eba4-4f6d-b46a-6deb2303c0c9"
+      ]
+    },
+    {
+      "name": "工程总承包合同",
+      "aliases": [
+        "EPC合同",
+        "设计采购施工合同",
+        "交钥匙工程合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "建设工程合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "工程",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "固定价格",
+        "transaction_characteristics": "承包方负责设计、采购、施工全过程，发包方支付固定价款",
+        "usage_scenario": "大型基础设施或工业建设项目的总承包模式",
+        "legal_basis": [
+          "民法典第788条",
+          "民法典第789条"
+        ]
+      },
+      "recommended_template_ids": [
+        "e6642a40-93ad-4059-bda2-3e8ecdf247cc",
+        "3298dbb4-4561-4427-afd4-8627e4528875",
+        "f4ed1b1f-5c5f-4ffc-a00a-343cecf66839"
+      ]
+    },
+    {
+      "name": "分包合同",
+      "aliases": [
+        "工程分包协议",
+        "施工分包合同",
+        "专业分包合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "建设工程合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "工程",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "按合同约定",
+        "transaction_characteristics": "总包商将部分工程分包，分包商完成工作并承担连带责任",
+        "usage_scenario": "建筑工程中总包商将非主体工程分包给专业施工单位",
+        "legal_basis": [
+          "民法典第788条",
+          "民法典第791条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "勘察设计合同",
+      "aliases": [
+        "工程设计合同",
+        "勘察合同",
+        "设计咨询协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "建设工程合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "固定价格",
+        "transaction_characteristics": "委托方委托勘察设计方提供专业服务，交付设计成果",
+        "usage_scenario": "工程建设项目的勘察和设计阶段",
+        "legal_basis": [
+          "民法典第788条",
+          "民法典第789条"
+        ]
+      },
+      "recommended_template_ids": [
+        "646c1dc4-b16f-4ac4-96db-1e9ec5ac4e2d",
+        "fbfe5b8b-7e73-439c-8c8b-1a2b4fe659e0"
+      ]
+    },
+    {
+      "name": "公路货物运输合同",
+      "aliases": [
+        "货运合同",
+        "公路运输协议",
+        "货物运输协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "运输合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "货物",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "运费支付",
+        "transaction_characteristics": "承运人提供运输服务，确保货物安全送达目的地",
+        "usage_scenario": "公路货物运输业务场景",
+        "legal_basis": [
+          "民法典第829条",
+          "民法典第830条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "多式联运合同",
+      "aliases": [
+        "多式运输合同",
+        "联运协议",
+        "国际多式联运合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "运输合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "货物",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "运费支付",
+        "transaction_characteristics": "多式联运经营人对全程运输承担责任",
+        "usage_scenario": "国际物流中多种运输方式的货物运输",
+        "legal_basis": [
+          "民法典第829条",
+          "民法典第830条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "物流服务合同",
+      "aliases": [
+        "物流配送合同",
+        "仓储物流协议",
+        "供应链服务合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "运输合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "运费形式",
+        "transaction_characteristics": "承运人负责货物运输，托运人支付费用",
+        "usage_scenario": "企业间货物运输、仓储配送服务",
+        "legal_basis": [
+          "民法典第829条",
+          "民法典第830条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "技术开发合同",
+      "aliases": [
+        "研发合同",
+        "技术委托开发协议",
+        "软件开发合同（委托型）"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "技术合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "智力成果",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "委托开发新技术，成果归属约定",
+        "usage_scenario": "新技术或产品研发委托",
+        "legal_basis": [
+          "民法典第843条",
+          "民法典第844条"
+        ]
+      },
+      "recommended_template_ids": [
+        "fca15231-b6bd-4bf1-a2fb-346934eacbcf",
+        "d2f6810f-927d-437c-9581-53af554b9688"
+      ]
+    },
+    {
+      "name": "技术转让合同",
+      "aliases": [
+        "技术许可合同",
+        "技术买卖协议",
+        "专利转让协议（含许可）"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "技术合同",
+      "legal_features": {
+        "transaction_nature": "许可使用",
+        "contract_object": "智力成果",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "转让技术成果使用权（非所有权），附带保密义务",
+        "usage_scenario": "企业间技术成果商业化许可",
+        "legal_basis": [
+          "民法典第862条",
+          "民法典第863条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "技术咨询合同",
+      "aliases": [
+        "技术顾问协议",
+        "技术咨询服务合同",
+        "专家咨询合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "技术合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "委托方支付报酬，咨询方提供专业技术咨询和建议",
+        "usage_scenario": "企业委托专业机构进行技术可行性分析或方案设计",
+        "legal_basis": [
+          "民法典第843条",
+          "民法典第844条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "技术服务合同",
+      "aliases": [
+        "技术维护合同",
+        "技术支援协议",
+        "IT服务合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "技术合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "提供专业技术服务，解决委托方特定技术问题",
+        "usage_scenario": "企业委托外部专家解决技术难题或优化流程",
+        "legal_basis": [
+          "民法典第845条"
+        ]
+      },
+      "recommended_template_ids": [
+        "0ad91f24-e8ed-4e9e-9540-87a2d018f89a"
+      ]
+    },
+    {
+      "name": "委托代理合同",
+      "aliases": [
+        "代理合同",
+        "委托合同",
+        "商务代理协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "委托合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "支付报酬",
+        "transaction_characteristics": "受托人处理委托事务，后果由委托人承担",
+        "usage_scenario": "商业代理、个人事务委托",
+        "legal_basis": [
+          "民法典第919条",
+          "民法典第922条"
+        ]
+      },
+      "recommended_template_ids": [
+        "65a75e42-0dd1-43b3-89ac-91c7988690f2"
+      ]
+    },
+    {
+      "name": "委托管理合同",
+      "aliases": [
+        "管理委托协议",
+        "资产委托管理合同",
+        "运营委托合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "委托合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "混合",
+        "consideration_detail": "报酬形式",
+        "transaction_characteristics": "受托人处理委托人事务，按指示执行",
+        "usage_scenario": "委托他人管理财产或处理事务",
+        "legal_basis": [
+          "民法典第919条",
+          "民法典第921条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "前期物业服务合同",
+      "aliases": [
+        "前期物业协议",
+        "开发商物业合同",
+        "项目前期物业服务协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "物业服务合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "物业费支付",
+        "transaction_characteristics": "物业服务企业提供物业管理服务，业主支付费用",
+        "usage_scenario": "新建物业项目开发阶段，开发商委托提供前期服务",
+        "legal_basis": [
+          "民法典第937条",
+          "民法典第938条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "物业管理服务合同",
+      "aliases": [
+        "物业服务合同",
+        "物业协议",
+        "小区管理合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "物业服务合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "物业服务费",
+        "transaction_characteristics": "物业服务人提供管理维护服务，业主支付物业费",
+        "usage_scenario": "住宅小区、商业物业的日常管理维护",
+        "legal_basis": [
+          "民法典第937条",
+          "民法典第938条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "行纪合同",
+      "aliases": [
+        "行纪协议",
+        "贸易代理合同",
+        "行纪服务协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "行纪与中介",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "约定报酬",
+        "transaction_characteristics": "行纪人以自己名义为委托人从事贸易活动，委托人支付报酬",
+        "usage_scenario": "委托经纪、证券交易、商品中介等贸易活动",
+        "legal_basis": [
+          "民法典第961条",
+          "民法典第965条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "中介合同",
+      "aliases": [
+        "中介服务协议",
+        "撮合协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "行纪与中介",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "按约定支付",
+        "transaction_characteristics": "居间人提供媒介服务，委托人支付报酬",
+        "usage_scenario": "房地产中介、商业交易中介",
+        "legal_basis": [
+          "民法典第961条",
+          "民法典第962条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "居间合同",
+      "aliases": [
+        "中介合同",
+        "居间服务协议",
+        "房产中介协议"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "行纪与中介",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "支付报酬",
+        "transaction_characteristics": "居间人提供中介服务促成交易，委托人支付报酬",
+        "usage_scenario": "房地产中介、商业交易撮合等场景",
+        "legal_basis": [
+          "民法典第961条",
+          "民法典第962条"
+        ]
+      },
+      "recommended_template_ids": [
+        "e7e290d0-f353-4b1d-a44c-591373d27d17"
+      ]
+    },
+    {
+      "name": "股权转让协议",
+      "aliases": [
+        "股权买卖协议",
+        "股权出让合同",
+        "股份转让协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "股权与投资",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "股权所有权转移+办理工商变更登记",
+        "usage_scenario": "公司股东转让股权给第三方",
+        "legal_basis": [
+          "民法典第595条",
+          "公司法第71条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "增资扩股协议",
+      "aliases": [
+        "增资协议",
+        "扩股协议",
+        "投资入股协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "股权与投资",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "资金换取股权",
+        "transaction_characteristics": "投资者注资，公司增发股份",
+        "usage_scenario": "公司融资，引入新股东",
+        "legal_basis": [
+          "民法典第464条",
+          "公司法第178条"
+        ]
+      },
+      "recommended_template_ids": [
+        "80289580-ef4f-4760-8529-aff4405a0cea",
+        "9aed7215-afa0-4b47-9ba4-e7b25cf9ff92"
+      ]
+    },
+    {
+      "name": "股东协议",
+      "aliases": [
+        "股东合作协议",
+        "合资协议",
+        "股东合作框架协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "股权与投资",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "出资认购",
+        "transaction_characteristics": "约定股东权利义务、股权转让规则、公司治理机制",
+        "usage_scenario": "公司股东间合作经营、股权管理及决策协调",
+        "legal_basis": [
+          "民法典第502条",
+          "公司法第20条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "投资合作协议",
+      "aliases": [
+        "合作投资协议",
+        "联合投资协议",
+        "项目投资协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "股权与投资",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "共同投资、共担风险、共享收益的合作安排",
+        "usage_scenario": "适用于投资合作项目",
+        "legal_basis": [
+          "民法典第969条"
+        ]
+      },
+      "recommended_template_ids": [
+        "3987a46f-b6e7-4be0-aafb-097625085e2d"
+      ]
+    },
+    {
+      "name": "股权代持协议",
+      "aliases": [
+        "代持协议",
+        "股权委托持股协议",
+        "隐名股东协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "股权与投资",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "实际出资人委托名义股东代持股权，保留实际权益",
+        "usage_scenario": "适用于股权代持安排",
+        "legal_basis": [
+          "民法典第919条",
+          "公司法司法解释三第24条"
+        ]
+      },
+      "recommended_template_ids": [
+        "153d1ddf-25da-4dbd-9a76-c1c4f30c9f6e",
+        "7b9c03bd-ea65-4290-9a5e-5088ef986eb9",
+        "024a5b98-e28f-4869-9e03-2578a95c7e09"
+      ]
+    },
+    {
+      "name": "股权回购协议",
+      "aliases": [
+        "回购协议",
+        "股权退出协议",
+        "股份回购合同"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "股权与投资",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "约定在特定条件下回购股权，实现退出或控制权调整",
+        "usage_scenario": "适用于股权回购安排",
+        "legal_basis": [
+          "民法典第502条",
+          "公司法第74条"
+        ]
+      },
+      "recommended_template_ids": [
+        "0a089255-de8a-4769-939c-9cda9adcfb92"
+      ]
+    },
+    {
+      "name": "并购重组协议",
+      "aliases": [
+        "并购协议",
+        "重组协议",
+        "企业并购合同",
+        "M&A协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "股权与投资",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "通过股权或资产交易实现企业合并或重组",
+        "usage_scenario": "适用于企业并购重组",
+        "legal_basis": [
+          "民法典第595条",
+          "公司法第172条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "普通合伙协议",
+      "aliases": [
+        "合伙协议",
+        "普通合伙企业协议",
+        "合伙合同"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "合伙与联营",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "合伙人共同出资、共担风险、共享收益，对合伙债务承担无限连带责任",
+        "usage_scenario": "适用于普通合伙企业设立",
+        "legal_basis": [
+          "民法典第969条",
+          "合伙企业法第2条"
+        ]
+      },
+      "recommended_template_ids": [
+        "98fb6a05-b756-4952-a59b-f85a67b0e0e5",
+        "b578d036-9275-4eca-8918-c5e0e5d5524d",
+        "84d96554-92ed-4b84-a8c4-6f9e9c38dd29",
+        "a28cfc8c-e7e8-4890-b03c-ca90bf6e2bfd",
+        "547c23bb-c6a5-43ba-a89d-4fec8858580a",
+        "9fc32d1b-7139-4fbc-a382-35b435d67e7c"
+      ]
+    },
+    {
+      "name": "有限合伙协议",
+      "aliases": [
+        "LP协议",
+        "有限合伙合同",
+        "风投合伙协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "合伙与联营",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "普通合伙人承担无限责任，有限合伙人以出资为限承担责任",
+        "usage_scenario": "适用于有限合伙企业设立",
+        "legal_basis": [
+          "民法典第969条",
+          "合伙企业法第61条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "项目联营协议",
+      "aliases": [
+        "联营协议",
+        "项目合作合同",
+        "联合经营协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "合伙与联营",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "多方为特定项目共同投资、共担风险、共享收益",
+        "usage_scenario": "适用于工程项目或商业项目联营",
+        "legal_basis": [
+          "民法典第969条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "联合体投标协议",
+      "aliases": [
+        "联合投标协议",
+        "投标联合体协议",
+        "联合体协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "合伙与联营",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "联合体各方共同投标，中标后共同履行合同义务",
+        "usage_scenario": "适用于工程或政府采购联合体投标",
+        "legal_basis": [
+          "民法典第969条",
+          "招标投标法第31条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "特许经营合同",
+      "aliases": [
+        "加盟合同",
+        "特许加盟协议",
+        "品牌特许合同",
+        "Franchise协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "特许与加盟",
+      "legal_features": {
+        "transaction_nature": "许可使用",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "特许人授权被特许人使用其经营资源（商标、模式等）",
+        "usage_scenario": "适用于品牌特许经营",
+        "legal_basis": [
+          "商业特许经营管理条例第3条",
+          "民法典第502条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "品牌加盟合同",
+      "aliases": [
+        "加盟协议",
+        "品牌代理合同",
+        "特许经营合同"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "特许与加盟",
+      "legal_features": {
+        "transaction_nature": "许可使用",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "授权使用品牌标识及经营模式，按约定支付加盟费",
+        "usage_scenario": "适用于品牌加盟合作",
+        "legal_basis": [
+          "商业特许经营管理条例",
+          "民法典第502条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "代理经销合同",
+      "aliases": [
+        "经销合同",
+        "代理协议",
+        "产品代理合同",
+        "区域代理协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "特许与加盟",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "经销商代理销售产品，按约定价格和区域销售",
+        "usage_scenario": "适用于产品代理销售",
+        "legal_basis": [
+          "民法典第919条",
+          "民法典第925条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "商标授权许可协议",
+      "aliases": [
+        "商标许可合同",
+        "商标使用授权协议",
+        "品牌授权协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "知识产权商业化",
+      "legal_features": {
+        "transaction_nature": "许可使用",
+        "contract_object": "智力成果",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "授权使用注册商标，不得擅自改变或转授权",
+        "usage_scenario": "适用于商标商业授权",
+        "legal_basis": [
+          "商标法第43条",
+          "民法典第502条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "专利实施许可协议",
+      "aliases": [
+        "专利许可合同",
+        "专利授权协议",
+        "技术专利许可协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "知识产权商业化",
+      "legal_features": {
+        "transaction_nature": "许可使用",
+        "contract_object": "智力成果",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "授权实施专利技术，可约定独占、排他或普通许可",
+        "usage_scenario": "适用于专利技术许可",
+        "legal_basis": [
+          "专利法第12条",
+          "民法典第862条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "IP衍生品开发协议",
+      "aliases": [
+        "IP授权开发协议",
+        "衍生品开发合同",
+        "二次创作协议"
+      ],
+      "category": "非典型商事合同",
+      "subcategory": "知识产权商业化",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "智力成果",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "基于原IP开发衍生作品，约定权益分配与使用范围",
+        "usage_scenario": "适用于动漫、游戏、影视IP衍生开发",
+        "legal_basis": [
+          "著作权法第12条",
+          "民法典第843条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "劳动合同(固定期限)",
+      "aliases": [
+        "固定期限劳动合同",
+        "定期劳动合同",
+        "有固定期劳动合同"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "标准劳动关系",
+      "legal_features": {
+        "transaction_nature": "劳动用工",
+        "contract_object": "劳动力",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "建立劳动关系，受《劳动合同法》调整，含社保、解雇保护等",
+        "usage_scenario": "适用于固定期限劳动关系",
+        "legal_basis": [
+          "劳动合同法第12条",
+          "劳动合同法第13条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "劳动合同(无固定期限)",
+      "aliases": [
+        "无固定期限劳动合同",
+        "长期劳动合同",
+        "无固定期劳动合同"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "标准劳动关系",
+      "legal_features": {
+        "transaction_nature": "劳动用工",
+        "contract_object": "劳动力",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "无固定终止时间，解除条件更严格",
+        "usage_scenario": "适用于长期雇员",
+        "legal_basis": [
+          "劳动合同法第14条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "聘用协议",
+      "aliases": [
+        "聘用合同",
+        "岗位聘用协议",
+        "事业单位聘用合同"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "标准劳动关系",
+      "legal_features": {
+        "transaction_nature": "劳动用工",
+        "contract_object": "劳动力",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "适用于事业单位或特定岗位的劳动关系建立",
+        "usage_scenario": "适用于事业单位聘用",
+        "legal_basis": [
+          "劳动合同法第2条",
+          "事业单位人事管理条例"
+        ]
+      },
+      "recommended_template_ids": [
+        "caefe5eb-e99e-4947-b175-522a6b589aea"
+      ]
+    },
+    {
+      "name": "劳务派遣协议",
+      "aliases": [
+        "劳务派协议",
+        "派遣合同",
+        "人力派遣协议"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "灵活用工",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "劳动力",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "劳务派遣单位与用工单位约定派遣员工提供服务",
+        "usage_scenario": "适用于临时性、辅助性岗位",
+        "legal_basis": [
+          "劳动合同法第57条",
+          "劳动合同法第58条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "非全日制用工协议",
+      "aliases": [
+        "小时工协议",
+        "非全时用工合同",
+        "兼职用工协议"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "灵活用工",
+      "legal_features": {
+        "transaction_nature": "劳动用工",
+        "contract_object": "劳动力",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "每日工作时间不超过4小时，每周不超过24小时，可口头约定",
+        "usage_scenario": "适用于小时工、兼职",
+        "legal_basis": [
+          "劳动合同法第68条",
+          "劳动合同法第69条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "实习协议",
+      "aliases": [
+        "实习合同",
+        "学生实习协议",
+        "实习约定书"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "灵活用工",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "劳动力",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "在校学生实习，不建立劳动关系，以学习为目的",
+        "usage_scenario": "适用于在校学生实习",
+        "legal_basis": [
+          "教育部等五部门关于实习管理规定",
+          "民法典第919条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "返聘协议",
+      "aliases": [
+        "退休返聘合同",
+        "返聘合同",
+        "退休人员聘用协议"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "灵活用工",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "劳动力",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "退休人员返聘，建立劳务关系，不适用劳动法",
+        "usage_scenario": "适用于退休人员返聘",
+        "legal_basis": [
+          "民法典第919条",
+          "最高人民法院关于审理劳动争议案件司法解释"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "保密协议(劳动版)",
+      "aliases": [
+        "员工保密协议",
+        "在职保密协议",
+        "劳动保密合同"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "附属协议",
+      "legal_features": {
+        "transaction_nature": "劳动用工",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "作为劳动合同附件，约定在职及离职后保密义务",
+        "usage_scenario": "适用于员工保密义务",
+        "legal_basis": [
+          "劳动合同法第23条",
+          "反不正当竞争法第9条"
+        ]
+      },
+      "recommended_template_ids": [
+        "5e64b126-6855-411b-bf1c-4e0d13ce8a69"
+      ]
+    },
+    {
+      "name": "竞业限制协议",
+      "aliases": [
+        "竞业禁止协议",
+        "竞业协议",
+        "离职竞业合同"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "附属协议",
+      "legal_features": {
+        "transaction_nature": "劳动用工",
+        "contract_object": "劳动力",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "经济补偿",
+        "transaction_characteristics": "限制离职员工竞争行为，保护商业秘密，需支付补偿",
+        "usage_scenario": "企业关键员工离职时，防止商业秘密泄露和竞争",
+        "legal_basis": [
+          "劳动合同法第23条",
+          "劳动合同法第24条"
+        ]
+      },
+      "recommended_template_ids": [
+        "e4753577-4409-493d-85bb-ceb3bcc84cd2"
+      ]
+    },
+    {
+      "name": "培训服务协议",
+      "aliases": [
+        "培训合同",
+        "员工培训协议",
+        "专项培训协议"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "附属协议",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "固定费用",
+        "transaction_characteristics": "服务提供方履行培训义务，接受方支付对价",
+        "usage_scenario": "企业为员工提供职业技能培训或个人参加专业课程",
+        "legal_basis": [
+          "民法典第919条",
+          "民法典第509条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "员工期权激励协议",
+      "aliases": [
+        "期权协议",
+        "员工股权激励合同",
+        "ESOP协议"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "附属协议",
+      "legal_features": {
+        "transaction_nature": "劳动用工",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "服务换取期权",
+        "transaction_characteristics": "授予员工股票期权，激励持续服务",
+        "usage_scenario": "公司激励核心员工长期留任",
+        "legal_basis": [
+          "民法典第470条",
+          "民法典第509条"
+        ]
+      },
+      "recommended_template_ids": [
+        "2d469288-fded-4867-acc6-1773cb9c7e31",
+        "d21f9e3f-19c8-40d1-99d1-43de7423e6ca",
+        "3960f658-03a6-4cf5-bd31-7fd6a1f4f644"
+      ]
+    },
+    {
+      "name": "软件开发合同",
+      "aliases": [
+        "软件定制合同",
+        "系统开发协议",
+        "APP开发合同"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "互联网与软件",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "智力成果",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "定制软件开发和交付服务",
+        "usage_scenario": "企业委托开发定制软件应用",
+        "legal_basis": [
+          "民法典第770条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "SaaS服务协议",
+      "aliases": [
+        "软件即服务协议",
+        "云服务合同",
+        "订阅式软件协议"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "互联网与软件",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "订阅费形式",
+        "transaction_characteristics": "提供商在线交付软件使用权，用户支付订阅费",
+        "usage_scenario": "企业或个人订阅云软件应用服务",
+        "legal_basis": [
+          "民法典第709条",
+          "民法典第710条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "数据处理协议(DPA)",
+      "aliases": [
+        "数据处理协议",
+        "DPA协议",
+        "个人信息处理协议",
+        "数据委托处理合同"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "互联网与软件",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "服务费形式",
+        "transaction_characteristics": "规范数据处理义务，保障数据安全与合规",
+        "usage_scenario": "数据处理外包、云服务等涉及个人信息的场景",
+        "legal_basis": [
+          "民法典第1034条",
+          "个人信息保护法第21条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "平台用户协议",
+      "aliases": [
+        "用户协议",
+        "用户服务协议",
+        "平台使用条款",
+        "注册协议"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "互联网与软件",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "免费使用",
+        "transaction_characteristics": "平台提供数字服务，用户遵守规则，保护隐私数据",
+        "usage_scenario": "互联网平台用户注册、登录和使用在线服务",
+        "legal_basis": [
+          "民法典第509条",
+          "民法典第1034条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "隐私政策",
+      "aliases": [
+        "隐私条款",
+        "个人信息保护政策",
+        "隐私声明"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "互联网与软件",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "说明个人信息收集、使用、存储及保护措施",
+        "usage_scenario": "适用于平台隐私政策披露",
+        "legal_basis": [
+          "个人信息保护法第17条",
+          "民法典第1034条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "影视投资制作合同",
+      "aliases": [
+        "影视投资协议",
+        "电影制作合同",
+        "影视联合投资协议"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "文娱与传媒",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "共同投资影视项目，共担风险、共享收益",
+        "usage_scenario": "适用于影视项目合作",
+        "legal_basis": [
+          "民法典第969条",
+          "著作权法第17条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "演艺经纪合同",
+      "aliases": [
+        "艺人经纪合同",
+        "艺人代理协议",
+        "娱乐经纪合同"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "文娱与传媒",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "经纪公司为艺人提供经纪服务，艺人支付佣金或分成",
+        "usage_scenario": "适用于艺人经纪合作",
+        "legal_basis": [
+          "民法典第919条",
+          "民法典第925条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "著作权转让协议",
+      "aliases": [
+        "版权转让合同",
+        "作品转让协议",
+        "著作权买卖协议"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "文娱与传媒",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "智力成果",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "著作权所有权永久转移",
+        "usage_scenario": "作者转让作品版权给出版方",
+        "legal_basis": [
+          "著作权法第25条",
+          "民法典第595条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "MCN签约协议",
+      "aliases": [
+        "网红签约合同",
+        "达人经纪协议",
+        "内容创作者合作协议"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "文娱与传媒",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "MCN机构为内容创作者提供运营、商业合作等服务",
+        "usage_scenario": "适用于网红、博主签约MCN",
+        "legal_basis": [
+          "民法典第919条",
+          "民法典第925条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "OEM/ODM代工协议",
+      "aliases": [
+        "代工合同",
+        "贴牌生产协议",
+        "委托制造协议"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "供应链与制造",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "委托方提供设计或品牌，代工厂生产并交付产品",
+        "usage_scenario": "适用于品牌方与制造方合作",
+        "legal_basis": [
+          "民法典第770条",
+          "民法典第595条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "长期供货框架协议",
+      "aliases": [
+        "框架供货协议",
+        "年度采购协议",
+        "长期采购合同"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "供应链与制造",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "货物",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "协商价格",
+        "transaction_characteristics": "长期框架下的货物供应，约定数量价格及交付条件",
+        "usage_scenario": "供应链管理中供应商与买方建立的长期稳定供货关系",
+        "legal_basis": [
+          "民法典第595条",
+          "民法典第596条"
+        ]
+      },
+      "recommended_template_ids": [
+        "3be59340-fb67-4e75-ace4-cc9dc45c2ed9",
+        "62b2e2bf-511f-4e95-8343-b77ea539d893"
+      ]
+    },
+    {
+      "name": "质量保证协议(QA)",
+      "aliases": [
+        "质保协议",
+        "质量承诺书",
+        "产品质量保证合同"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "供应链与制造",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "质量保证条款",
+        "transaction_characteristics": "约定质量标准，保证产品符合要求，明确违约责任",
+        "usage_scenario": "供应链中供应商与买家之间确保产品质量",
+        "legal_basis": [
+          "民法典第582条",
+          "民法典第598条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "设备采购合同",
+      "aliases": [
+        "设备买卖合同",
+        "采购协议",
+        "机器设备采购合同"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "供应链与制造",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "货物",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "固定价格",
+        "transaction_characteristics": "卖方交付设备，买方支付价款，所有权转移",
+        "usage_scenario": "企业采购生产设备或办公设备",
+        "legal_basis": [
+          "民法典第595条",
+          "民法典第596条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "庭外和解协议",
+      "aliases": [
+        "和解协议",
+        "庭外和解书",
+        "民事和解协议"
+      ],
+      "category": "争议解决与法律程序",
+      "subcategory": "和解与调解",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "双方自愿和解，终结或缓解争议，具有合同效力",
+        "usage_scenario": "适用于庭外和解",
+        "legal_basis": [
+          "民法典第464条",
+          "民法典第509条"
+        ]
+      },
+      "recommended_template_ids": [
+        "c2992546-748f-47b2-a06e-8cfff84ea009"
+      ]
+    },
+    {
+      "name": "民事调解协议",
+      "aliases": [
+        "调解协议",
+        "人民调解协议",
+        "调解书"
+      ],
+      "category": "争议解决与法律程序",
+      "subcategory": "和解与调解",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "和解义务",
+        "transaction_characteristics": "自愿和解民事争议，避免诉讼",
+        "usage_scenario": "民事纠纷调解程序中达成协议",
+        "legal_basis": [
+          "民法典第496条",
+          "人民调解法第31条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "赔偿谅解协议",
+      "aliases": [
+        "谅解赔偿协议",
+        "赔偿和解书",
+        "一次性赔偿协议"
+      ],
+      "category": "争议解决与法律程序",
+      "subcategory": "和解与调解",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "赔偿金支付",
+        "transaction_characteristics": "一方赔偿损失，另一方谅解并放弃追偿",
+        "usage_scenario": "民事侵权或合同纠纷的和解",
+        "legal_basis": [
+          "民法典第577条",
+          "民法典第1182条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "交通事故赔偿协议",
+      "aliases": [
+        "事故赔偿协议",
+        "交通赔偿和解书",
+        "道路交通事故赔偿协议"
+      ],
+      "category": "争议解决与法律程序",
+      "subcategory": "和解与调解",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "协商金额",
+        "transaction_characteristics": "解决赔偿争议，支付赔偿金换取放弃索赔",
+        "usage_scenario": "交通事故后双方和解赔偿事宜",
+        "legal_basis": [
+          "民法典第562条",
+          "民法典第1179条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "劳动争议和解书",
+      "aliases": [
+        "劳动和解协议",
+        "劳资和解书",
+        "劳动纠纷和解协议"
+      ],
+      "category": "争议解决与法律程序",
+      "subcategory": "和解与调解",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "劳动力",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "自愿协商解决劳动争议，放弃诉讼权利",
+        "usage_scenario": "劳动纠纷双方协商和解",
+        "legal_basis": [
+          "民法典第464条",
+          "劳动争议调解仲裁法第14条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "还款计划书",
+      "aliases": [
+        "分期还款协议",
+        "还款承诺书",
+        "债务清偿计划"
+      ],
+      "category": "争议解决与法律程序",
+      "subcategory": "债权债务处理",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "分期偿还",
+        "transaction_characteristics": "债务重组协议，规定分期还款以避免争议",
+        "usage_scenario": "用于解决债务纠纷，协商还款计划",
+        "legal_basis": [
+          "民法典第509条",
+          "民法典第675条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "债务重组协议",
+      "aliases": [
+        "债务重组合同",
+        "债务和解协议",
+        "债务优化协议"
+      ],
+      "category": "争议解决与法律程序",
+      "subcategory": "债权债务处理",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "债务减免条件",
+        "transaction_characteristics": "债权人同意修改债务条款，债务人履行新还款义务",
+        "usage_scenario": "企业或个人财务困境时，调整债务结构以避免破产",
+        "legal_basis": [
+          "民法典第509条",
+          "民法典第535条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "以物抵债协议",
+      "aliases": [
+        "抵债协议",
+        "实物抵债合同",
+        "资产抵债协议"
+      ],
+      "category": "争议解决与法律程序",
+      "subcategory": "债权债务处理",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "动产",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "抵偿债务",
+        "transaction_characteristics": "债务人转移财产所有权以清偿债务",
+        "usage_scenario": "债务人无力现金偿还时，以财产抵偿债务",
+        "legal_basis": [
+          "民法典第560条",
+          "民法典第563条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "债权转让通知书",
+      "aliases": [
+        "债权转让通知",
+        "债权让与通知",
+        "债权转让告知书"
+      ],
+      "category": "争议解决与法律程序",
+      "subcategory": "债权债务处理",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "无对价",
+        "transaction_characteristics": "通知债务人债权转让事实，确保履行对象变更",
+        "usage_scenario": "债权转让时通知债务人完成转让效力",
+        "legal_basis": [
+          "民法典第545条",
+          "民法典第546条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "催款函",
+      "aliases": [
+        "催收函",
+        "付款催告函",
+        "欠款催收通知"
+      ],
+      "category": "争议解决与法律程序",
+      "subcategory": "债权债务处理",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "约定金额",
+        "transaction_characteristics": "要求债务人履行支付义务，预防债务纠纷",
+        "usage_scenario": "债权人向债务人催收逾期债务",
+        "legal_basis": [
+          "民法典第509条",
+          "民法典第577条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "婚前财产协议",
+      "aliases": [
+        "婚前协议",
+        "婚前财产约定",
+        "婚前财产公证协议"
+      ],
+      "category": "婚姻家事与私人财富",
+      "subcategory": "婚姻家庭",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "约定婚前财产归属，避免婚后争议",
+        "usage_scenario": "适用于婚前财产安排",
+        "legal_basis": [
+          "民法典第1065条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "婚内财产协议",
+      "aliases": [
+        "婚内财产约定",
+        "婚姻财产协议",
+        "夫妻财产约定"
+      ],
+      "category": "婚姻家事与私人财富",
+      "subcategory": "婚姻家庭",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "约定婚姻关系存续期间财产归属、管理、使用、收益、处分等事项",
+        "usage_scenario": "夫妻双方对婚内财产进行明确约定，避免未来纠纷",
+        "legal_basis": [
+          "民法典第1065条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "离婚协议书",
+      "aliases": [
+        "离婚协议",
+        "自愿离婚协议",
+        "离婚财产分割协议"
+      ],
+      "category": "婚姻家事与私人财富",
+      "subcategory": "婚姻家庭",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "协议离婚时对财产、子女抚养等事项的安排",
+        "usage_scenario": "适用于协议离婚",
+        "legal_basis": [
+          "民法典第1076条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "分居协议",
+      "aliases": [
+        "夫妻分居协议",
+        "分居约定书",
+        "婚姻分居协议"
+      ],
+      "category": "婚姻家事与私人财富",
+      "subcategory": "婚姻家庭",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "约定分居期间的权利义务，不解除婚姻关系",
+        "usage_scenario": "适用于夫妻分居安排",
+        "legal_basis": [
+          "民法典第1079条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "抚养权变更协议",
+      "aliases": [
+        "抚养权转移协议",
+        "子女抚养变更协议",
+        "抚养权调整协议"
+      ],
+      "category": "婚姻家事与私人财富",
+      "subcategory": "婚姻家庭",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "变更子女抚养权归属，需符合子女利益原则",
+        "usage_scenario": "适用于抚养权调整",
+        "legal_basis": [
+          "民法典第1084条",
+          "民法典第1085条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "遗赠扶养协议",
+      "aliases": [
+        "遗赠扶养合同",
+        "遗赠协议",
+        "扶养遗赠协议"
+      ],
+      "category": "婚姻家事与私人财富",
+      "subcategory": "财富传承",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "扶养人承担生养死葬义务，遗赠人死后转移财产",
+        "usage_scenario": "适用于无子女老人养老安排",
+        "legal_basis": [
+          "民法典第1158条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "分家析产协议",
+      "aliases": [
+        "分家协议",
+        "家庭财产分割协议",
+        "析产协议"
+      ],
+      "category": "婚姻家事与私人财富",
+      "subcategory": "财富传承",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "家庭成员分割共有财产，明确各自份额",
+        "usage_scenario": "适用于家庭财产分割",
+        "legal_basis": [
+          "民法典第303条",
+          "民法典第304条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "意定监护协议",
+      "aliases": [
+        "监护协议",
+        "预先监护协议",
+        "成年意定监护合同"
+      ],
+      "category": "婚姻家事与私人财富",
+      "subcategory": "财富传承",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "成年人预先选定监护人，丧失行为能力时生效",
+        "usage_scenario": "适用于高龄或重疾人士提前安排监护",
+        "legal_basis": [
+          "民法典第33条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "家族信托契约",
+      "aliases": [
+        "家族信托协议",
+        "信托合同",
+        "财富传承信托协议"
+      ],
+      "category": "婚姻家事与私人财富",
+      "subcategory": "财富传承",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "无偿转移",
+        "transaction_characteristics": "委托人转移财产所有权，受托人管理为受益人利益",
+        "usage_scenario": "家族财富传承与资产保护",
+        "legal_basis": [
+          "信托法第2条",
+          "民法典第1133条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "公司章程",
+      "aliases": [
+        "章程",
+        "公司组织章程",
+        "企业章程"
+      ],
+      "category": "公司治理与合规",
+      "subcategory": "公司组织文件",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "股东出资义务",
+        "transaction_characteristics": "规定公司组织架构、股东权利义务和管理规则",
+        "usage_scenario": "公司设立或变更时制定基本治理文件",
+        "legal_basis": [
+          "公司法第11条",
+          "民法典第58条"
+        ]
+      },
+      "recommended_template_ids": [
+        "30232752-5d6a-4683-ace0-44100c4c6bd3",
+        "6adc02e5-dc8a-4894-b363-00d5b71dfa6a",
+        "a12c4882-16b4-48eb-93ca-19fffd0e63ea",
+        "02ffe560-8a10-4dc8-a431-1d84f1318c05",
+        "80d3bdf9-b3fa-48bb-8e68-5ae36eabcbaf"
+      ]
+    },
+    {
+      "name": "股东会议事规则",
+      "aliases": [
+        "股东会议事规程",
+        "股东会规则",
+        "股东会议事制度"
+      ],
+      "category": "公司治理与合规",
+      "subcategory": "公司组织文件",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "规范股东会召集、表决、决议程序",
+        "usage_scenario": "适用于公司治理",
+        "legal_basis": [
+          "公司法第39条",
+          "公司法第41条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "董事会议事规则",
+      "aliases": [
+        "董事会议事规程",
+        "董事会规则",
+        "董事会议事制度"
+      ],
+      "category": "公司治理与合规",
+      "subcategory": "公司组织文件",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "规范董事会召集、表决、决议及职权行使",
+        "usage_scenario": "适用于公司治理",
+        "legal_basis": [
+          "公司法第48条",
+          "公司法第49条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "监事会议事规则",
+      "aliases": [
+        "监事会议事规程",
+        "监事会规则",
+        "监事会议事制度"
+      ],
+      "category": "公司治理与合规",
+      "subcategory": "公司组织文件",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "固定薪酬",
+        "transaction_characteristics": "规范监事会会议程序、职责履行和监督机制",
+        "usage_scenario": "公司内部治理，规范监事会运作",
+        "legal_basis": [
+          "公司法第53条",
+          "民法典第85条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "发起人协议",
+      "aliases": [
+        "公司设立协议",
+        "发起协议",
+        "筹建协议"
+      ],
+      "category": "公司治理与合规",
+      "subcategory": "公司组织文件",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "股权分配",
+        "transaction_characteristics": "约定公司设立、出资义务、股权分配及责任分担",
+        "usage_scenario": "公司设立前发起人之间协商公司组建事宜",
+        "legal_basis": [
+          "民法典第464条",
+          "公司法第79条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "一致行动人协议",
+      "aliases": [
+        "一致行动协议",
+        "投票一致协议",
+        "联合控制协议"
+      ],
+      "category": "公司治理与合规",
+      "subcategory": "控制权与投票",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "共同利益",
+        "transaction_characteristics": "股东约定在投票时保持一致行动，增强公司控制权",
+        "usage_scenario": "上市公司股东为协调决策、避免控制权分散",
+        "legal_basis": [
+          "民法典第464条",
+          "民法典第470条"
+        ]
+      },
+      "recommended_template_ids": [
+        "d5263426-37ba-4403-af84-e9c310dc2d7c"
+      ]
+    },
+    {
+      "name": "投票权委托协议",
+      "aliases": [
+        "表决权委托协议",
+        "投票委托书",
+        "股东投票授权协议"
+      ],
+      "category": "公司治理与合规",
+      "subcategory": "控制权与投票",
+      "legal_features": {
+        "transaction_nature": "许可使用",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "无偿委托",
+        "transaction_characteristics": "股东委托他人行使投票权，受托人按授权投票",
+        "usage_scenario": "股东缺席股东大会时委托投票",
+        "legal_basis": [
+          "民法典第919条",
+          "民法典第920条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "代持股协议",
+      "aliases": [
+        "股权代持协议",
+        "隐名持股协议",
+        "委托持股合同"
+      ],
+      "category": "公司治理与合规",
+      "subcategory": "控制权与投票",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "股权",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "服务费用",
+        "transaction_characteristics": "委托持股，名义股东代持股份并执行指示，实际出资人保留权益",
+        "usage_scenario": "实际出资人委托他人持有公司股份以匿名或规避限制",
+        "legal_basis": [
+          "民法典第919条",
+          "公司法司法解释三第24条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "政府采购合同",
+      "aliases": [
+        "政府采购协议",
+        "政采合同",
+        "公共采购合同"
+      ],
+      "category": "政务与公共服务",
+      "subcategory": "政府采购与合作",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "招标定价",
+        "transaction_characteristics": "政府主体采购货物或服务，公开招标程序，受专门法规范",
+        "usage_scenario": "政府机构采购公共物品、工程或服务，如基础设施建设",
+        "legal_basis": [
+          "民法典第464条",
+          "政府采购法第43条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "PPP项目合同",
+      "aliases": [
+        "政府和社会资本合作合同",
+        "PPP协议",
+        "公私合营合同"
+      ],
+      "category": "政务与公共服务",
+      "subcategory": "政府采购与合作",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "工程",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "政府与社会资本合作提供公共服务，风险分担",
+        "usage_scenario": "基础设施项目如道路、医院建设运营",
+        "legal_basis": [
+          "民法典第933条",
+          "PPP条例"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "特许经营权协议",
+      "aliases": [
+        "特许经营合同",
+        "专营权协议",
+        "公用事业特许协议"
+      ],
+      "category": "政务与公共服务",
+      "subcategory": "政府采购与合作",
+      "legal_features": {
+        "transaction_nature": "许可使用",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "特许费形式",
+        "transaction_characteristics": "政府授权私人实体经营公共服务，收取特许费并承担风险",
+        "usage_scenario": "城市供水、供电、交通等公共基础设施项目运营",
+        "legal_basis": [
+          "基础设施和公用事业特许经营管理办法",
+          "民法典第646条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "国有土地使用权出让合同",
+      "aliases": [
+        "土地出让合同",
+        "土地使用权出让协议",
+        "招拍挂出让合同"
+      ],
+      "category": "政务与公共服务",
+      "subcategory": "政府采购与合作",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "不动产",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "土地出让金",
+        "transaction_characteristics": "政府出让国有土地使用权，受让方支付出让金",
+        "usage_scenario": "政府将土地用于房地产开发或工业建设",
+        "legal_basis": [
+          "民法典第344条",
+          "民法典第347条",
+          "土地管理法第54条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "国际货物买卖合同",
+      "aliases": [
+        "外贸合同",
+        "进出口买卖合同",
+        "CISG合同"
+      ],
+      "category": "跨境与国际合同",
+      "subcategory": "国际贸易",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "货物",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "货物跨境交付+所有权转移+风险分担",
+        "usage_scenario": "跨国企业间商品买卖交易",
+        "legal_basis": [
+          "民法典第595条",
+          "联合国国际货物销售合同公约"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "国际独家代理协议",
+      "aliases": [
+        "独家代理合同",
+        "国际代理协议",
+        "排他代理协议"
+      ],
+      "category": "跨境与国际合同",
+      "subcategory": "国际贸易",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "货物",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "按销售额比例",
+        "transaction_characteristics": "委托人授权代理人在特定区域独家销售商品，代理人收取佣金",
+        "usage_scenario": "跨境贸易中，制造商委托代理商在特定国家独家分销产品",
+        "legal_basis": [
+          "民法典第919条",
+          "民法典第922条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "国际分销协议",
+      "aliases": [
+        "分销合同",
+        "国际分销协议",
+        "区域分销协议"
+      ],
+      "category": "跨境与国际合同",
+      "subcategory": "国际贸易",
+      "legal_features": {
+        "transaction_nature": "许可使用",
+        "contract_object": "货物",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "佣金形式",
+        "transaction_characteristics": "供应商授权分销商在指定区域销售产品，分销商承担市场推广责任",
+        "usage_scenario": "跨国企业拓展海外市场，通过分销商销售商品",
+        "legal_basis": [
+          "民法典第464条",
+          "民法典第926条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "合作备忘录(MOU)",
+      "aliases": [
+        "MOU",
+        "合作意向备忘录",
+        "谅解备忘录"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "意向与框架",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "混合",
+        "consideration_detail": "意向性协商",
+        "transaction_characteristics": "记录合作意向，框架协议，可能部分约束力",
+        "usage_scenario": "初步合作谈判，框架协议建立",
+        "legal_basis": [
+          "民法典第495条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "合作意向书(LOI)",
+      "aliases": [
+        "LOI",
+        "意向书",
+        "合作意向协议"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "意向与框架",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "无对价",
+        "transaction_characteristics": "表达合作意向，部分条款有约束力",
+        "usage_scenario": "商业合作初步谈判中表达合作意愿",
+        "legal_basis": [
+          "民法典第495条",
+          "民法典第464条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "战略合作框架协议",
+      "aliases": [
+        "战略合作协议",
+        "框架合作协议",
+        "战略联盟协议"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "意向与框架",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "混合",
+        "consideration_detail": "协商确定",
+        "transaction_characteristics": "意向性框架协议，设定合作原则与范围",
+        "usage_scenario": "企业间战略联盟、资源共享与项目规划",
+        "legal_basis": [
+          "民法典第495条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "保密协议(通用NDA)",
+      "aliases": [
+        "NDA",
+        "保密承诺书",
+        "保密约定",
+        "非披露协议"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "意向与框架",
+      "legal_features": {
+        "transaction_nature": "许可使用",
+        "contract_object": "智力成果",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "信息交换",
+        "transaction_characteristics": "规定保密义务，禁止未经授权披露机密信息",
+        "usage_scenario": "商业谈判、技术合作中保护商业秘密",
+        "legal_basis": [
+          "民法典第509条",
+          "反不正当竞争法第9条"
+        ]
+      },
+      "recommended_template_ids": [
+        "f8aeaa98-f6d6-4c19-a8a5-f133d1006f2b"
+      ]
+    },
+    {
+      "name": "通用服务协议(标准版)",
+      "aliases": [
+        "服务合同",
+        "标准服务协议",
+        "服务框架协议"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "通用交易底座",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "服务提供方履行义务，接受方支付报酬",
+        "usage_scenario": "适用于各类有偿服务交易场景",
+        "legal_basis": [
+          "民法典第919条"
+        ]
+      },
+      "recommended_template_ids": [
+        "758c7968-e2ea-4f34-a4cb-d0587cb93807",
+        "d5d0e1cb-b380-4625-88a1-14b7c1546fbc",
+        "6bc67f9d-8b7a-4c2c-a644-c84c27c60e02",
+        "bb3e465a-8c1c-44d0-be22-d434cf4b9bfc",
+        "d0b16018-0583-48b9-a85d-fee4709f040e",
+        "45958b03-722e-47ec-be9d-56bbd7ab3ea2",
+        "07e6a1dd-966b-4d46-bad5-656bed7d967f",
+        "a64839e6-4bea-4788-85ba-cf727ded599b",
+        "4e5e7249-55f5-4473-86de-ae87cf8f642c",
+        "8a2b0afc-e63a-4fff-af57-a13f37d13fb3",
+        "4821d07c-68d4-4ef0-90d1-4f76703a407a",
+        "772b674e-cc47-4922-b0e2-8c3fb0237a6f",
+        "0e534fcd-3554-4f3b-b6a7-3fc96a0bfebc"
+      ]
+    },
+    {
+      "name": "通用采购协议",
+      "aliases": [
+        "采购合同",
+        "货物采购协议",
+        "标准采购合同"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "通用交易底座",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "货物",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "买方支付价款，卖方交付货物并转移所有权",
+        "usage_scenario": "企业间商品采购的标准化框架协议",
+        "legal_basis": [
+          "民法典第595条"
+        ]
+      },
+      "recommended_template_ids": [
+        "3cc0773f-0a75-4945-ac79-b20db8cd9809"
+      ]
+    },
+    {
+      "name": "简单欠条",
+      "aliases": [
+        "欠条",
+        "借条（无息）",
+        "债务确认书"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "通用交易底座",
+      "legal_features": {
+        "transaction_nature": "融资借贷",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "固定金额",
+        "transaction_characteristics": "债务人承诺偿还固定金额债务",
+        "usage_scenario": "个人间小额借贷或紧急资金周转",
+        "legal_basis": [
+          "民法典第667条",
+          "民法典第679条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "收据",
+      "aliases": [
+        "收款收据",
+        "收条",
+        "付款凭证"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "通用交易底座",
+      "legal_features": {
+        "transaction_nature": "转移所有权",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "款项收讫",
+        "transaction_characteristics": "证明付款完成，作为履行证据",
+        "usage_scenario": "日常交易中证明支付完成",
+        "legal_basis": [
+          "民法典第509条",
+          "民法典第584条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "承诺书",
+      "aliases": [
+        "履约承诺书",
+        "承诺函",
+        "保证承诺书"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "单方声明与承诺",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "无对价",
+        "transaction_characteristics": "单方承诺履行义务",
+        "usage_scenario": "用于债务保证、法律和解等场景",
+        "legal_basis": [
+          "民法典第464条",
+          "民法典第681条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "免责声明",
+      "aliases": [
+        "免责条款",
+        "责任豁免声明",
+        "风险告知书"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "单方声明与承诺",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "无对价",
+        "transaction_characteristics": "单方责任免除声明，限制声明方法律责任",
+        "usage_scenario": "用于高风险活动、产品使用或服务提供中风险分配",
+        "legal_basis": [
+          "民法典第506条",
+          "民法典第497条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "授权委托书(通用)",
+      "aliases": [
+        "委托书",
+        "授权书",
+        "代理授权书"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "单方声明与承诺",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "无偿服务",
+        "transaction_characteristics": "委托人授权受托人代理特定事务",
+        "usage_scenario": "用于委托他人处理法律或商业事务",
+        "legal_basis": [
+          "民法典第161条",
+          "民法典第163条"
+        ]
+      },
+      "recommended_template_ids": [
+        "4352e96a-084a-4eb2-91a4-b87ea328347e",
+        "b44a599b-572f-4b30-9dae-fd202b411dfd"
+      ]
+    },
+    {
+      "name": "催告函",
+      "aliases": [
+        "催告通知",
+        "履约催告函",
+        "催办函"
+      ],
+      "category": "通用框架与兜底协议",
+      "subcategory": "单方声明与承诺",
+      "legal_features": {
+        "transaction_nature": "争议解决",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "无对价",
+        "transaction_characteristics": "单方通知要求履行义务",
+        "usage_scenario": "违约时催促对方履行合同义务",
+        "legal_basis": [
+          "民法典第563条",
+          "民法典第509条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "保证合同",
+      "aliases": [
+        "担保合同",
+        "保证协议",
+        "连带责任保证合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "",
+      "legal_features": {
+        "transaction_nature": "融资借贷",
+        "contract_object": "资金",
+        "stance": "中立",
+        "consideration_type": "混合",
+        "consideration_detail": "协商确定费用",
+        "transaction_characteristics": "保证人向债权人承诺担保债务履行，债务人不履行时承担责任",
+        "usage_scenario": "借贷、交易等债务担保场景",
+        "legal_basis": [
+          "民法典第681条",
+          "民法典第682条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "抵押合同",
+      "aliases": [
+        "抵押担保合同",
+        "不动产抵押协议",
+        "房产抵押合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "",
+      "legal_features": {
+        "transaction_nature": "融资借贷",
+        "contract_object": "不动产",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "担保债务",
+        "transaction_characteristics": "债务人提供财产担保债务履行，债权人享有优先受偿权",
+        "usage_scenario": "用于银行贷款、民间借贷等债务担保场景",
+        "legal_basis": [
+          "民法典第394条",
+          "民法典第395条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "质押合同",
+      "aliases": [
+        "质押担保合同",
+        "动产质押协议",
+        "权利质押合同"
+      ],
+      "category": "民法典典型合同",
+      "subcategory": "",
+      "legal_features": {
+        "transaction_nature": "融资借贷",
+        "contract_object": "动产",
+        "stance": "中立",
+        "consideration_type": "无偿",
+        "consideration_detail": "担保债务",
+        "transaction_characteristics": "债务人移交动产占有，债权人优先受偿",
+        "usage_scenario": "债务担保，确保债权实现",
+        "legal_basis": [
+          "民法典第440条",
+          "民法典第445条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "劳务协议",
+      "aliases": [
+        "劳务合同",
+        "劳务雇佣协议",
+        "临时用工协议"
+      ],
+      "category": "劳动与人力资源",
+      "subcategory": "",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "劳动力",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "工资形式",
+        "transaction_characteristics": "平等主体间提供劳务，不建立劳动关系，不受劳动法调整",
+        "usage_scenario": "适用于个人提供临时性、项目性服务",
+        "legal_basis": [
+          "民法典第770条",
+          "民法典第919条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "AI节能改造",
+      "aliases": [
+        "AI节能服务合同",
+        "智能节能改造协议",
+        "AI能效优化合同"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "按效果付费",
+        "transaction_characteristics": "提供AI节能技术服务，保证节能效果",
+        "usage_scenario": "建筑或工业设施节能优化",
+        "legal_basis": [
+          "民法典第781条",
+          "民法典第509条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "节能效益分享型能源管理合同",
+      "aliases": [
+        "节能分享合同",
+        "EMC合同",
+        "合同能源管理协议"
+      ],
+      "category": "行业特定合同",
+      "subcategory": "",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "中立",
+        "consideration_type": "有偿",
+        "consideration_detail": "节能效益分享",
+        "transaction_characteristics": "服务方提供节能服务，客户分享节能效益作为对价",
+        "usage_scenario": "企业节能改造项目，如工业或建筑节能",
+        "legal_basis": [
+          "民法典第881条",
+          "民法典第509条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "监理合同",
+      "aliases": [],
+      "category": "民法典典型合同",
+      "subcategory": "建设工程合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "平衡",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "监理人监督工程实施，确保质量安全进度",
+        "usage_scenario": "建设工程项目中委托监理单位监督施工",
+        "legal_basis": [
+          "《民法典》第933条",
+          "《民法典》第788条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "委托服务合同",
+      "aliases": [],
+      "category": "民法典典型合同",
+      "subcategory": "委托合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "服务",
+        "stance": "平衡",
+        "consideration_type": "有偿",
+        "consideration_detail": "双方协商",
+        "transaction_characteristics": "受托人处理委托事务，委托人支付报酬",
+        "usage_scenario": "委托他人代理或处理特定事务的场景",
+        "legal_basis": [
+          "《民法典》第九百一十九条",
+          "《民法典》第九百二十一条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "项目与合作",
+      "aliases": [],
+      "category": "非典型商事合同",
+      "subcategory": "",
+      "legal_features": {
+        "transaction_nature": "合作经营",
+        "contract_object": "服务",
+        "stance": "平衡",
+        "consideration_type": "有偿",
+        "consideration_detail": "按比例分配",
+        "transaction_characteristics": "双方共同投资经营项目，共享收益共担风险",
+        "usage_scenario": "商业伙伴合作开发项目或提供专业服务",
+        "legal_basis": [
+          "《民法典》第967条"
+        ]
+      },
+      "recommended_template_ids": []
+    },
+    {
+      "name": "内部承包合同",
+      "aliases": [],
+      "category": "民法典典型合同",
+      "subcategory": "建设工程合同",
+      "legal_features": {
+        "transaction_nature": "提供服务",
+        "contract_object": "工程",
+        "stance": "平衡",
+        "consideration_type": "有偿",
+        "consideration_detail": "按约定支付",
+        "transaction_characteristics": "承包方完成工程建设，发包方支付价款并验收。",
+        "usage_scenario": "建筑企业内部将工程分包给部门或个人。",
+        "legal_basis": [
+          "《民法典》第788条",
+          "《民法典》第793条"
+        ]
+      },
+      "recommended_template_ids": [
+        "afc62b51-d5b7-444f-a9e8-78b8bb0d90e6"
+      ]
+    },
+    {
+      "name": "技术许可合同",
+      "aliases": [],
+      "category": "民法典典型合同",
+      "subcategory": "技术合同",
+      "legal_features": {
+        "transaction_nature": "许可使用",
+        "contract_object": "智力成果",
+        "stance": "平衡",
+        "consideration_type": "有偿",
+        "consideration_detail": "许可费支付",
+        "transaction_characteristics": "许可方授权技术使用权，被许可方支付使用费",
+        "usage_scenario": "专利、软件等知识产权许可使用场景",
+        "legal_basis": [
+          "《民法典》第845条",
+          "《民法典》第843条"
+        ]
+      },
+      "recommended_template_ids": []
+    }
+  ],
+  "total_count": 127,
+  "updated_at": null
+}

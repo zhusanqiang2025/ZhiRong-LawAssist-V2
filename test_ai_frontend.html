@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>AI 功能验证</title>
+</head>
+<body>
+  <h1>知识图谱 AI 完善功能验证</h1>
+  <div id="result"></div>
+
+  <script>
+    async function testAIEnhance() {
+      const resultDiv = document.getElementById('result');
+
+      try {
+        resultDiv.innerHTML = '<p>测试中...</p>';
+
+        // 测试获取所有合同类型
+        const response = await fetch('http://localhost:8000/api/v1/knowledge-graph/contract-types');
+        const data = await response.json();
+
+        resultDiv.innerHTML = `
+          <h2>测试结果：</h2>
+          <p>✓ API 连接成功</p>
+          <p>✓ 合同类型总数：${data.total_count}</p>
+          <p>✓ 第一个合同：${data.contract_types[0].name}</p>
+          <hr>
+          <h3>可用功能：</h3>
+          <ul>
+            <li>批量 AI 完善：POST /api/v1/knowledge-graph/admin/ai-enhance</li>
+            <li>单个 AI 完善：POST /api/v1/knowledge-graph/admin/ai-enhance/{contract_name}</li>
+          </ul>
+          <hr>
+          <h3>前端按钮位置：</h3>
+          <p>1. 顶部操作栏：绿色 "AI完善全部" 按钮</p>
+          <p>2. 每行操作列：绿色 "AI完善" 按钮</p>
+          <hr>
+          <button onclick="testSingleEnhance()">测试单个合同 AI 完善</button>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = `<p style="color: red;">错误: ${error.message}</p>`;
+      }
+    }
+
+    async function testSingleEnhance() {
+      const resultDiv = document.getElementById('result');
+      const contractName = prompt('请输入要完善的合同名称：', '不动产买卖合同');
+
+      if (!contractName) return;
+
+      try {
+        resultDiv.innerHTML = '<p>AI 正在生成法律特征，请稍候...</p>';
+
+        const response = await fetch(`http://localhost:8000/api/v1/knowledge-graph/admin/ai-enhance/${encodeURIComponent(contractName)}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        resultDiv.innerHTML = `
+          <h2>AI 完善成功！</h2>
+          <p><strong>合同名称：</strong>${data.contract_type.name}</p>
+          <p><strong>交易性质：</strong>${data.contract_type.legal_features.transaction_nature}</p>
+          <p><strong>合同标的：</strong>${data.contract_type.legal_features.contract_object}</p>
+          <p><strong>交易特征：</strong>${data.contract_type.legal_features.transaction_characteristics}</p>
+          <p><strong>适用场景：</strong>${data.contract_type.legal_features.usage_scenario}</p>
+          <p><strong>法律依据：</strong>${data.contract_type.legal_features.legal_basis.join(', ')}</p>
+          <hr>
+          <button onclick="testAIEnhance()">返回</button>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = `<p style="color: red;">错误: ${error.message}</p>`;
+      }
+    }
+
+    // 页面加载时自动测试
+    window.onload = testAIEnhance;
+  </script>
+</body>
+</html>

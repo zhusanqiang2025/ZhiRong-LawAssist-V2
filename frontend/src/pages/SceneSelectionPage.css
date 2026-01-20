@@ -1,0 +1,205 @@
+/* frontend/src/pages/SceneSelectionPage.css */
+
+/* 全局重置 */
+body {
+  background-color: #f0f2f5;
+}
+
+/* 1. 动态极光 Banner */
+.welcome-banner {
+  border-radius: 12px;
+  margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  /* 动态渐变背景 */
+  background: linear-gradient(-45deg, #001529, #003a8c, #1890ff, #722ed1);
+  background-size: 400% 400%;
+  animation: gradientFlow 15s ease infinite;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 机器人悬浮动画 */
+.banner-robot-icon {
+  position: absolute;
+  right: -20px;
+  bottom: -40px;
+  opacity: 0.15;
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+.banner-robot-icon .anticon {
+  font-size: 240px;
+  color: #fff;
+}
+
+.floating-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(-15deg); }
+  50% { transform: translateY(-15px) rotate(-15deg); }
+  100% { transform: translateY(0px) rotate(-15deg); }
+}
+
+/* AI 在线状态脉冲 */
+.ai-status-pulse {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #52c41a;
+  border-radius: 50%;
+  margin-right: 8px;
+  box-shadow: 0 0 0 rgba(82, 196, 26, 0.4);
+  animation: pulse 2s infinite;
+}
+
+.status-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(82, 196, 26, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(82, 196, 26, 0); }
+}
+
+/* Banner 按钮样式 */
+.glass-button {
+  height: 48px !important;
+  padding: 0 32px !important;
+  font-size: 16px !important;
+  border-radius: 6px !important;
+  border: none !important;
+  background: #fff !important;
+  color: #1890ff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s !important;
+}
+
+.glass-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.glass-button-secondary {
+  height: 48px !important;
+  padding: 0 24px !important;
+  font-size: 16px !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  transition: all 0.3s !important;
+}
+
+.glass-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: #fff !important;
+}
+
+/* 2. 卡片瀑布流动画 */
+.category-section {
+  opacity: 0;
+  animation: slideUpFade 0.6s ease-out forwards;
+  margin-bottom: 48px;
+}
+
+.category-section:last-child {
+  margin-bottom: 0;
+}
+
+.scene-card {
+  height: 100%;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.scene-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.12);
+  border-color: #1890ff;
+}
+
+/* 卡片箭头交互 */
+.card-hover-arrow {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s;
+  color: #1890ff;
+}
+
+.scene-card:hover .card-hover-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 3. 搜索框聚焦动画 */
+.search-input-animated.ant-input-affix-wrapper-focused {
+  width: 320px !important; /* 聚焦时变宽 */
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 4. 铃铛摇晃动画 */
+.bell-icon-hover:hover {
+  animation: bellShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  color: #1890ff;
+}
+
+@keyframes bellShake {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(5deg); }
+  30% { transform: rotate(-5deg); }
+  45% { transform: rotate(4deg); }
+  60% { transform: rotate(-4deg); }
+  75% { transform: rotate(2deg); }
+  85% { transform: rotate(-2deg); }
+  100% { transform: rotate(0); }
+}
+
+/* 滚动条优化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #bfbfbf;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}

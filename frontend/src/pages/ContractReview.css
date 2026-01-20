@@ -1,0 +1,263 @@
+/* frontend/src/pages/ContractReview.css */
+.review-container {
+  display: flex;
+  /* 移除固定高度，使用 flex 自动填充剩余空间 */
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5;
+  overflow: hidden;
+}
+
+.editor-area {
+  flex: 1; /* 占据剩余空间 */
+  height: 100%;
+  border-right: 1px solid #ddd;
+}
+
+.ai-sidebar {
+  width: 380px; /* 右侧侧边栏宽度 - 稍微加宽以容纳新按钮 */
+  background: white;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+}
+
+.upload-section {
+  text-align: center;
+  padding: 40px;
+  border: 2px dashed #1890ff;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background-color: #f0faff;
+  cursor: pointer;
+}
+
+.action-bar {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-primary {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.risk-card {
+  background: #fff;
+  border: 1px solid #ffd1cf;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  transition: all 0.3s;
+}
+
+.risk-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.risk-title {
+  color: #cf1322;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.risk-content {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.suggestion-box {
+  background: #fff;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px dashed #ffa39e;
+  font-size: 12px;
+  color: #333;
+}
+
+.apply-btn {
+  margin-top: 8px;
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #cf1322;
+  color: #cf1322;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.apply-btn:hover {
+  background-color: #cf1322;
+  color: white;
+}
+
+/* 替换后原生元素样式，尽量接近 antd 风格 */
+.spin {
+  padding: 12px;
+  text-align: center;
+  color: #595959;
+  background: #fafafa;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.alert {
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+.alert.info {
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  color: #0050b3;
+}
+.alert.warning {
+  background: #fff7e6;
+  border: 1px solid #ffd591;
+  color: #614700;
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-right: 8px;
+}
+.tag.Critical { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+.tag.High { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+.tag.Medium { background: #f0f5ff; color: #2f54eb; border: 1px solid #adc6ff; }
+.tag.Low { background: #f6ffed; color: #237804; border: 1px solid #b7eb8f; }
+.tag.critical { background: #cf1322; color: #fff; padding: 2px 6px; border-radius: 4px; }
+
+.small.primary {
+  padding: 6px 10px;
+  background: #1890ff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.small.primary:hover { opacity: 0.95; }
+
+.review-list {
+  margin-top: 8px;
+}
+
+.ai-sidebar h3 { margin-top: 0; margin-bottom: 12px; }
+
+/* Card 基础样式，替代 antd Card */
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  margin-bottom: 12px;
+}
+.metadata-card h4 { margin: 0 0 12px; font-size: 16px; }
+
+/* 上传占位样式 */
+.upload-placeholder { display:flex; align-items:center; justify-content:center; height:100%; }
+.upload-placeholder label { display:inline-block; padding:20px 24px; border-radius:6px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.04); cursor:pointer; }
+.upload-placeholder label:hover { box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+
+/* 表单元素样式 */
+.ai-sidebar input, .ai-sidebar select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+.ai-sidebar select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, #000 50%), linear-gradient(135deg, #000 50%, transparent 50%); background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px); background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; }
+
+/* 主动按钮 */
+.btn-primary, .ai-sidebar button[type="button"] {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 4px;
+  background: #1890ff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+.btn-primary:disabled, .ai-sidebar button[type="button"]:disabled { background:#bfbfbf; cursor:not-allowed; }
+
+.risk-card { /* refine risk card */
+  background: #fff;
+  border: 1px solid #ffd1cf;
+  padding: 12px 14px;
+  border-radius: 8px;
+}
+.risk-card strong { display:block; margin-bottom:6px; }
+.risk-card .tag { margin-right:6px; }
+.risk-card div { margin-bottom:6px; }
+
+/* 结果列表的可访问间距 */
+.review-list { display:flex; flex-direction:column; gap:10px; }
+
+/* 辅助文本样式 */
+.spin { font-size:13px; color:#595959; }
+
+/* 小屏幕适配 */
+@media (max-width: 900px) {
+  .review-container { flex-direction:column; }
+  .ai-sidebar { width:100%; height: auto; box-shadow:none; }
+  .editor-area { height: 60vh; }
+}
+
+/* 当事人行样式 */
+.party-row input { flex: 1; }
+.party-row .ant-btn { padding: 0 8px; }
+
+/* 修订模态框样式 */
+.revision-modal {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 可点击的原文引用样式 */
+.risk-card .clickable-quote {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.risk-card .clickable-quote:hover {
+  background: #e6f7ff;
+}
+
+/* 选中状态的审查卡片 */
+.risk-card.selected {
+  border: 2px solid #1890ff;
+  background: #f0f5ff;
+}

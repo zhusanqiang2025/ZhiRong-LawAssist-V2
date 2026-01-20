@@ -1,0 +1,65 @@
+/* frontend/src/pages/DocumentDraftingPage.css */
+
+.document-drafting-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.step-card {
+  margin-bottom: 24px;
+}
+
+.document-content {
+  font-family: 'SimSun', serif;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.document-content h1 {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.document-content h2 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.document-content h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.document-content p {
+  margin-bottom: 12px;
+  text-indent: 2em;
+}
+
+.document-content strong {
+  font-weight: bold;
+}
+
+.document-content ul,
+.document-content ol {
+  margin-left: 2em;
+  margin-bottom: 12px;
+}
+
+.document-content li {
+  margin-bottom: 8px;
+}
+
+@media print {
+  .document-drafting-page .ant-card {
+    box-shadow: none;
+    border: none;
+  }
+}

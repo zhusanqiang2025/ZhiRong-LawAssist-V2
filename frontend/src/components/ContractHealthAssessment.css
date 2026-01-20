@@ -1,0 +1,23 @@
+/* frontend/src/components/ContractHealthAssessment.css */
+.health-assessment-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.health-assessment-card .ant-statistic-title {
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+.health-assessment-card .ant-statistic-content {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.health-assessment-card .ant-alert {
+  border-radius: 6px;
+}
+
+.health-assessment-card .ant-progress-inner {
+  border-radius: 6px;
+}
