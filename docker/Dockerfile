@@ -51,7 +51,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 
 # 使用淘宝镜像源安装依赖
-RUN npm install --registry=https://registry.npmmirror.com
+RUN npm install --registry=https://registry.npmmirror.com && npm config set unsafe-perm true
 
 # 复制前端源码
 COPY frontend/ ./
