@@ -65,8 +65,8 @@ ARG VITE_ONLYOFFICE_URL=http://localhost:8082
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL
 
-# 构建前端
-RUN npx vite build
+# 构建前端（使用 npm run build）
+RUN npm run build
 
 
 # ============ Stage 3: 最终运行镜像（后端 + 前端） ============
