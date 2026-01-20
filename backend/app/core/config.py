@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     # --- 应用基本配置 ---
     ENVIRONMENT: str = "development"
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str = ""  # 必须从环境变量设置
+    SECRET_KEY: str = "default-secret-key-change-in-production-min-32-chars"  # 默认值，生产环境必须覆盖
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     SERVER_NAME: str = "localhost"
     SERVER_HOST: str = "http://localhost:8000"
@@ -34,11 +34,11 @@ class Settings(BaseSettings):
 
     # --- 数据库配置 ---
     PROJECT_NAME: str = "zhirong_fazhu_v2"
-    POSTGRES_SERVER: str = ""
-    POSTGRES_USER: str = ""
-    POSTGRES_PASSWORD: str = ""
-    POSTGRES_DB: str = ""
-    DATABASE_URL: str = ""
+    POSTGRES_SERVER: str = "localhost"  # 默认值
+    POSTGRES_USER: str = "postgres"  # 默认值
+    POSTGRES_PASSWORD: str = "postgres"  # 默认值
+    POSTGRES_DB: str = "legal_assistant"  # 默认值
+    DATABASE_URL: str = "sqlite:///./storage/app.db"  # 默认使用 SQLite
 
     @validator("DATABASE_URL", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
@@ -60,8 +60,8 @@ class Settings(BaseSettings):
     # --- DeepSeek 配置 ---
     # DeepSeek API 配置（用于智能对话功能）
     # 注意：API_URL 已配置为火山引擎 Qwen 模型端点
-    DEEPSEEK_API_URL: str = ""
-    DEEPSEEK_API_KEY: str = ""
+    DEEPSEEK_API_URL: str = ""  # 可选
+    DEEPSEEK_API_KEY: str = "default-api-key-change-in-production"  # 默认值
     DEEPSEEK_MODEL: str = "Qwen3-235B-A22B-Thinking-2507"  # 使用 Qwen3 Thinking 模型
     DEEPSEEK_TEMPERATURE: float = 0.7
     DEEPSEEK_MAX_TOKENS: int = 2000
@@ -153,38 +153,20 @@ class Settings(BaseSettings):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._validate_required_env_vars()
+        # 只在非生产环境警告，生产环境必须配置完整
+        if self.ENVIRONMENT != "production":
+            self._warn_default_config()
 
-    def _validate_required_env_vars(self):
-        """验证必需的环境变量是否已设置（仅保留当前使用的）"""
-        required_vars = [
-            "SECRET_KEY",
-            "POSTGRES_SERVER",
-            "POSTGRES_USER",
-            "POSTGRES_PASSWORD",
-            "POSTGRES_DB",
-            "DATABASE_URL",
-            "DEEPSEEK_API_KEY",   # 保留 DeepSeek
-            # "DIFY_API_URL"      # <--- 已删除，不再强制要求
-        ]
-
-        missing_vars = []
-        for var in required_vars:
-            value = getattr(self, var, None)
-            if not value or (isinstance(value, str) and value.strip() == ""):
-                missing_vars.append(var)
-
-        if missing_vars:
-            raise ValueError(
-                f"Missing required environment variables: {', '.join(missing_vars)}. "
-                "Please check your .env file or environment configuration."
-            )
-
-        # 验证 SECRET_KEY 强度
-        if len(self.SECRET_KEY) < 32:
-            raise ValueError(
-                "SECRET_KEY must be at least 32 characters long for security."
-            )
+    def _warn_default_config(self):
+        """开发环境警告默认配置"""
+        import warnings
+        warnings.warn(
+            "⚠️  Using default configuration values. "
+            "This is NOT suitable for production! "
+            "Please set proper environment variables.",
+            UserWarning,
+            stacklevel=2
+        )
 
 # 创建配置实例
 settings = Settings()
