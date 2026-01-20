@@ -126,61 +126,61 @@ export const knowledgeBaseApi = {
    * 获取知识源列表
    */
   getKnowledgeSources: () =>
-    api.get('/api/v1/knowledge-base/sources'),
+    api.get('/knowledge-base/sources'),
 
   /**
    * 配置飞书知识源
    */
   configureFeishuSource: (config: FeishuConfig) =>
-    api.post('/api/v1/knowledge-base/sources/feishu/config', config),
+    api.post('/knowledge-base/sources/feishu/config', config),
 
   /**
    * 切换知识源启用状态
    */
   toggleKnowledgeSource: (sourceId: string, enabled: boolean) =>
-    api.post(`/api/v1/knowledge-base/sources/${sourceId}/toggle`, { enabled }),
+    api.post(`/knowledge-base/sources/${sourceId}/toggle`, { enabled }),
 
   /**
    * 搜索知识库
    */
   search: (request: SearchRequest) =>
-    api.post('/api/v1/knowledge-base/search', request),
+    api.post('/knowledge-base/search', request),
 
   /**
    * 获取模块偏好设置
    */
   getModulePreferences: (moduleName: string) =>
-    api.get(`/api/v1/knowledge-base/modules/${moduleName}/preferences`),
+    api.get(`/knowledge-base/modules/${moduleName}/preferences`),
 
   /**
    * 保存模块偏好设置
    */
   saveModulePreferences: (moduleName: string, preferences: ModulePreferences) =>
-    api.post(`/api/v1/knowledge-base/modules/${moduleName}/preferences`, preferences),
+    api.post(`/knowledge-base/modules/${moduleName}/preferences`, preferences),
 
   /**
    * 健康检查
    */
   healthCheck: () =>
-    api.get('/api/v1/knowledge-base/health'),
+    api.get('/knowledge-base/health'),
 
   /**
    * 检测上传内容是否重复
    */
   checkDuplicate: (request: CheckDuplicateRequest) =>
-    api.post('/api/v1/knowledge-base/check-duplicate', request),
+    api.post('/knowledge-base/check-duplicate', request),
 
   /**
    * 获取用户知识库文档列表
    */
   getUserDocuments: (params?: UserDocumentsParams) =>
-    api.get('/api/v1/knowledge-base/user/documents', { params }),
+    api.get('/knowledge-base/user/documents', { params }),
 
   /**
    * 上传用户文档
    */
   uploadUserDocument: (formData: FormData) =>
-    api.post('/api/v1/knowledge-base/user/documents', formData, {
+    api.post('/knowledge-base/user/documents', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -190,19 +190,19 @@ export const knowledgeBaseApi = {
    * 更新用户文档
    */
   updateUserDocument: (docId: string, request: UpdateUserDocumentRequest) =>
-    api.put(`/api/v1/knowledge-base/user/documents/${docId}`, request),
+    api.put(`/knowledge-base/user/documents/${docId}`, request),
 
   /**
    * 删除用户文档
    */
   deleteUserDocument: (docId: string) =>
-    api.delete(`/api/v1/knowledge-base/user/documents/${docId}`),
+    api.delete(`/knowledge-base/user/documents/${docId}`),
 
   /**
    * 获取用户文档详情
    */
   getUserDocumentDetail: (docId: string) =>
-    api.get(`/api/v1/knowledge-base/user/documents/${docId}`),
+    api.get(`/knowledge-base/user/documents/${docId}`),
 };
 
 export default knowledgeBaseApi;

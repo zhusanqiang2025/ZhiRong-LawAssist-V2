@@ -162,7 +162,7 @@ export const contractTemplateApi = {
       ? import.meta.env.VITE_API_BASE_URL
       : (import.meta.env.PROD ? '' : 'http://localhost:8000');
     const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-    const url = `${baseURL}/api/v1/contract/${templateId}/download`;
+    const url = `${baseURL}/contract/${templateId}/download`;
 
     // 使用 fetch 下载流
     const response = await fetch(url, {

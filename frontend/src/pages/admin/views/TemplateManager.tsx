@@ -122,7 +122,7 @@ const TemplateManager: React.FC = () => {
   const fetchIndexStats = async () => {
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-      const response = await fetch(`${getApiBaseUrl()}/api/v1/rag/index/stats`, {
+      const response = await fetch(`${getApiBaseUrl()}/rag/index/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -210,7 +210,7 @@ const TemplateManager: React.FC = () => {
     setRebuildingIndex(true);
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-      const response = await fetch(`${getApiBaseUrl()}/api/v1/rag/index/index-all`, {
+      const response = await fetch(`${getApiBaseUrl()}/rag/index/index-all`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });

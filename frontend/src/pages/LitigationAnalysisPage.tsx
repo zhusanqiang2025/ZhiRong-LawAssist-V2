@@ -252,7 +252,7 @@ const LitigationAnalysisPage: React.FC = () => {
   };
 
   const connectWebSocket = () => {
-    const wsUrl = `${getWsBaseUrl()}/api/v1/litigation-analysis/ws/${effectiveSessionId}`;
+    const wsUrl = `${getWsBaseUrl()}/litigation-analysis/ws/${effectiveSessionId}`;
     console.log(`🔌 Connecting to WebSocket: ${wsUrl}`);
     wsRef.current = new WebSocket(wsUrl);
 
@@ -457,7 +457,7 @@ const LitigationAnalysisPage: React.FC = () => {
     }, 2000); // 每2秒增加5%
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/api/v1/litigation-analysis/preorganize`, {
+      const response = await fetch(`${getApiBaseUrl()}/litigation-analysis/preorganize`, {
         method: 'POST',
         body: formData
       });

@@ -48,7 +48,7 @@ export class TaskWebSocketManager {
     }
 
     // 构建WebSocket URL（使用动态配置）
-    const defaultWsUrl = `${getWsBaseUrl()}/api/v1/tasks/${taskId}/ws`;
+    const defaultWsUrl = `${getWsBaseUrl()}/tasks/${taskId}/ws`;
     const url = wsUrl || defaultWsUrl;
 
     try {
@@ -167,7 +167,7 @@ export class TaskWebSocketManager {
    */
   private async pollStatus(): Promise<void> {
     try {
-      const response = await fetch(`${getWsBaseUrl().replace(/^wss?:/, 'http:')}/api/v1/tasks/${this.taskId}/status`, {
+      const response = await fetch(`${getWsBaseUrl().replace(/^wss?:/, 'http:')}/tasks/${this.taskId}/status`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
         }

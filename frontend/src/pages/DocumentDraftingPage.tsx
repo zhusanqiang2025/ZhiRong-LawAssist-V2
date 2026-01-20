@@ -228,7 +228,7 @@ const DocumentDraftingPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await api.post('/api/v1/document-drafting/generate', {
+      const response = await api.post('/document-drafting/generate', {
         user_input: userInput,
         uploaded_files: uploadedFiles.map(f => f.response?.file_path || f.url),
         document_type: selectedType

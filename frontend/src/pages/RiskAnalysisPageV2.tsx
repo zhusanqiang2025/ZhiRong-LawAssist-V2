@@ -192,7 +192,7 @@ const RiskAnalysisPageV2: React.FC = () => {
   const fetchFinalResult = async (retryCount = 0, specificSessionId?: string) => {
     const sid = specificSessionId || analysisState.sessionId;
     try {
-      const response = await api.get(`/api/v1/risk-analysis-v2/result/${sid}`);
+      const response = await api.get(`/risk-analysis-v2/result/${sid}`);
       const backendData = response.data;
 
       const dist = backendData.risk_distribution || { high: 0, medium: 0, low: 0, critical: 0 };
@@ -315,7 +315,7 @@ const RiskAnalysisPageV2: React.FC = () => {
 
       try {
         setIsRestoringSession(true);
-        const response = await api.get(`/api/v1/risk-analysis-v2/${urlSessionId}/restore-state`);
+        const response = await api.get(`/risk-analysis-v2/${urlSessionId}/restore-state`);
         const restoreData = response.data;
 
         switch (restoreData.current_stage) {
@@ -398,7 +398,7 @@ const RiskAnalysisPageV2: React.FC = () => {
   useEffect(() => {
     if (!analysisState.sessionId || analysisState.status === 'idle') return;
     const sendHeartbeat = async () => {
-      try { await api.post(`/api/v1/risk-analysis-v2/${analysisState.sessionId}/heartbeat`, { ws_connected: true }); }
+      try { await api.post(`/risk-analysis-v2/${analysisState.sessionId}/heartbeat`, { ws_connected: true }); }
       catch (e) { console.error('心跳失败', e); }
     };
     sendHeartbeat();
@@ -409,7 +409,7 @@ const RiskAnalysisPageV2: React.FC = () => {
   useEffect(() => {
     const handleBeforeUnload = async () => {
       if (analysisState.sessionId && ['analyzing', 'uploading'].includes(analysisState.status)) {
-        await api.post(`/api/v1/risk-analysis-v2/${analysisState.sessionId}/heartbeat`, { ws_connected: false });
+        await api.post(`/risk-analysis-v2/${analysisState.sessionId}/heartbeat`, { ws_connected: false });
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -420,7 +420,7 @@ const RiskAnalysisPageV2: React.FC = () => {
   useEffect(() => {
     if (isRestoringSession || !analysisState.sessionId) return;
 
-    const wsUrl = `${getWsBaseUrl()}/api/v1/risk-analysis-v2/ws/${analysisState.sessionId}`;
+    const wsUrl = `${getWsBaseUrl()}/risk-analysis-v2/ws/${analysisState.sessionId}`;
 
     if (wsRef.current && wsRef.current.url === wsUrl && wsRef.current.readyState === WebSocket.OPEN) return;
     if (wsRef.current) wsRef.current.close();
@@ -472,7 +472,7 @@ const RiskAnalysisPageV2: React.FC = () => {
     setAnalysisState(prev => ({ ...prev, status: 'uploading' }));
 
     try {
-      const createResponse = await api.post('/api/v1/risk-analysis-v2/create-session', {
+      const createResponse = await api.post('/risk-analysis-v2/create-session', {
         upload_ids: uploadIds.length > 0 ? uploadIds : undefined,
         package_id: undefined,
         user_input: userInput
@@ -486,7 +486,7 @@ const RiskAnalysisPageV2: React.FC = () => {
       setCurrentStep(1);
 
       await new Promise(resolve => setTimeout(resolve, 500));
-      await api.post(`/api/v1/risk-analysis-v2/start/${session_id}`, { stop_after_preorganization: true });
+      await api.post(`/risk-analysis-v2/start/${session_id}`, { stop_after_preorganization: true });
       message.success('开始文档预整理...');
     } catch (error: any) {
       message.error('启动失败');
@@ -505,7 +505,7 @@ const RiskAnalysisPageV2: React.FC = () => {
         nodeProgress: { ...prev.nodeProgress!, multiModelAnalysis: 'processing' }
       }));
 
-      await api.post(`/api/v1/risk-analysis-v2/continue/${analysisState.sessionId}`, {
+      await api.post(`/risk-analysis-v2/continue/${analysisState.sessionId}`, {
         analysis_mode: mode,
         selected_model: mode === 'single' ? 'Qwen3-235B-A22B-Thinking-2507' : undefined,
         package_id: selectedPackageIds[0],
@@ -523,7 +523,7 @@ const RiskAnalysisPageV2: React.FC = () => {
     setUploadedFiles(prev => [...prev, { uid, name: file.name, status: 'uploading' }]);
     try {
       const fd = new FormData(); fd.append('files', file);
-      const res = await api.post('/api/v1/risk-analysis-v2/upload', fd);
+      const res = await api.post('/risk-analysis-v2/upload', fd);
       setUploadedFiles(prev => prev.map(f => f.uid === uid ? { ...f, status: 'done', response: res.data } : f));
       if (res.data.upload_id) setUploadIds(p => [...p, res.data.upload_id]);
       if (res.data.file_paths) setUploadedFileIds(p => [...p, ...res.data.file_paths]);
@@ -553,7 +553,7 @@ const RiskAnalysisPageV2: React.FC = () => {
 
   const handleDownloadPreorganizationReport = async () => {
     try {
-      const response = await api.get(`/api/v1/risk-analysis-v2/preorganization-report/${analysisState.sessionId}`, { responseType: 'blob' });
+      const response = await api.get(`/risk-analysis-v2/preorganization-report/${analysisState.sessionId}`, { responseType: 'blob' });
       const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a'); link.href = url; link.download = `预整理报告.docx`;
@@ -563,7 +563,7 @@ const RiskAnalysisPageV2: React.FC = () => {
 
   const handleDownloadRiskAnalysisReport = async () => {
     try {
-      const response = await api.get(`/api/v1/risk-analysis-v2/report/${analysisState.sessionId}`, { responseType: 'blob' });
+      const response = await api.get(`/risk-analysis-v2/report/${analysisState.sessionId}`, { responseType: 'blob' });
       const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a'); link.href = url; link.download = `风险分析报告.docx`;

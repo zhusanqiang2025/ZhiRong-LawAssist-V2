@@ -14,7 +14,7 @@ import type {
   GenerateDraftsResult
 } from '../types/litigationAnalysis';
 
-const BASE_URL = '/api/v1/litigation-analysis';
+const BASE_URL = '/litigation-analysis';
 
 // ==================== 案件类型包管理 ====================
 

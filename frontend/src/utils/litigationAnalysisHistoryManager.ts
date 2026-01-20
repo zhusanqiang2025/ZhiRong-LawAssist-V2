@@ -42,7 +42,7 @@ class LitigationAnalysisHistoryManager {
       }
 
       // 从后端获取 - 使用统一的任务接口
-      const response = await api.get('/api/v1/tasks', {
+      const response = await api.get('/tasks', {
         params: { status: 'pending,processing,completed' }
       });
 
@@ -122,7 +122,7 @@ class LitigationAnalysisHistoryManager {
    */
   async loadSession(sessionId: string): Promise<any> {
     try {
-      const response = await api.get(`/api/v1/litigation-analysis/result/${sessionId}`);
+      const response = await api.get(`/litigation-analysis/result/${sessionId}`);
 
       // 标记为已完成
       await this.markAsCompleted(sessionId);
@@ -140,7 +140,7 @@ class LitigationAnalysisHistoryManager {
   async deleteSession(sessionId: string): Promise<boolean> {
     try {
       console.log('[案件分析历史记录管理器] 开始删除会话:', sessionId);
-      const response = await api.delete(`/api/v1/litigation-analysis/sessions/${sessionId}`);
+      const response = await api.delete(`/litigation-analysis/sessions/${sessionId}`);
       console.log('[案件分析历史记录管理器] 删除会话响应:', response.data);
 
       // 从缓存中移除

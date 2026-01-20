@@ -62,7 +62,7 @@ const ReviewRulesManager: React.FC = () => {
     setLoading(true);
     try {
       const params = categoryFilter ? { rule_category: categoryFilter } : {};
-      const response = await api.get('/api/v1/admin/rules', { params });
+      const response = await api.get('/admin/rules', { params });
       setRules(response.data.items || []); // API 返回 {items: [], total: n, page: n, size: n}
     } catch (error: any) {
       message.error(error.response?.data?.detail || '获取规则列表失败');
@@ -74,7 +74,7 @@ const ReviewRulesManager: React.FC = () => {
   const handleMigrateFromJson = async () => {
     setMigrating(true);
     try {
-      const response = await api.post('/api/v1/admin/rules/migrate-from-json');
+      const response = await api.post('/admin/rules/migrate-from-json');
       message.success(`迁移成功！${response.data.message}`);
       fetchRules();
     } catch (error: any) {
@@ -105,7 +105,7 @@ const ReviewRulesManager: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       console.log(`[删除规则] 开始删除规则 ID: ${id}`);
-      const response = await api.delete(`/api/v1/admin/rules/${id}`);
+      const response = await api.delete(`/admin/rules/${id}`);
       console.log(`[删除规则] 删除成功:`, response.data);
       message.success(`删除成功: ${response.data.message || '规则已删除'}`);
       fetchRules();
@@ -118,7 +118,7 @@ const ReviewRulesManager: React.FC = () => {
 
   const handleToggle = async (id: number) => {
     try {
-      await api.put(`/api/v1/admin/rules/${id}/toggle`);
+      await api.put(`/admin/rules/${id}/toggle`);
       message.success('状态更新成功');
       fetchRules();
     } catch (error: any) {
@@ -130,10 +130,10 @@ const ReviewRulesManager: React.FC = () => {
     try {
       const values = await form.validateFields();
       if (editingRule) {
-        await api.put(`/api/v1/admin/rules/${editingRule.id}`, values);
+        await api.put(`/admin/rules/${editingRule.id}`, values);
         message.success('更新成功');
       } else {
-        await api.post('/api/v1/admin/rules', values);
+        await api.post('/admin/rules', values);
         message.success('创建成功');
       }
       setModalVisible(false);

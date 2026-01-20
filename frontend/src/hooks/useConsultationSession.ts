@@ -96,7 +96,7 @@ export function useConsultationSession() {
    */
   const continueSession = useCallback(async (sessionId: string) => {
     try {
-      const response = await api.post(`/api/v1/consultation/history/${sessionId}/continue`);
+      const response = await api.post(`/consultation/history/${sessionId}/continue`);
 
       if (response.data && response.data.success && response.data.session) {
         const session = response.data.session;
@@ -187,7 +187,7 @@ export function useConsultationSession() {
    */
   const loadHistorySessions = useCallback(async () => {
     try {
-      const response = await api.get('/api/v1/consultation/history', {
+      const response = await api.get('/consultation/history', {
         params: { limit: 50 }
       });
 
@@ -224,7 +224,7 @@ export function useConsultationSession() {
    */
   const deleteSession = useCallback(async (sessionId: string) => {
     try {
-      const response = await api.delete(`/api/v1/consultation/history/${sessionId}`);
+      const response = await api.delete(`/consultation/history/${sessionId}`);
 
       if (response.data && response.data.success) {
         // 从列表中移除

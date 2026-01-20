@@ -238,7 +238,7 @@ export function useRiskAnalysisTasks(): UseRiskAnalysisTasksResult {
       setIsLoading(true);
 
       // 1. 创建会话
-      const createResponse = await api.post('/api/v1/risk-analysis-v2/create-session', {
+      const createResponse = await api.post('/risk-analysis-v2/create-session', {
         upload_id: params.uploadId || undefined,
         package_id: params.packageId || undefined,
         user_input: params.userInput
@@ -278,7 +278,7 @@ export function useRiskAnalysisTasks(): UseRiskAnalysisTasksResult {
       });
 
       // 4. 启动分析
-      await api.post(`/api/v1/risk-analysis-v2/start/${sessionId}`, {
+      await api.post(`/risk-analysis-v2/start/${sessionId}`, {
         stop_after_preorganization: true
       });
 
@@ -369,7 +369,7 @@ export function useRiskAnalysisTasks(): UseRiskAnalysisTasksResult {
       setIsLoading(true);
 
       // 从后端获取所有任务
-      const response = await api.get('/api/v1/tasks?limit=20');
+      const response = await api.get('/tasks?limit=20');
       const backendTasks = response.data;
 
       // 过滤出风险评估任务

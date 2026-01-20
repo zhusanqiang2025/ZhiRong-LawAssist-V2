@@ -168,7 +168,7 @@ const ContractReview: React.FC = () => {
   // 获取自定义规则列表
   const fetchCustomRules = async () => {
     try {
-      const res = await api.get('/api/v1/admin/rules', { params: { category: 'custom' } });
+      const res = await api.get('/admin/rules', { params: { category: 'custom' } });
       const rules = res.data.filter((r: any) => !r.is_system); // 只显示非系统规则
       setCustomRules(rules);
       setCustomRulesCount(rules.length);
@@ -329,7 +329,7 @@ const ContractReview: React.FC = () => {
   // 创建自定义规则
   const handleCreateCustomRule = async (values: any) => {
     try {
-      await api.post('/api/v1/admin/rules', {
+      await api.post('/admin/rules', {
         ...values,
         rule_category: 'custom',
         is_system: false
@@ -345,7 +345,7 @@ const ContractReview: React.FC = () => {
   // 删除自定义规则
   const handleDeleteCustomRule = async (id: number) => {
     try {
-      await api.delete(`/api/v1/admin/rules/${id}`);
+      await api.delete(`/admin/rules/${id}`);
       message.success('删除成功');
       fetchCustomRules();
     } catch (error: any) {
@@ -356,7 +356,7 @@ const ContractReview: React.FC = () => {
   // 切换自定义规则启用状态
   const handleToggleCustomRule = async (id: number) => {
     try {
-      await api.put(`/api/v1/admin/rules/${id}/toggle`);
+      await api.put(`/admin/rules/${id}/toggle`);
       message.success('状态更新成功');
       fetchCustomRules();
     } catch (error: any) {
