@@ -67,19 +67,18 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL
 
 # 构建前端
-# 注意：先设置 NODE_ENV=production 用于构建，但使用 --include=dev 确保安装 vite 等开发依赖
+# 注意：不在构建阶段全局设置 NODE_ENV=production，只在构建命令时设置
 RUN echo "=== Frontend Build Environment ===" && \
-    echo "NODE_ENV=$NODE_ENV" && \
+    # 1. 显式设置 VITE 环境变量
     echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" && \
     echo "VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL" && \
-    echo "Node version: $(node --version)" && \
-    echo "NPM version: $(npm --version)" && \
-    echo "Working directory: $(pwd)" && \
-    echo "Files in directory:" && ls -la && \
-    echo "=== Reinstalling dependencies with dev dependencies ===" && \
-    npm install --include=dev --legacy-peer-deps && \
-    echo "=== Setting NODE_ENV=production and building ===" && \
+    # 2. 强制使用 development 环境安装依赖 (确保 .bin 下的 vite 可执行)
+    NODE_ENV=development npm install --legacy-peer-deps && \
+    # 3. (兜底) 手动赋予二进制文件执行权限，防止 error 126
+    chmod +x node_modules/.bin/* || true && \
+    # 4. 仅在构建这一步，临时切换为 production
     NODE_ENV=production npm run build && \
+    # 5. 验证构建结果
     echo "=== Checking build output ===" && \
     ls -la dist/ && \
     if [ -f dist/index.html ]; then echo "✓ Build SUCCESS"; else echo "✗ Build FAILED"; exit 1; fi
