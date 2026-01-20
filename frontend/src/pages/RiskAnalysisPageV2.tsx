@@ -420,7 +420,7 @@ const RiskAnalysisPageV2: React.FC = () => {
   useEffect(() => {
     if (isRestoringSession || !analysisState.sessionId) return;
 
-    const wsUrl = `${getWsBaseUrl()}/risk-analysis-v2/ws/${analysisState.sessionId}`;
+    const wsUrl = `${getWsBaseUrl()}/api/v1/risk-analysis-v2/ws/${analysisState.sessionId}`;
 
     if (wsRef.current && wsRef.current.url === wsUrl && wsRef.current.readyState === WebSocket.OPEN) return;
     if (wsRef.current) wsRef.current.close();

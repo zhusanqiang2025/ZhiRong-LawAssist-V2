@@ -55,7 +55,7 @@ export class TaskWebSocketService {
 
   // WebSocket连接URL（使用动态配置）
   private get wsUrl(): string {
-    return `${getWsBaseUrl()}/ws/tasks`;
+    return `${getWsBaseUrl()}/api/v1/tasks/ws`;
   }
 
   private constructor() {}

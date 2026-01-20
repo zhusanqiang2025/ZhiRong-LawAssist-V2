@@ -267,7 +267,7 @@ class WebSocketConnectionPool {
   private generateWebSocketUrl(sessionId: string): string {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host;
-    return `${protocol}//${host}/risk-analysis-v2/ws/${sessionId}`;
+    return `${protocol}//${host}/api/v1/risk-analysis-v2/ws/${sessionId}`;
   }
 }
 

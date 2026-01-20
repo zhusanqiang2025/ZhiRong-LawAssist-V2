@@ -252,7 +252,7 @@ const LitigationAnalysisPage: React.FC = () => {
   };
 
   const connectWebSocket = () => {
-    const wsUrl = `${getWsBaseUrl()}/litigation-analysis/ws/${effectiveSessionId}`;
+    const wsUrl = `${getWsBaseUrl()}/api/v1/litigation-analysis/ws/${effectiveSessionId}`;
     console.log(`🔌 Connecting to WebSocket: ${wsUrl}`);
     wsRef.current = new WebSocket(wsUrl);
 
