@@ -15,10 +15,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // 为所有文件添加时间戳哈希，确保每次构建都生成新文件名
-        entryFileNames: `assets/[name]-[hash]-[timestamp].js`,
-        chunkFileNames: `assets/[name]-[hash]-[timestamp].js`,
-        assetFileNames: `assets/[name]-[hash]-[timestamp].[ext]`
+        // 为所有文件添加哈希，确保内容变化时生成新文件名
+        entryFileNames: `assets/[name]-[hash].js`,
+        chunkFileNames: `assets/[name]-[hash].js`,
+        assetFileNames: `assets/[name]-[hash].[ext]`
       }
     }
   },

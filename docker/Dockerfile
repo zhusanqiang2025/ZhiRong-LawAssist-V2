@@ -65,10 +65,14 @@ ARG VITE_ONLYOFFICE_URL=http://localhost:8082
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL
 
-# 确保可执行权限并构建
-RUN chmod +x node_modules/.bin/* && \
+# 构建前端（使用 npm run build 并设置 NODE_ENV=production）
+ENV NODE_ENV=production
+RUN npm run build -- --debug || \
+    (echo "=== npm run build failed, trying direct vite ===" && \
     ls -la node_modules/.bin/vite && \
-    node_modules/.bin/vite build
+    node node_modules/vite/bin/vite.js build --debug) || \
+    (echo "=== All build attempts failed ===" && \
+    exit 1)
 
 
 # ============ Stage 3: 最终运行镜像（后端 + 前端） ============
