@@ -4,7 +4,7 @@
 # 生产环境：后端 FastAPI 直接服务前端静态文件
 
 # ============ Stage 1: Vendor 基础镜像（Python 依赖层） ============
-FROM python:3.11-slim AS python-vendor
+FROM docker.1ms.run/python:3.11-slim AS python-vendor
 
 # 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -40,7 +40,7 @@ RUN pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple && \
 
 
 # ============ Stage 2: 前端构建（React + Vite） ============
-FROM node:lts-alpine AS frontend-builder
+FROM docker.1ms.run/node:lts-alpine AS frontend-builder
 
 # 使用阿里云 Alpine 镜像源加速 apk 安装
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
@@ -67,7 +67,7 @@ RUN npm run build
 
 
 # ============ Stage 3: 最终运行镜像（后端 + 前端） ============
-FROM python:3.11-slim
+FROM docker.1ms.run/python:3.11-slim
 
 # 构建参数
 ARG CI_PROJECT_TITLE=legal_assistant_v3
