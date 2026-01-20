@@ -66,8 +66,8 @@ ARG VITE_ONLYOFFICE_URL=http://localhost:8082
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL
 
-# 构建前端（使用 npm run build 并设置 NODE_ENV=production）
-ENV NODE_ENV=production
+# 构建前端
+# 注意：先设置 NODE_ENV=production 用于构建，但使用 --include=dev 确保安装 vite 等开发依赖
 RUN echo "=== Frontend Build Environment ===" && \
     echo "NODE_ENV=$NODE_ENV" && \
     echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" && \
@@ -76,10 +76,10 @@ RUN echo "=== Frontend Build Environment ===" && \
     echo "NPM version: $(npm --version)" && \
     echo "Working directory: $(pwd)" && \
     echo "Files in directory:" && ls -la && \
-    echo "=== Installing dependencies ===" && \
-    npm install --legacy-peer-deps && \
-    echo "=== Building frontend ===" && \
-    npm run build && \
+    echo "=== Reinstalling dependencies with dev dependencies ===" && \
+    npm install --include=dev --legacy-peer-deps && \
+    echo "=== Setting NODE_ENV=production and building ===" && \
+    NODE_ENV=production npm run build && \
     echo "=== Checking build output ===" && \
     ls -la dist/ && \
     if [ -f dist/index.html ]; then echo "✓ Build SUCCESS"; else echo "✗ Build FAILED"; exit 1; fi
