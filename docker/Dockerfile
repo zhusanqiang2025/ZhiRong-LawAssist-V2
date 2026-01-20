@@ -68,14 +68,14 @@ ENV VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL
 
 # 构建前端（使用 npm run build 并设置 NODE_ENV=production）
 ENV NODE_ENV=production
-RUN echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" && \
+RUN echo "=== Starting frontend build ===" && \
+    echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" && \
     echo "VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL" && \
-    npm run build || \
-    (echo "=== npm run build failed, trying direct vite ===" && \
-    ls -la node_modules/.bin/vite && \
-    node node_modules/vite/bin/vite.js build) || \
-    (echo "=== All build attempts failed ===" && \
-    exit 1)
+    npm run build && \
+    echo "=== Build completed, checking output ===" && \
+    ls -la dist/ && \
+    echo "=== dist/index.html exists: ===" && \
+    test -f dist/index.html && echo "YES" || echo "NO"
 
 
 # ============ Stage 3: 最终运行镜像（后端 + 前端） ============
@@ -152,6 +152,10 @@ COPY .env ./.env
 
 # 从 frontend-builder 复制前端构建产物到 static 目录
 COPY --from=frontend-builder /app/frontend/dist ./static/frontend
+
+# 验证前端文件是否正确复制
+RUN ls -la /app/static/frontend/ && \
+    test -f /app/static/frontend/index.html && echo "Frontend files copied successfully" || echo "WARNING: index.html not found!"
 
 # 暴露端口
 EXPOSE 8000
