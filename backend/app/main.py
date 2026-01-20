@@ -262,6 +262,7 @@ allowed_origins = [
     "http://127.0.0.1:5173",
     "http://localhost:8081",  # 前端端口
     "http://localhost:8089",  # 前端端口（当前实际运行端口）
+    "https://legal-assistant-v3.azgpu02.azshentong.com",  # 生产环境域名
 ]
 
 # 从环境变量读取生产环境域名

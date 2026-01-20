@@ -13,8 +13,14 @@ import type {
 export type { ContractTemplate, CategoryTreeItem, TemplateListResponse, ContractLegalFeatures, TemplateInfo };
 
 // 创建专用的 axios 实例
+// 逻辑：如果是生产环境(PROD)，且没有设置环境变量，则使用相对路径（即当前域名）
+// 否则使用环境变量，最后回退到 localhost
+const baseUrl = import.meta.env.VITE_API_BASE_URL
+  ? import.meta.env.VITE_API_BASE_URL
+  : (import.meta.env.PROD ? '' : 'http://localhost:8000');
+
 const apiClient = axios.create({
-  baseURL: (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000') + '/api/v1',
+  baseURL: baseUrl + '/api/v1',
   timeout: 30000,
 });
 
@@ -152,7 +158,9 @@ export const contractTemplateApi = {
 
   // 下载模板
   downloadTemplate: async (templateId: string): Promise<void> => {
-    const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'; // Vite 环境变量
+    const baseURL = import.meta.env.VITE_API_BASE_URL
+      ? import.meta.env.VITE_API_BASE_URL
+      : (import.meta.env.PROD ? '' : 'http://localhost:8000');
     const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
     const url = `${baseURL}/api/v1/contract/${templateId}/download`;
 
