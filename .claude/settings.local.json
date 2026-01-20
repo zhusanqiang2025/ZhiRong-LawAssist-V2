@@ -52,7 +52,9 @@
       "Bash(pip uninstall:*)",
       "Bash(alembic current:*)",
       "Bash(ping:*)",
-      "Bash(alembic heads:*)"
+      "Bash(alembic heads:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
