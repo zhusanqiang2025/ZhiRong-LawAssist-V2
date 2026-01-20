@@ -147,10 +147,11 @@ COPY backend/templates ./templates
 COPY backend/langgraphs ./langgraphs
 COPY backend/static ./static
 
-# 复制环境变量配置文件
-# .env 文件在项目根目录，相对于 Dockerfile 的路径是 ../.env
-# 但由于构建上下文是根目录，直接使用 .env 即可
-COPY .env .env
+# 复制环境变量配置文件（可选）
+# .env 文件在 .gitignore 中，不会被提交到 Git
+# K8s 环境会通过 ConfigMap/Secret 注入环境变量
+# 本地开发环境可以使用 .env，生产环境使用 K8s 环境变量
+# 因此这里不复制 .env，依赖 K8s 注入的环境变量
 
 # 从 frontend-builder 复制前端构建产物到 static 目录
 COPY --from=frontend-builder /app/frontend/dist ./static/frontend
