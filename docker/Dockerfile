@@ -65,8 +65,10 @@ ARG VITE_ONLYOFFICE_URL=http://localhost:8082
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL
 
-# 构建前端（直接使用 node_modules/.bin/vite）
-RUN ./node_modules/.bin/vite build
+# 确保可执行权限并构建
+RUN chmod +x node_modules/.bin/* && \
+    ls -la node_modules/.bin/vite && \
+    node_modules/.bin/vite build
 
 
 # ============ Stage 3: 最终运行镜像（后端 + 前端） ============
