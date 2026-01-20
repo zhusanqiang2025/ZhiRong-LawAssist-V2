@@ -15,6 +15,7 @@ import type { ContractTemplate, CategoryTreeItem } from '../../../types/contract
 import TemplateContractFeaturesEditor from '../../../components/TemplateContractFeaturesEditor';
 import type { ContractFeaturesData } from '../../../components/TemplateContractFeaturesEditor';
 import ReactMarkdown from 'react-markdown';
+import { getApiBaseUrl } from '../../../utils/apiConfig';
 
 const { Text, Paragraph } = Typography;
 const { Option, OptGroup } = Select;
@@ -121,8 +122,7 @@ const TemplateManager: React.FC = () => {
   const fetchIndexStats = async () => {
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-      // 注意：这里硬编码了地址，建议封装进 api 文件
-      const response = await fetch('http://localhost:8000/api/v1/rag/index/stats', {
+      const response = await fetch(`${getApiBaseUrl()}/api/v1/rag/index/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -210,7 +210,7 @@ const TemplateManager: React.FC = () => {
     setRebuildingIndex(true);
     try {
       const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/v1/rag/index/index-all', {
+      const response = await fetch(`${getApiBaseUrl()}/api/v1/rag/index/index-all`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });

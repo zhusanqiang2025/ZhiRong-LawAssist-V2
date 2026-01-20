@@ -4,6 +4,7 @@
  */
 import { TaskProgress } from '../types/task';
 import { logger } from '../utils/logger';
+import { getWsBaseUrl } from '../utils/apiConfig';
 
 export interface TaskProgressMessage {
   type: 'task_status' | 'task_progress' | 'task_completed' | 'task_error' | 'pong' | 'error';
@@ -52,13 +53,9 @@ export class TaskWebSocketService {
   private isConnecting = false;
   private isConnected = false;
 
-  // WebSocket连接URL
+  // WebSocket连接URL（使用动态配置）
   private get wsUrl(): string {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    // 使用 API_BASE_URL 环境变量来获取正确的后端地址
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-    const host = apiBaseUrl.replace('https://', '').replace('http://', '') || 'localhost:8000';
-    return `${protocol}//${host}/ws/tasks`;
+    return `${getWsBaseUrl()}/ws/tasks`;
   }
 
   private constructor() {}

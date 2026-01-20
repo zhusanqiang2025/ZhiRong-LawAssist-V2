@@ -50,6 +50,7 @@ import { useNavigate } from 'react-router-dom';
 import { DocumentEditor } from '@onlyoffice/document-editor-react';
 import ModuleNavBar from '../components/ModuleNavBar/EnhancedModuleNavBar';
 import { useSessionPersistence } from '../hooks/useSessionPersistence';
+import { getApiBaseUrl } from '../utils/apiConfig';
 import './DocumentProcessingPage.css';
 
 const { Title, Text, Paragraph } = Typography;
@@ -199,7 +200,7 @@ const DocumentProcessingPage: React.FC = () => {
     setConvertedFiles((prev) => [...prev, fileItem]);
 
     try {
-      const response = await fetch('http://localhost:8000/api/preprocessor/convert', {
+      const response = await fetch(`${getApiBaseUrl()}/api/preprocessor/convert`, {
         method: 'POST',
         body: formData,
       });
@@ -210,7 +211,7 @@ const DocumentProcessingPage: React.FC = () => {
 
       const result = await response.json();
       const outputFilename = result.output_filename || result.output_path?.split('/')?.pop();
-      const previewUrl = `http://localhost:8000/storage/uploads/${outputFilename}`;
+      const previewUrl = `${getApiBaseUrl()}/storage/uploads/${outputFilename}`;
 
       setConvertedFiles((prev) =>
         prev.map((item) =>
@@ -251,7 +252,7 @@ const DocumentProcessingPage: React.FC = () => {
     try {
       // 获取文档ID，从文件路径中提取
       const filename = file.outputPath?.split('/').pop() || file.name;
-      const response = await fetch(`http://localhost:8000/api/document/preview/by-filename/${filename}`);
+      const response = await fetch(`${getApiBaseUrl()}/api/document/preview/by-filename/${filename}`);
       if (!response.ok) {
         // 如果专用接口不存在，使用预览URL直接预览
         if (file.previewUrl) {
@@ -280,7 +281,7 @@ const DocumentProcessingPage: React.FC = () => {
 
   const handleDownloadConverted = (file: ConvertedFile) => {
     if (file.downloadUrl) {
-      window.open(`http://localhost:8000${file.downloadUrl}`, '_blank');
+      window.open(`${getApiBaseUrl()}${file.downloadUrl}`, '_blank');
     }
   };
 
@@ -310,7 +311,7 @@ const DocumentProcessingPage: React.FC = () => {
     try {
       if (editingMode === 'text' && hasTextContent) {
         // 文本模式：调用文档生成 API
-        const response = await fetch('http://localhost:8000/api/document/generate-from-content', {
+        const response = await fetch(`${getApiBaseUrl()}/api/document/generate-from-content`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -349,7 +350,7 @@ const DocumentProcessingPage: React.FC = () => {
         formData.append('output_format', outputFormat);
         formData.append('document_type', documentType);
 
-        const response = await fetch('http://localhost:8000/api/document/process-file-to-standard', {
+        const response = await fetch(`${getApiBaseUrl()}/api/document/process-file-to-standard`, {
           method: 'POST',
           body: formData,
         });
@@ -387,7 +388,7 @@ const DocumentProcessingPage: React.FC = () => {
     if (!generatedDoc) return;
 
     try {
-      const response = await fetch(`http://localhost:8000${generatedDoc.previewUrl}`);
+      const response = await fetch(`${getApiBaseUrl()}${generatedDoc.previewUrl}`);
       if (!response.ok) {
         message.warning('获取预览配置失败');
         return;
@@ -405,7 +406,7 @@ const DocumentProcessingPage: React.FC = () => {
 
     const url = format === 'docx' ? generatedDoc.downloadDocxUrl : generatedDoc.downloadPdfUrl;
     if (url) {
-      window.open(`http://localhost:8000${url}`, '_blank');
+      window.open(`${getApiBaseUrl()}${url}`, '_blank');
     }
   };
 
@@ -1090,7 +1091,7 @@ const DocumentProcessingPage: React.FC = () => {
           {previewConfig ? (
             <DocumentEditor
               id="docPreviewEditor"
-              documentServerUrl="http://localhost:8082"
+              documentServerUrl={import.meta.env.VITE_ONLYOFFICE_URL || (import.meta.env.PROD ? '/onlyoffice' : 'http://localhost:8082')}
               config={{
                 ...previewConfig.config,
                 token: previewConfig.token
@@ -1100,7 +1101,7 @@ const DocumentProcessingPage: React.FC = () => {
             />
           ) : previewUrl ? (
             <iframe
-              src={`http://localhost:8082/web-apps/apps/api/documents?src=${encodeURIComponent(previewUrl)}`}
+              src={`${import.meta.env.VITE_ONLYOFFICE_URL || (import.meta.env.PROD ? '/onlyoffice' : 'http://localhost:8082')}/web-apps/apps/api/documents?src=${encodeURIComponent(previewUrl)}`}
               style={{
                 width: '100%',
                 height: '100%',

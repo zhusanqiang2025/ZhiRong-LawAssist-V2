@@ -1,5 +1,6 @@
 // frontend/src/api/litigationRulePackages.ts
 import axios from 'axios';
+import { getApiBaseUrl } from '../utils/apiConfig';
 
 /**
  * 案件分析规则包接口定义
@@ -126,7 +127,7 @@ export const TARGET_DOCUMENT_TYPES = [
 
 // 创建专用的 axios 实例
 const apiClient = axios.create({
-  baseURL: (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000') + '/api/v1',
+  baseURL: getApiBaseUrl() + '/api/v1',
   timeout: 30000,
 });
 

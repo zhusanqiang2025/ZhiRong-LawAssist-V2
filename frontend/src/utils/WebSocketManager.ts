@@ -5,6 +5,7 @@
  * 提供WebSocket连接管理、自动重连、降级轮询等功能
  * 用于任务进度实时推送
  */
+import { getWsBaseUrl } from './apiConfig';
 
 export interface WebSocketMessage {
   type: 'progress' | 'notification' | 'error';
@@ -36,7 +37,7 @@ export class TaskWebSocketManager {
    * 连接WebSocket
    *
    * @param taskId 任务ID
-   * @param wsUrl WebSocket URL（可选，默认使用本地地址）
+   * @param wsUrl WebSocket URL（可选，默认使用配置的地址）
    */
   connect(taskId: string, wsUrl?: string): void {
     this.taskId = taskId;
@@ -46,8 +47,8 @@ export class TaskWebSocketManager {
       this.disconnect();
     }
 
-    // 构建WebSocket URL
-    const defaultWsUrl = `ws://localhost:8000/api/v1/tasks/${taskId}/ws`;
+    // 构建WebSocket URL（使用动态配置）
+    const defaultWsUrl = `${getWsBaseUrl()}/api/v1/tasks/${taskId}/ws`;
     const url = wsUrl || defaultWsUrl;
 
     try {
@@ -166,7 +167,7 @@ export class TaskWebSocketManager {
    */
   private async pollStatus(): Promise<void> {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/tasks/${this.taskId}/status`, {
+      const response = await fetch(`${getWsBaseUrl().replace(/^wss?:/, 'http:')}/api/v1/tasks/${this.taskId}/status`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
         }

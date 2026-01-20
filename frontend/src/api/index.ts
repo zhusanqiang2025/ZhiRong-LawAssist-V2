@@ -1,5 +1,6 @@
 // frontend/src/api/index.ts
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
+import { getApiBaseUrl } from '../utils/apiConfig';
 import {
   User,
   Template,
@@ -308,7 +309,7 @@ const cleanCircularRefs = (obj: any): any => {
 };
 
 export const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseURL: getApiBaseUrl(),
   withCredentials: true,
 });
 

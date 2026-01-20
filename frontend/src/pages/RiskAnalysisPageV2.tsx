@@ -67,6 +67,7 @@ import RiskAnalysisHistoryButton from '../components/RiskAnalysisHistoryButton';
 import api from '../api';
 import type { RiskRulePackage } from '../types/riskAnalysis';
 import { riskAnalysisHistoryManager } from '../utils/riskAnalysisHistoryManager';
+import { getWsBaseUrl } from '../utils/apiConfig';
 
 const { Content } = Layout;
 const { TextArea } = Input;
@@ -419,8 +420,8 @@ const RiskAnalysisPageV2: React.FC = () => {
   useEffect(() => {
     if (isRestoringSession || !analysisState.sessionId) return;
 
-    const wsUrl = `ws://localhost:8000/api/v1/risk-analysis-v2/ws/${analysisState.sessionId}`;
-    
+    const wsUrl = `${getWsBaseUrl()}/api/v1/risk-analysis-v2/ws/${analysisState.sessionId}`;
+
     if (wsRef.current && wsRef.current.url === wsUrl && wsRef.current.readyState === WebSocket.OPEN) return;
     if (wsRef.current) wsRef.current.close();
 

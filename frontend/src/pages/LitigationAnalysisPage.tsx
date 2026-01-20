@@ -64,6 +64,7 @@ import LitigationAnalysisHistorySidebar from '../components/LitigationAnalysisHi
 import { caseTypeOptions, positionOptions, getPackageIdByCaseType } from '../config/litigationConfig';
 import { ANALYSIS_GOAL_OPTIONS } from '../types/litigationAnalysis';
 import { caseAnalysisApi } from '../api/litigationAnalysis';
+import { getWsBaseUrl, getApiBaseUrl } from '../utils/apiConfig';
 import type {
   LitigationAnalysisResult,
   LitigationPreorganizationResult,
@@ -251,7 +252,7 @@ const LitigationAnalysisPage: React.FC = () => {
   };
 
   const connectWebSocket = () => {
-    const wsUrl = `ws://localhost:8000/api/v1/litigation-analysis/ws/${effectiveSessionId}`;
+    const wsUrl = `${getWsBaseUrl()}/api/v1/litigation-analysis/ws/${effectiveSessionId}`;
     console.log(`🔌 Connecting to WebSocket: ${wsUrl}`);
     wsRef.current = new WebSocket(wsUrl);
 
@@ -456,7 +457,7 @@ const LitigationAnalysisPage: React.FC = () => {
     }, 2000); // 每2秒增加5%
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/litigation-analysis/preorganize', {
+      const response = await fetch(`${getApiBaseUrl()}/api/v1/litigation-analysis/preorganize`, {
         method: 'POST',
         body: formData
       });

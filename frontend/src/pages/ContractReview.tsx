@@ -1764,7 +1764,7 @@ const ContractReview: React.FC = () => {
           // ⭐ 优先级2: 显示文档编辑器（元数据已提取）
           <DocumentEditor
             id="docxEditor"
-            documentServerUrl={import.meta.env.VITE_ONLYOFFICE_URL || "http://localhost:8082"}
+            documentServerUrl={import.meta.env.VITE_ONLYOFFICE_URL || (import.meta.env.PROD ? '/onlyoffice' : 'http://localhost:8082')}
             config={editorConfig}
             events_onDocumentReady={onDocumentReady}
             height="100%"
