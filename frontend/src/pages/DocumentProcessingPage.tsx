@@ -200,7 +200,7 @@ const DocumentProcessingPage: React.FC = () => {
     setConvertedFiles((prev) => [...prev, fileItem]);
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/api/preprocessor/convert`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/v1/preprocessor/convert`, {
         method: 'POST',
         body: formData,
       });
@@ -252,7 +252,7 @@ const DocumentProcessingPage: React.FC = () => {
     try {
       // 获取文档ID，从文件路径中提取
       const filename = file.outputPath?.split('/').pop() || file.name;
-      const response = await fetch(`${getApiBaseUrl()}/api/document/preview/by-filename/${filename}`);
+      const response = await fetch(`${getApiBaseUrl()}/api/v1/document/preview/by-filename/${filename}`);
       if (!response.ok) {
         // 如果专用接口不存在，使用预览URL直接预览
         if (file.previewUrl) {
@@ -311,7 +311,7 @@ const DocumentProcessingPage: React.FC = () => {
     try {
       if (editingMode === 'text' && hasTextContent) {
         // 文本模式：调用文档生成 API
-        const response = await fetch(`${getApiBaseUrl()}/api/document/generate-from-content`, {
+        const response = await fetch(`${getApiBaseUrl()}/api/v1/document/generate-from-content`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -350,7 +350,7 @@ const DocumentProcessingPage: React.FC = () => {
         formData.append('output_format', outputFormat);
         formData.append('document_type', documentType);
 
-        const response = await fetch(`${getApiBaseUrl()}/api/document/process-file-to-standard`, {
+        const response = await fetch(`${getApiBaseUrl()}/api/v1/document/process-file-to-standard`, {
           method: 'POST',
           body: formData,
         });

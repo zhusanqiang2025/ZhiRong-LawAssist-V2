@@ -188,7 +188,7 @@ const ContractReview: React.FC = () => {
         console.log('🔄 检测到上次的会话，contractId:', savedContractId);
 
         // 查询合同处理状态
-        const statusRes = await api.get(`/api/contract/${savedContractId}/processing-status`);
+        const statusRes = await api.get(`/contract/${savedContractId}/processing-status`);
         const { processing_status, can_load_editor, has_metadata, metadata } = statusRes.data;
 
         console.log('🔄 上次会话状态:', processing_status, 'can_load_editor:', can_load_editor, 'has_metadata:', has_metadata);
@@ -199,7 +199,7 @@ const ContractReview: React.FC = () => {
         // 恢复编辑器配置（如果已就绪）
         if (can_load_editor) {
           try {
-            const cfgRes = await api.get(`/api/contract/${savedContractId}/onlyoffice-config`);
+            const cfgRes = await api.get(`/contract/${savedContractId}/onlyoffice-config`);
             const cfg = cfgRes.data.config;
             const tkn = cfgRes.data.token;
             setEditorConfig({ ...cfg, token: tkn });
@@ -235,7 +235,7 @@ const ContractReview: React.FC = () => {
         // 检查审查任务状态
         try {
           // 先检查是否有正在进行的审查任务（获取当前用户的所有任务，然后过滤出这个合同的）
-          const tasksRes = await api.get(`/api/contract/review-tasks`, {
+          const tasksRes = await api.get(`/contract/review-tasks`, {
             params: { limit: 50 } // 获取最近50条任务
           });
           const allTasks = tasksRes.data || [];
@@ -261,13 +261,13 @@ const ContractReview: React.FC = () => {
               }
 
               try {
-                const taskRes = await api.get(`/api/contract/review-tasks/${taskId}`);
+                const taskRes = await api.get(`/contract/review-tasks/${taskId}`);
                 const task = taskRes.data;
 
                 if (task.status === 'completed') {
                   message.success('合同审查完成！');
                   // 获取审查结果
-                  const reviewRes = await api.get(`/api/contract/${savedContractId}/review-results`);
+                  const reviewRes = await api.get(`/contract/${savedContractId}/review-results`);
                   if (reviewRes.data && reviewRes.data.length > 0) {
                     setReviews(reviewRes.data);
                     setStep('results');
@@ -291,7 +291,7 @@ const ContractReview: React.FC = () => {
           }
 
           // 检查是否有已完成的审查结果
-          const reviewRes = await api.get(`/api/contract/${savedContractId}/review-results`);
+          const reviewRes = await api.get(`/contract/${savedContractId}/review-results`);
           if (reviewRes.data && reviewRes.data.length > 0) {
             setReviews(reviewRes.data);
             if (!runningTask) {
@@ -476,7 +476,7 @@ const ContractReview: React.FC = () => {
           if (retries >= MAX_RETRIES) {
             console.warn('后台处理轮询超时，尝试获取配置');
             try {
-              const cfgRes = await api.get(`/api/contract/${contract_id}/onlyoffice-config`);
+              const cfgRes = await api.get(`/contract/${contract_id}/onlyoffice-config`);
               const cfg = cfgRes.data.config;
               const tkn = cfgRes.data.token;
               setEditorConfig({ ...cfg, token: tkn });
@@ -489,7 +489,7 @@ const ContractReview: React.FC = () => {
 
           try {
             // 查询处理状态
-            const statusRes = await api.get(`/api/contract/${contract_id}/processing-status`);
+            const statusRes = await api.get(`/contract/${contract_id}/processing-status`);
             const { processing_status, can_load_editor } = statusRes.data;
 
             // ⭐ 更新处理状态，用于显示不同提示
@@ -499,7 +499,7 @@ const ContractReview: React.FC = () => {
 
             // ⭐ 关键优化：只要 docx 格式转换完成就可以加载编辑器（不需要等PDF和元数据）
             if (can_load_editor) {
-              const cfgRes = await api.get(`/api/contract/${contract_id}/onlyoffice-config`);
+              const cfgRes = await api.get(`/contract/${contract_id}/onlyoffice-config`);
               const cfg = cfgRes.data.config;
               const tkn = cfgRes.data.token;
               setEditorConfig({ ...cfg, token: tkn });
@@ -591,7 +591,7 @@ const ContractReview: React.FC = () => {
 
           try {
             // ⭐ 使用新的处理状态端点
-            const statusRes = await api.get(`/api/contract/${contract_id}/processing-status`);
+            const statusRes = await api.get(`/contract/${contract_id}/processing-status`);
             console.log(`轮询处理状态 (第${retries + 1}次):`, statusRes.data);
 
             const { processing_status, can_load_editor, has_metadata, metadata, error_message } = statusRes.data;
@@ -602,7 +602,7 @@ const ContractReview: React.FC = () => {
               console.log('✅ 检测到可以加载编辑器');
 
               // ⭐ 立即获取并设置 editorConfig，确保隐藏上传进度前 editorConfig 已设置
-              const cfgRes = await api.get(`/api/contract/${contract_id}/onlyoffice-config`);
+              const cfgRes = await api.get(`/contract/${contract_id}/onlyoffice-config`);
               const cfg = cfgRes.data.config;
               const tkn = cfgRes.data.token;
               setEditorConfig({ ...cfg, token: tkn });
@@ -747,7 +747,7 @@ const ContractReview: React.FC = () => {
       formData.append('updated_metadata', JSON.stringify(processedMetadata));
       console.log('📤 发送元数据:', processedMetadata);
 
-      const response = await api.post(`/api/contract/${contractId}/deep-review`, formData, {
+      const response = await api.post(`/contract/${contractId}/deep-review`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 

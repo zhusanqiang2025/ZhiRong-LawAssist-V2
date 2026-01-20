@@ -143,7 +143,7 @@ const LegalConsultationPage: React.FC = () => {
           title: messages.find(m => m.role === 'user')?.content?.substring(0, 50) + '...' || '对话记录',
           specialist_type: currentExpertType === 'specialist' ? '律师' : undefined
         });
-        navigator.sendBeacon('/api/consultation/save-history', data);
+        navigator.sendBeacon('/consultation/save-history', data);
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);

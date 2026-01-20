@@ -59,7 +59,7 @@ export function useConsultationSession() {
    */
   const createNewSession = useCallback(async () => {
     try {
-      const response = await api.post('/api/consultation/new-session');
+      const response = await api.post('/consultation/new-session');
 
       if (response.data && response.data.session_id) {
         const newSession: ConsultationSession = {
@@ -163,7 +163,7 @@ export function useConsultationSession() {
         classification: currentSession.classification
       };
 
-      const response = await api.post('/api/consultation/save-history', payload);
+      const response = await api.post('/consultation/save-history', payload);
 
       if (response.data && response.data.success) {
         console.log('[会话管理] 会话已保存到历史:', currentSession.sessionId);

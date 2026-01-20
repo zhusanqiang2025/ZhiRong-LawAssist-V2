@@ -54,7 +54,7 @@ const ContractReviewHistory: React.FC = () => {
         params.status = statusFilter;
       }
 
-      const response = await api.get('/api/contract/review-tasks', { params });
+      const response = await api.get('/contract/review-tasks', { params });
       setTasks(response.data);
       setPagination(prev => ({ ...prev, current: page, pageSize }));
     } catch (error: any) {
@@ -77,7 +77,7 @@ const ContractReviewHistory: React.FC = () => {
   // 暂停任务
   const handlePause = async (taskId: number) => {
     try {
-      await api.put(`/api/contract/review-tasks/${taskId}/pause`);
+      await api.put(`/contract/review-tasks/${taskId}/pause`);
       message.success('任务已暂停');
       fetchTasks(pagination.current, pagination.pageSize);
     } catch (error: any) {
@@ -89,7 +89,7 @@ const ContractReviewHistory: React.FC = () => {
   // 恢复任务
   const handleResume = async (taskId: number) => {
     try {
-      await api.put(`/api/contract/review-tasks/${taskId}/resume`);
+      await api.put(`/contract/review-tasks/${taskId}/resume`);
       message.success('任务已恢复');
       fetchTasks(pagination.current, pagination.pageSize);
     } catch (error: any) {
@@ -101,7 +101,7 @@ const ContractReviewHistory: React.FC = () => {
   // 删除任务
   const handleDelete = async (taskId: number) => {
     try {
-      await api.delete(`/api/contract/review-tasks/${taskId}`);
+      await api.delete(`/contract/review-tasks/${taskId}`);
       message.success('任务已删除');
       fetchTasks(pagination.current, pagination.pageSize);
     } catch (error: any) {
