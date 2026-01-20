@@ -147,6 +147,9 @@ COPY backend/templates ./templates
 COPY backend/langgraphs ./langgraphs
 COPY backend/static ./static
 
+# 复制环境变量配置文件
+COPY .env ./.env
+
 # 从 frontend-builder 复制前端构建产物到 static 目录
 COPY --from=frontend-builder /app/frontend/dist ./static/frontend
 
