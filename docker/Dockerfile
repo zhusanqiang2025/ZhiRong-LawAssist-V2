@@ -60,17 +60,20 @@ RUN npm install --registry=https://registry.npmmirror.com --legacy-peer-deps
 COPY frontend/ ./
 
 # 构建参数 - 生产环境 API 地址
-ARG VITE_API_BASE_URL=http://localhost:8000
+# 注意：前端和后端在同一个容器中，使用相对路径
+ARG VITE_API_BASE_URL=
 ARG VITE_ONLYOFFICE_URL=http://localhost:8082
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL
 
 # 构建前端（使用 npm run build 并设置 NODE_ENV=production）
 ENV NODE_ENV=production
-RUN npm run build -- --debug || \
+RUN echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" && \
+    echo "VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL" && \
+    npm run build || \
     (echo "=== npm run build failed, trying direct vite ===" && \
     ls -la node_modules/.bin/vite && \
-    node node_modules/vite/bin/vite.js build --debug) || \
+    node node_modules/vite/bin/vite.js build) || \
     (echo "=== All build attempts failed ===" && \
     exit 1)
 
@@ -81,7 +84,8 @@ FROM docker.1ms.run/python:3.11-slim
 # 构建参数
 ARG CI_PROJECT_TITLE=legal_assistant_v3
 ARG VERSION=latest
-ARG VITE_API_BASE_URL=http://localhost:8000
+# 前端和后端在同一容器，使用相对路径访问 API
+ARG VITE_API_BASE_URL=
 ARG VITE_ONLYOFFICE_URL=http://localhost:8082
 
 # 环境变量
