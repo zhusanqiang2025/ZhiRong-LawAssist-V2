@@ -4,7 +4,7 @@ services:
     image: pgvector/pgvector:pg15
     container_name: legal_assistant_v3_db
     ports:
-      - "5433:5432"
+      - "${DB_PORT:-5433}:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-legal_assistant_db}
       POSTGRES_USER: ${POSTGRES_USER:-admin}
@@ -84,16 +84,16 @@ services:
     image: legal_document_assistantv3-backend:latest
     env_file: .env
     environment:
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
       - WORKER_NAME=worker-medium
-      - ENABLE_TWO_STAGE_GENERATION=true
-      - LANGCHAIN_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
-      - LANGCHAIN_API_BASE_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
-      - MODEL_NAME=Qwen3-235B-A22B-Thinking-2507
-      - OPENAI_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
-      - OPENAI_API_BASE=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
+      - ENABLE_TWO_STAGE_GENERATION=${ENABLE_TWO_STAGE_GENERATION:-true}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+      - LANGCHAIN_API_BASE_URL=${LANGCHAIN_API_BASE_URL}
+      - MODEL_NAME=${MODEL_NAME}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_BASE=${OPENAI_API_BASE}
     volumes:
       - ./backend:/app:rw
       - ./storage:/app/storage:rw
@@ -171,11 +171,11 @@ services:
     image: legal_document_assistantv3-backend:latest
     env_file: .env
     environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - FLOWER_PORT=5556
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      - FLOWER_PORT=${FLOWER_PORT:-5555}
     ports:
-      - "5556:5555"
+      - "${FLOWER_PORT:-5556}:5555"
     depends_on:
       redis:
         condition: service_healthy
@@ -192,15 +192,12 @@ services:
     container_name: legal_assistant_v3_onlyoffice
     restart: always
     environment:
-      # 开启 JWT 校验，保证文档安全
       - JWT_ENABLED=true
-      # 使用环境变量配置 JWT 密钥
       - JWT_SECRET=${ONLYOFFICE_JWT_SECRET:-changeme_onlyoffice_jwt_secret_2025}
       - JWT_HEADER=Authorization
       - JWT_IN_BODY=true
     ports:
-      # 映射到宿主机 8083 端口，前端访问编辑器地址为 http://180.184.47.218:8083
-      - "8083:80"
+      - "${ONLYOFFICE_PORT:-8083}:80"
     volumes:
       - onlyoffice_data:/var/www/onlyoffice/Data
       - onlyoffice_log:/var/log/onlyoffice
@@ -225,35 +222,34 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    # <<< 核心修正点 2: 使用 env_file + 显式配置 >>>
     env_file: .env
-    # 显式声明关键环境变量（直接设置值以确保生效）
     environment:
-      # LangGraph 合同审查专用配置
-      - LANGCHAIN_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
-      - LANGCHAIN_API_BASE_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
-      - MODEL_NAME=Qwen3-235B-A22B-Thinking-2507
+      # LangChain 合同审查专用配置
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+      - LANGCHAIN_API_BASE_URL=${LANGCHAIN_API_BASE_URL}
+      - MODEL_NAME=${MODEL_NAME}
       # OpenAI 兼容 API 配置（用于合同生成模块）
-      - OPENAI_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
-      - OPENAI_API_BASE=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
-      # MinerU 和 OCR 服务配置（直接配置以确保生效）
-      - MINERU_API_URL=http://115.190.40.198:7231/v2/parse/file
-      - MINERU_API_TIMEOUT=120
-      - MINERU_ENABLED=true
-      - OCR_API_URL=http://115.190.43.141:8002/ocr/v1/recognize-text
-      - OCR_API_TIMEOUT=60
-      - OCR_ENABLED=true
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_BASE=${OPENAI_API_BASE}
+      # MinerU 和 OCR 服务配置
+      - MINERU_API_URL=${MINERU_API_URL}
+      - MINERU_API_TIMEOUT=${MINERU_API_TIMEOUT:-120}
+      - MINERU_ENABLED=${MINERU_ENABLED:-false}
+      - OCR_API_URL=${OCR_API_URL}
+      - OCR_API_TIMEOUT=${OCR_API_TIMEOUT:-60}
+      - OCR_ENABLED=${OCR_ENABLED:-false}
       # AI 文档预处理配置
-      - AI_POSTPROCESS_ENABLED=true
-      - AI_POSTPROCESS_MODEL=qwen3-vl:32b-thinking-q8_0
-      - AI_POSTPROCESS_API_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
-      - AI_POSTPROCESS_API_KEY=
-      - AI_POSTPROCESS_TIMEOUT=30
-      - AI_POSTPROCESS_BATCH_SIZE=5
-      - AI_POSTPROCESS_CONFIDENCE_THRESHOLD=0.7
-      - AI_POSTPROCESS_ONLY_AMBIGUOUS=true
+      - AI_POSTPROCESS_ENABLED=${AI_POSTPROCESS_ENABLED:-false}
+      - AI_POSTPROCESS_MODEL=${AI_POSTPROCESS_MODEL:-qwen3-vl:32b-thinking-q8_0}
+      - AI_POSTPROCESS_API_URL=${AI_POSTPROCESS_API_URL}
+      - AI_POSTPROCESS_API_KEY=${AI_POSTPROCESS_API_KEY:-}
+      - AI_POSTPROCESS_TIMEOUT=${AI_POSTPROCESS_TIMEOUT:-30}
+      - AI_POSTPROCESS_BATCH_SIZE=${AI_POSTPROCESS_BATCH_SIZE:-5}
+      - AI_POSTPROCESS_CONFIDENCE_THRESHOLD=${AI_POSTPROCESS_CONFIDENCE_THRESHOLD:-0.7}
+      - AI_POSTPROCESS_ONLY_AMBIGUOUS=${AI_POSTPROCESS_ONLY_AMBIGUOUS:-true}
+      - BACKEND_PUBLIC_URL=${BACKEND_PUBLIC_URL:-http://localhost:8000}
     ports:
-      - "9000:8000"
+      - "${BACKEND_PORT:-9000}:8000"
     volumes:
       # 挂载backend代码到/app，便于开发时实时更新
       - ./backend:/app:rw
@@ -275,12 +271,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      # 构建时传入环境变量（生产环境使用相对路径）
       args:
-        - VITE_API_BASE_URL=http://180.184.47.218:9000
-        - VITE_ONLYOFFICE_URL=http://180.184.47.218:8083
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:9000}
+        - VITE_ONLYOFFICE_URL=${VITE_ONLYOFFICE_URL:-http://localhost:8083}
     ports:
-      - "3001:80"
+      - "${FRONTEND_PORT:-3001}:80"
     depends_on:
       - backend
       - onlyoffice
