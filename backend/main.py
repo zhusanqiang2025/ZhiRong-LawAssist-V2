@@ -1,5 +1,10 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+# ==========================================
+# ✅ 新增导入：静态文件服务
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+# ==========================================
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 import uuid
@@ -22,6 +27,7 @@ app.add_middleware(
 contract_storage = {}
 review_results = {}
 
+# Pydantic 模型定义
 class ContractUploadResponse(BaseModel):
     contract_id: int
     message: str = "上传成功"
@@ -60,6 +66,8 @@ class ReviewResponse(BaseModel):
 # 模拟合同ID生成器
 contract_id_counter = 0
 
+# ==================== API 接口实现 ====================
+
 @app.post("/api/contract/upload", response_model=ContractUploadResponse)
 async def upload_contract(file: UploadFile = File(...)):
     global contract_id_counter
@@ -70,7 +78,7 @@ async def upload_contract(file: UploadFile = File(...)):
     if file_extension not in ["docx", "pdf"]:
         raise HTTPException(status_code=400, detail="仅支持 .docx 或 .pdf 文件")
     
-    # 保存文件（实际应用中应保存到存储系统）
+    # 保存文件
     file_id = str(uuid.uuid4())
     file_location = f"uploads/{file_id}.{file_extension}"
     
@@ -89,17 +97,6 @@ async def upload_contract(file: UploadFile = File(...)):
         "status": "uploaded"
     }
     
-    # 模拟OnlyOffice配置（实际应用中应根据需求生成）
-    config = {
-        "document": {
-            "title": file.filename
-        },
-        "documentType": "word" if file_extension == "docx" else "word",
-        "editorConfig": {
-            "callbackUrl": f"http://localhost:8000/api/contract/{contract_id_counter}/callback"
-        }
-    }
-    
     return ContractUploadResponse(
         contract_id=contract_id_counter,
         message="上传成功"
@@ -110,7 +107,7 @@ async def extract_contract_metadata(contract_id: int):
     if contract_id not in contract_storage:
         raise HTTPException(status_code=404, detail="合同未找到")
     
-    # 模拟元数据提取（实际应用中应使用AI模型进行提取）
+    # 模拟元数据提取
     metadata = ContractMetadata(
         contract_name="技术服务合同",
         parties="甲方：某科技公司；乙方：某咨询公司",
@@ -126,13 +123,11 @@ async def start_deep_review(contract_id: int, request: ReviewRequest, background
     if contract_id not in contract_storage:
         raise HTTPException(status_code=404, detail="合同未找到")
     
-    # 模拟启动深度审查
     review_results[contract_id] = {
         "status": "processing",
         "review_items": []
     }
     
-    # 在后台执行审查
     background_tasks.add_task(process_contract_review, contract_id, request)
     
     return ReviewResponse(message="深度审查已启动")
@@ -140,18 +135,15 @@ async def start_deep_review(contract_id: int, request: ReviewRequest, background
 def process_contract_review(contract_id: int, request: ReviewRequest):
     """在后台处理合同审查"""
     import time
+    time.sleep(3)  # 模拟处理时间
     
-    # 模拟审查过程
-    time.sleep(3)  # 模拟AI处理时间
-    
-    # 模拟审查结果
     sample_review_items = [
         ReviewItem(
             id=1,
             issue_type="付款条款风险",
             quote="乙方应在合同签署后3日内支付全部款项",
-            explanation="付款时间过短，对甲方不利，存在资金风险",
-            suggestion="建议修改为合同签署后30日内支付",
+            explanation="付款时间过短",
+            suggestion="建议修改为30日",
             severity="High",
             action_type="Revision",
             item_status="pending"
@@ -160,25 +152,14 @@ def process_contract_review(contract_id: int, request: ReviewRequest):
             id=2,
             issue_type="违约责任不对等",
             quote="甲方违约需支付双倍赔偿",
-            explanation="违约责任条款对甲方过于严苛，存在不对等风险",
-            suggestion="建议增加乙方违约责任条款，实现双方对等",
+            explanation="不对等",
+            suggestion="增加乙方责任",
             severity="Critical",
             action_type="Alert",
-            item_status="pending"
-        ),
-        ReviewItem(
-            id=3,
-            issue_type="知识产权归属",
-            quote="所有开发成果归乙方所有",
-            explanation="知识产权归属条款对甲方不利",
-            suggestion="建议修改为甲方拥有知识产权，乙方向甲方转让",
-            severity="High",
-            action_type="Revision",
             item_status="pending"
         )
     ]
     
-    # 更新审查结果
     review_results[contract_id] = {
         "status": "waiting_human",
         "review_items": sample_review_items
@@ -203,7 +184,6 @@ async def get_onlyoffice_config(contract_id: int):
     if contract_id not in contract_storage:
         raise HTTPException(status_code=404, detail="合同未找到")
     
-    # 返回OnlyOffice配置
     config = {
         "document": {
             "title": contract_storage[contract_id]["filename"],
@@ -217,6 +197,40 @@ async def get_onlyoffice_config(contract_id: int):
     
     return {"config": config, "token": "sample_token"}
 
+# =================================================================
+# ✅ 新增：前端静态文件托管 (解决 404 问题的核心)
+# =================================================================
+
+# 1. 定位前端构建目录
+# 当前文件在 backend/main.py，所以需要往上走一级 (..) 找到 frontend/dist
+current_dir = os.path.dirname(os.path.abspath(__file__))
+frontend_dist_path = os.path.join(current_dir, "..", "frontend", "dist")
+
+# 打印路径方便调试日志查看
+print(f"🔍 正在寻找前端资源: {frontend_dist_path}")
+
+if os.path.exists(frontend_dist_path):
+    print(f"✅ 成功加载前端构建目录")
+    
+    # 2. 挂载静态资源 (JS/CSS/图片)
+    # 对应 vite 构建出的 assets 目录
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist_path, "assets")), name="assets")
+    
+    # 3. 捕获所有页面路由，返回 index.html
+    @app.get("/{full_path:path}")
+    async def catch_all(full_path: str):
+        # 排除 API 请求
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="API Not Found")
+        
+        # 返回 index.html
+        return FileResponse(os.path.join(frontend_dist_path, "index.html"))
+else:
+    print(f"❌ 警告: 未找到前端构建目录: {frontend_dist_path}")
+    print("请确认已执行 npm run build 且已将 dist 目录提交到 Git")
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # ✅ 端口改为 7860，匹配 .gitlab-ci.yml 的配置
+    print("🚀 启动服务在端口 7860...")
+    uvicorn.run(app, host="0.0.0.0", port=7860)
