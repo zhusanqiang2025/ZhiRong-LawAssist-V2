@@ -2,9 +2,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// 获取部署基础路径（通过环境变量配置，默认为根路径）
+const base = process.env.VITE_BASE_PATH || '/'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // 配置部署基础路径（支持子路径部署）
+  base: base,
   // 禁用缓存以强制重新构建
   cacheDir: false,
   // 定义全局变量
