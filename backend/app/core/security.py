@@ -1,5 +1,6 @@
 # backend/app/core/security.py (清洁版 v1.3 - 统一Schemas修复)
 import os
+import logging
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -13,6 +14,8 @@ from app import schemas # <-- 核心修改：导入统一的schemas模块
 from app.database import SessionLocal
 from app.core.config import settings
 # 移除了 app.crud.user 的导入以避免循环导入
+
+logger = logging.getLogger(__name__)
 
 # SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 SECRET_KEY = settings.SECRET_KEY
@@ -83,16 +86,26 @@ async def get_current_user_websocket(token: str) -> Optional[schemas.User]:
         用户对象或None
     """
     try:
+        # 记录 token 信息（前 20 位）
+        token_preview = token[:20] + "..." if len(token) > 20 else token
+        logger.info(f"[WS Auth] 开始验证 token: '{token_preview}', 长度: {len(token)}")
+
         # 解析token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: Optional[str] = payload.get("sub")
 
         if username is None:
+            logger.error(f"[WS Auth] Token payload 中没有 'sub' 字段, payload keys: {list(payload.keys())}")
             return None
 
+        logger.info(f"[WS Auth] Token 解析成功, 用户: {username}")
         token_data = schemas.TokenPayload(sub=username)
 
-    except JWTError:
+    except JWTError as e:
+        logger.error(f"[WS Auth] JWT 解码失败: {type(e).__name__}: {str(e)}")
+        return None
+    except Exception as e:
+        logger.error(f"[WS Auth] Token 解析异常: {type(e).__name__}: {str(e)}", exc_info=True)
         return None
 
     # 查询用户
@@ -103,13 +116,16 @@ async def get_current_user_websocket(token: str) -> Optional[schemas.User]:
         # 使用上下文管理器确保数据库连接正确关闭
         db = SessionLocal()
         try:
+            logger.info(f"[WS Auth] 查询数据库用户: {token_data.sub}")
             db_user = db.query(User).filter(User.email == (token_data.sub or "")).first()
             if db_user is None:
+                logger.error(f"[WS Auth] 用户不存在: {token_data.sub}")
                 return None
+            logger.info(f"[WS Auth] 用户验证成功: {db_user.email}")
             return schemas.User.model_validate(db_user)
         finally:
             db.close()
 
     except Exception as e:
-        logger.error(f"Error in WebSocket authentication: {str(e)}")
+        logger.error(f"[WS Auth] 数据库查询错误: {type(e).__name__}: {str(e)}", exc_info=True)
         return None

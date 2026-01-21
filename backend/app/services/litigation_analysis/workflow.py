@@ -74,13 +74,16 @@ class LitigationAnalysisState(TypedDict):
 # ==================== 辅助函数 ====================
 
 async def send_ws_progress(session_id: str, node: str, status: str, message: str = "", progress: float = 0.0):
-    """发送 WebSocket 进度（防挂断版）"""
+    """发送 WebSocket 进度（增强诊断版）"""
     try:
         from app.api.websocket import manager
+
         # 检查连接是否存在（避免Broken Pipe）
         if not manager.is_connected(session_id):
+            logger.warning(f"[{session_id}] ⚠️ WebSocket 未连接，无法发送进度: node={node}, status={status}, message={message}")
             return
-        
+
+        logger.debug(f"[{session_id}] 发送进度: node={node}, status={status}, progress={progress}, message={message}")
         await manager.send_progress(session_id, {
             "type": "node_progress",
             "node": node,
@@ -88,7 +91,8 @@ async def send_ws_progress(session_id: str, node: str, status: str, message: str
             "message": message,
             "progress": progress
         })
-    except Exception:
+    except Exception as e:
+        logger.error(f"[{session_id}] 发送进度失败: node={node}, error={e}")
         # 静默失败，不影响主流程
         pass
 
@@ -387,7 +391,7 @@ async def multi_model_analyze_node(state: LitigationAnalysisState) -> Dict[str, 
 
 
 async def generate_strategies_node(state: LitigationAnalysisState) -> Dict[str, Any]:
-    """节点6: 生成策略"""
+    """节点6: 生成策略（增强版：容错处理）"""
     session_id = state['session_id']
     logger.info(f"[{session_id}] 开始生成诉讼策略")
 
@@ -395,14 +399,24 @@ async def generate_strategies_node(state: LitigationAnalysisState) -> Dict[str, 
     await send_ws_progress(session_id, "generate_strategies", "processing", "正在生成诉讼策略...", 0.75)
 
     try:
-        generator = StrategyGenerator()
-        strategies = await generator.generate(
-            case_strength=state.get("model_results", {}),
-            evidence=state.get("evidence_analysis", {}),
-            case_type=state["case_type"],
-            case_position=state["case_position"],
-            scenario=state["analysis_scenario"]
-        )
+        # 1. 检查上游是否失败
+        model_results = state.get("model_results", {})
+        if model_results.get("status") == "failed" or "error" in model_results:
+            logger.warning(f"[{session_id}] 上游分析失败，使用基础策略")
+            strategies = _get_basic_strategies_for_failed_analysis(
+                state.get("case_type", "未知案件"),
+                state.get("analysis_scenario", "pre_litigation")
+            )
+        else:
+            # 2. 正常流程
+            generator = StrategyGenerator()
+            strategies = await generator.generate(
+                case_strength=model_results,
+                evidence=state.get("evidence_analysis", {}),
+                case_type=state["case_type"],
+                case_position=state["case_position"],
+                scenario=state["analysis_scenario"]
+            )
 
         # 发送完成进度
         await send_ws_progress(session_id, "generate_strategies", "completed", "策略生成完成", 0.85)
@@ -412,9 +426,49 @@ async def generate_strategies_node(state: LitigationAnalysisState) -> Dict[str, 
             "status": "strategies_generated"
         }
     except Exception as e:
-        logger.error(f"策略生成失败: {e}")
-        await send_ws_progress(session_id, "generate_strategies", "failed", f"策略生成失败: {str(e)}", 0.85)
-        return {"error": f"策略生成失败: {str(e)}", "status": "failed"}
+        logger.error(f"策略生成失败: {e}", exc_info=True)
+        # 返回基础策略而非错误，避免工作流熔断
+        strategies = _get_basic_strategies_for_failed_analysis(
+            state.get("case_type", "未知案件"),
+            state.get("analysis_scenario", "pre_litigation")
+        )
+        await send_ws_progress(session_id, "generate_strategies", "completed", "策略生成完成（基础版）", 0.85)
+        return {
+            "strategies": strategies,
+            "status": "strategies_generated_fallback"
+        }
+
+
+def _get_basic_strategies_for_failed_analysis(case_type: str, scenario: str) -> List[Dict]:
+    """当分析失败时返回的基础策略"""
+    if scenario == "defense":
+        return [{
+            "strategy_id": "BASIC_DEF_01",
+            "title": "审查材料并准备答辩",
+            "type": "balanced",
+            "description": f"针对【{case_type}】案件，建议首先仔细审查原告提交的材料。",
+            "steps": [
+                {"step_name": "核对起诉状", "description": "检查原告主张的事实和证据", "executor": "律师", "deadline": "收到后3日内"},
+                {"step_name": "准备答辩状", "description": "针对原告主张逐一答辩", "executor": "律师", "deadline": "答辩期内"}
+            ],
+            "expected_outcome": "有效抗辩",
+            "risk_mitigation": "避免缺席审判",
+            "recommendation_score": 5
+        }]
+    else:
+        return [{
+            "strategy_id": "BASIC_PRE_01",
+            "title": "完善证据准备",
+            "type": "conservative",
+            "description": f"针对【{case_type}】案件，建议首先完善证据链。",
+            "steps": [
+                {"step_name": "梳理证据", "description": "按法律要件整理证据", "executor": "当事人", "deadline": "立即"},
+                {"step_name": "法律咨询", "description": "咨询专业律师", "executor": "当事人", "deadline": "5日内"}
+            ],
+            "expected_outcome": "明确诉讼方向",
+            "risk_mitigation": "避免证据不足",
+            "recommendation_score": 4
+        }]
 
 
 async def generate_drafts_node(state: LitigationAnalysisState) -> Dict[str, Any]:
@@ -590,23 +644,173 @@ def _build_reference_content(state: LitigationAnalysisState) -> str:
     return "\n\n".join(parts)
 
 def _build_litigation_context(state: LitigationAnalysisState) -> str:
-    """构造多模型分析的 Context"""
+    """
+    构造多模型分析的 Context (增强版)
+
+    确保包含完整的案件事实信息：
+    - 案件摘要
+    - 文档列表及详细摘要
+    - 证据分析要点
+    - 规则库匹配结果
+    """
     parts = []
+
+    # ==================== 1. 基础信息 ====================
+    parts.append("=" * 60)
+    parts.append("【案件基础信息】")
     parts.append(f"案件类型: {state['case_type']}")
-    parts.append(f"我方地位: {state.get('case_position')}")
-    parts.append(f"分析场景: {state.get('analysis_scenario')}")
-    
+    parts.append(f"我方地位: {state.get('case_position', '未知')}")
+    parts.append(f"分析场景: {state.get('analysis_scenario', 'pre_litigation')}")
+
     if state.get("user_input"):
-        parts.append(f"用户描述: {state['user_input']}")
-        
-    # 注入预整理信息
+        parts.append(f"\n用户陈述:\n{state['user_input']}")
+
+    # ==================== 2. 案件全景摘要 ====================
     pre = state.get("preorganized_case", {})
-    if "enhanced_analysis_compatible" in pre:
-        enhanced = pre["enhanced_analysis_compatible"]
-        parts.append(f"案件全景: {enhanced.get('transaction_summary', '')}")
-        parts.append(f"争议焦点: {enhanced.get('dispute_focus', '')}")
-        
-    return "\n".join(parts)
+    if pre and isinstance(pre, dict):
+        # 提取摘要（Pre-org Summary）
+        summary = pre.get("summary", "")
+        if summary:
+            parts.append("\n" + "=" * 60)
+            parts.append("【案情摘要】")
+            parts.append(summary)
+
+        # 提取增强分析数据（案件全景）
+        enhanced = pre.get("enhanced_analysis_compatible", {})
+        if enhanced and isinstance(enhanced, dict):
+            trans_summary = enhanced.get("transaction_summary", "")
+            if trans_summary:
+                parts.append("\n【交易全景】")
+                parts.append(trans_summary)
+
+            dispute_focus = enhanced.get("dispute_focus", "")
+            if dispute_focus:
+                parts.append("\n【争议焦点】")
+                parts.append(dispute_focus)
+
+            # ====== 新增：主体画像 ======
+            parties = enhanced.get("parties", [])
+            if parties and isinstance(parties, list):
+                parts.append("\n【主体画像】")
+                for party in parties:
+                    if isinstance(party, dict):
+                        name = party.get("name", "未知")
+                        role = party.get("role", "未知")
+                        description = party.get("description", "")
+                        parts.append(f"- {name} ({role})")
+                        if description:
+                            parts.append(f"  {description}")
+
+            # ====== 新增：完整时间线 ======
+            timeline = enhanced.get("timeline", [])
+            if timeline and isinstance(timeline, list):
+                parts.append("\n【案件时间线】")
+                for event in timeline:
+                    if isinstance(event, dict):
+                        date = event.get("date", "")
+                        description = event.get("description", "")
+                        if date or description:
+                            parts.append(f"- {date}: {description}")
+
+    # ==================== 3. 文档详细摘要 ====================
+    if pre and isinstance(pre, dict):
+        doc_summaries = pre.get("document_summaries", {})
+        if doc_summaries and isinstance(doc_summaries, dict) and len(doc_summaries) > 0:
+            parts.append("\n" + "=" * 60)
+            parts.append(f"【文档证据详情】(共 {len(doc_summaries)} 份)")
+
+            for file_id, doc_info in doc_summaries.items():
+                if not isinstance(doc_info, dict):
+                    continue
+
+                doc_title = doc_info.get("document_title", doc_info.get("file_name", file_id))
+                doc_type = doc_info.get("document_subtype", doc_info.get("file_type", "未知"))
+                summary = doc_info.get("summary", "")
+                key_facts = doc_info.get("key_facts", [])
+                key_dates = doc_info.get("key_dates", [])
+                key_amounts = doc_info.get("key_amounts", [])
+                raw_preview = doc_info.get("raw_preview", "")  # 新增：原文预览
+
+                parts.append(f"\n--- {doc_title} ({doc_type}) ---")
+
+                if summary:
+                    parts.append(f"摘要: {summary}")
+
+                if key_facts:
+                    parts.append("关键事实:")
+                    for fact in key_facts:  # 移除 [:10] 限制，全量提取
+                        parts.append(f"  • {fact}")
+
+                if key_dates:
+                    parts.append("关键日期:")
+                    for date in key_dates:  # 移除 [:10] 限制
+                        parts.append(f"  • {date}")
+
+                if key_amounts:
+                    parts.append("关键金额:")
+                    for amount in key_amounts:  # 移除 [:10] 限制
+                        parts.append(f"  • {amount}")
+
+                # ====== 新增：原文预览 ======
+                if raw_preview:
+                    parts.append(f"\n原文预览 (前3000字):")
+                    parts.append(raw_preview)
+
+    # ==================== 4. 证据分析发现 ====================
+    evidence_analysis = state.get("evidence_analysis", {})
+    if evidence_analysis and isinstance(evidence_analysis, dict):
+        parts.append("\n" + "=" * 60)
+        parts.append("【证据分析发现】")
+
+        analysis_points = evidence_analysis.get("analysis_points", [])
+        if analysis_points and isinstance(analysis_points, list):
+            parts.append(f"发现 {len(analysis_points)} 个证据问题:")
+            for point in analysis_points:  # 移除 [:15] 限制
+                if isinstance(point, dict):
+                    desc = point.get("description", point.get("issue", str(point)))
+                    parts.append(f"  • {desc}")
+                else:
+                    parts.append(f"  • {point}")
+
+        admissibility = evidence_analysis.get("admissibility_assessment", "")
+        if admissibility:
+            parts.append(f"\n证据可采性评估: {admissibility}")
+
+        evidence_gaps = evidence_analysis.get("evidence_gaps", [])
+        if evidence_gaps:
+            parts.append("\n证据缺口:")
+            for gap in evidence_gaps:  # 移除 [:10] 限制
+                parts.append(f"  • {gap}")
+
+    # ==================== 5. 原始文档内容补充（可选） ====================
+    raw_docs = state.get("raw_documents", [])
+    if raw_docs and isinstance(raw_docs, list):
+        parts.append("\n" + "=" * 60)
+        parts.append("【原始文档内容摘录】")
+
+        for doc in raw_docs[:3]:  # 最多取前3个文档
+            if hasattr(doc, 'content') and doc.content:
+                content_preview = doc.content[:2000] if len(doc.content) > 2000 else doc.content
+                file_name = getattr(doc, 'file_name', doc.file_id)
+                parts.append(f"\n--- {file_name} (内容摘录) ---")
+                parts.append(content_preview)
+                parts.append("...(内容已截断)")
+
+    # ==================== 6. 规则库匹配结果（供参考）====================
+    rules = state.get("assembled_rules", [])
+    if rules and isinstance(rules, list):
+        parts.append("\n" + "=" * 60)
+        parts.append(f"【适用法律规则】(共 {len(rules)} 条)")
+        for i, rule in enumerate(rules, 1):  # 移除 [:10] 限制
+            parts.append(f"{i}. {rule}")
+
+    # 合并所有部分
+    full_context = "\n".join(parts)
+
+    # 记录日志以便调试
+    logger.info(f"[{state.get('session_id')}] 构建分析 Context | 长度: {len(full_context)} 字符")
+
+    return full_context
 
 
 # ==================== 图构建与执行 ====================
@@ -758,7 +962,7 @@ async def run_stage2_analysis(
 ) -> Dict[str, Any]:
     """
     执行阶段2：全案分析
-    
+
     这是用户确认预整理数据并选择角色和场景后调用的分析流程。
     特点：
     1. 跳过文档处理和预整理 (skip_preorganization=True)
@@ -769,6 +973,23 @@ async def run_stage2_analysis(
         f"[{session_id}] 启动阶段2分析 | "
         f"角色: {case_position} | 场景: {analysis_scenario}"
     )
+
+    # 🛡️ 核心修复：防闪退等待
+    # 无论任务跑得多快，先等前端把电话接通
+    from app.api.websocket import manager
+
+    logger.info(f"[{session_id}] 正在等待前端建立 WebSocket 连接...")
+    websocket_connected = False
+
+    for attempt in range(50):  # 最多等 5 秒
+        if manager.is_connected(session_id):
+            logger.info(f"[{session_id}] ✅ WebSocket 连接已确认 (尝试 {attempt + 1}/50)，开始执行任务！")
+            websocket_connected = True
+            break
+        await asyncio.sleep(0.1)
+
+    if not websocket_connected:
+        logger.warning(f"[{session_id}] ⚠️ WebSocket 连接超时（5秒），任务将继续执行但可能无法接收实时进度")
 
     return await run_litigation_analysis_workflow(
         session_id=session_id,

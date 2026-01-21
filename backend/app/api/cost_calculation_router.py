@@ -27,7 +27,6 @@ from cost_calculation import calculate_litigation_costs
 logger = logging.getLogger(__name__)
 
 router = APIRouter(
-    prefix="/api/cost-calculation",
     tags=["Cost Calculation"]
 )
 
@@ -41,6 +40,14 @@ class CaseExtractionRequest(BaseModel):
     """案件信息提取请求"""
     upload_id: str
     file_names: List[str]
+
+
+class CostCalculationRequest(BaseModel):
+    """费用计算请求（简单版本 - 用于手动输入模式）"""
+    case_type: str  # 案件类型（英文代码，如 contract_dispute, labor_dispute 等）
+    case_description: str  # 案件描述
+    case_amount: Optional[float] = None  # 案件标的额
+    context: Optional[Dict[str, Any]] = None  # 上下文信息
 
 
 class CaseInfo(BaseModel):
@@ -234,6 +241,68 @@ async def extract_case_info(request: CaseExtractionRequest):
             error=f"信息提取失败: {str(e)}",
             warnings=warnings
         )
+
+
+@router.post("/", response_model=CostCalculationResponseV2)
+async def calculate_costs_simple(request: CostCalculationRequest):
+    """
+    计算费用（简单版本 - 用于手动输入模式）
+
+    根据输入的案件信息计算各类费用。
+    这是一个简化版本，直接根据表单输入计算，不需要文件上传和AI提取。
+    """
+    try:
+        logger.info(f"[CostCalculation] 开始计算费用(简单模式): 案件类型={request.case_type}, 标的额={request.case_amount}")
+
+        # 案件类型映射（前端使用英文value，需要转换为中文）
+        case_type_map = {
+            'contract_dispute': '合同纠纷',
+            'labor_dispute': '劳动争议',
+            'intellectual_property': '知识产权',
+            'marriage_family': '婚姻家庭',
+            'traffic_accident': '交通事故',
+            'criminal_case': '刑事案件',
+            'administrative_litigation': '行政诉讼',
+            'real_estate_dispute': '房产纠纷',
+            'construction_project': '建设工程',
+            'medical_dispute': '医疗纠纷',
+            'company_law': '公司法务',
+            'other': '其他类型'
+        }
+
+        # 转换案件类型为中文
+        case_type_cn = case_type_map.get(request.case_type, request.case_type)
+
+        # 调用原有的费用计算逻辑
+        result = calculate_litigation_costs(
+            case_type=case_type_cn,
+            case_description=request.case_description,
+            case_amount=request.case_amount
+        )
+
+        logger.info(f"[CostCalculation] 计算完成: 总费用={result.total_cost}")
+
+        return CostCalculationResponseV2(
+            success=True,
+            total_cost=result.total_cost,
+            cost_breakdown=[
+                CostItem(
+                    name=item.name,
+                    description=item.description,
+                    amount=item.amount,
+                    unit=item.unit,
+                    quantity=item.quantity
+                )
+                for item in result.cost_breakdown
+            ],
+            calculation_basis=result.calculation_basis,
+            disclaimer=result.disclaimer,
+            warnings=[]
+        )
+
+    except Exception as e:
+        logger.error(f"[CostCalculation] 费用计算失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"费用计算失败: {str(e)}")
 
 
 @router.post("/calculate-v2", response_model=CostCalculationResponseV2)

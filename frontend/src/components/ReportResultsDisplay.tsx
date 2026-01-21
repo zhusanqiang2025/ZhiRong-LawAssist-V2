@@ -22,9 +22,6 @@ import {
   WarningOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  InfoCircleOutlined,
-  BulbOutlined,
-  ThunderboltOutlined,
   DownloadOutlined,
   EyeOutlined
 } from '@ant-design/icons';
@@ -67,8 +64,8 @@ export interface RiskAnalysisReport {
   executive_summary: string;
   risk_items: RiskItem[];
   risk_distribution: RiskDistribution;
-  strategies: Strategy[];
-  recommendations: string[];
+  strategies?: Strategy[];       // 改为可选
+  recommendations?: string[];    // 改为可选
   analysis_metadata?: {
     package_used?: string;
     models_used?: string[];
@@ -99,16 +96,6 @@ const ReportResultsDisplay: React.FC<ReportResultsDisplayProps> = ({
       low: { color: 'success', icon: <CheckCircleOutlined />, label: '低风险', progressColor: '#52c41a' }
     };
     return configs[level];
-  };
-
-  // 获取策略优先级配置
-  const getPriorityConfig = (priority: 'immediate' | 'short' | 'long') => {
-    const configs = {
-      immediate: { color: 'red', label: '立即执行', icon: <ThunderboltOutlined /> },
-      short: { color: 'orange', label: '短期', icon: <BulbOutlined /> },
-      long: { color: 'blue', label: '长期', icon: <InfoCircleOutlined /> }
-    };
-    return configs[priority];
   };
 
   // 计算总体风险分数
@@ -283,79 +270,6 @@ const ReportResultsDisplay: React.FC<ReportResultsDisplayProps> = ({
     );
   };
 
-  // 渲染应对策略
-  const renderStrategies = () => {
-    if (report.strategies.length === 0) {
-      return <Alert message="暂无应对策略" type="info" showIcon />;
-    }
-
-    return (
-      <Timeline mode="left">
-        {report.strategies.map((strategy) => {
-          const priorityConfig = getPriorityConfig(strategy.priority);
-
-          return (
-            <Timeline.Item
-              key={strategy.strategy_id}
-              color={priorityConfig.color}
-              dot={priorityConfig.icon}
-            >
-              <Card size="small" style={{ marginBottom: 8 }}>
-                <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                  <Space>
-                    <Tag color={priorityConfig.color}>{priorityConfig.label}</Tag>
-                    <Text strong>{strategy.title}</Text>
-                  </Space>
-
-                  <Paragraph>{strategy.description}</Paragraph>
-
-                  {strategy.actions.length > 0 && (
-                    <div>
-                      <Text strong>具体行动：</Text>
-                      <ul style={{ marginTop: 8, paddingLeft: 16 }}>
-                        {strategy.actions.map((action, idx) => (
-                          <li key={idx}>
-                            <Text>{action}</Text>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </Space>
-              </Card>
-            </Timeline.Item>
-          );
-        })}
-      </Timeline>
-    );
-  };
-
-  // 渲染建议
-  const renderRecommendations = () => {
-    if (report.recommendations.length === 0) {
-      return <Alert message="暂无建议" type="info" showIcon />;
-    }
-
-    return (
-      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        {report.recommendations.map((rec, idx) => (
-          <Alert
-            key={idx}
-            message={
-              <Space>
-                <Tag color="blue">{idx + 1}</Tag>
-                <Text>{rec}</Text>
-              </Space>
-            }
-            type="info"
-            showIcon
-            icon={<BulbOutlined />}
-          />
-        ))}
-      </Space>
-    );
-  };
-
   // 渲染元数据
   const renderMetadata = () => {
     if (!showMetadata || !report.analysis_metadata) return null;
@@ -464,36 +378,12 @@ const ReportResultsDisplay: React.FC<ReportResultsDisplayProps> = ({
             tab={
               <Space>
                 <WarningOutlined />
-                风险项 ({report.risk_items.length})
+                风险及应对 ({report.risk_items.length})
               </Space>
             }
             key="risks"
           >
             {renderRiskItems()}
-          </TabPane>
-
-          <TabPane
-            tab={
-              <Space>
-                <ThunderboltOutlined />
-                应对策略 ({report.strategies.length})
-              </Space>
-            }
-            key="strategies"
-          >
-            {renderStrategies()}
-          </TabPane>
-
-          <TabPane
-            tab={
-              <Space>
-                <BulbOutlined />
-                建议 ({report.recommendations.length})
-              </Space>
-            }
-            key="recommendations"
-          >
-            {renderRecommendations()}
           </TabPane>
 
           <TabPane

@@ -54,7 +54,7 @@ class RiskAnalysisHistoryManager {
       }
 
       // 从后端获取
-      const response = await api.get('/risk-analysis-v2/sessions');
+      const response = await api.get('/risk-analysis/sessions');
       const sessions: RiskAnalysisHistoryItem[] = response.data.sessions.map((s: any) => ({
         session_id: s.session_id,
         title: s.title,
@@ -120,7 +120,7 @@ class RiskAnalysisHistoryManager {
    */
   async loadSession(sessionId: string): Promise<RiskAnalysisHistory | null> {
     try {
-      const response = await api.get(`/risk-analysis-v2/result/${sessionId}`);
+      const response = await api.get(`/risk-analysis/result/${sessionId}`);
 
       // ✅ 标记为已完成（替代已读）
       await this.markAsCompleted(sessionId);
@@ -148,7 +148,7 @@ class RiskAnalysisHistoryManager {
   async deleteSession(sessionId: string): Promise<boolean> {
     try {
       console.log('[历史记录管理器] 开始删除会话:', sessionId);
-      const response = await api.delete(`/risk-analysis-v2/sessions/${sessionId}`);
+      const response = await api.delete(`/risk-analysis/sessions/${sessionId}`);
       console.log('[历史记录管理器] 删除会话响应:', response.data);
 
       // 从缓存中移除
@@ -176,7 +176,7 @@ class RiskAnalysisHistoryManager {
     status: string
   ): Promise<void> {
     try {
-      await api.patch(`/risk-analysis-v2/sessions/${sessionId}/status`, {
+      await api.patch(`/risk-analysis/sessions/${sessionId}/status`, {
         status,
         title
       });
@@ -286,7 +286,7 @@ class RiskAnalysisHistoryManager {
   private async markAsCompleted(sessionId: string): Promise<void> {
     try {
       // 标记为已读（保留向后兼容）
-      await api.patch(`/risk-analysis-v2/sessions/${sessionId}/status`, {
+      await api.patch(`/risk-analysis/sessions/${sessionId}/status`, {
         is_unread: false
       });
 

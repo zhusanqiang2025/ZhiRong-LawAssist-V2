@@ -25,14 +25,10 @@ import RiskRulePackagesManager from './admin/views/RiskRulePackagesManager';
 import LitigationRulePackagesManager from './admin/views/LitigationRulePackagesManager';
 import CeleryMonitor from './admin/views/CeleryMonitor';
 import KnowledgeBaseConfigPage from './KnowledgeBaseConfigPage';
-// 假设 DashboardView 你不想拆分，可以保留在这里，或者也拆出去
-// import DashboardView from './admin/views/DashboardView'; 
+import DashboardView from './admin/views/DashboardView'; 
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
-
-// (简单保留 Dashboard 代码，如果太长建议也拆分)
-const DashboardView = () => <div>📊 仪表盘开发中...</div>;
 
 const AdminPage: React.FC = () => {
   const { user } = useAuth();

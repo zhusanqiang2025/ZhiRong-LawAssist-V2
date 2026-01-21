@@ -125,6 +125,11 @@ const LegalConsultationPage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   // 保存用户最后一次输入的问题（用于第二阶段调用）
   const lastUserQuestionRef = useRef<string>('');
+  // 【修复闭包陷阱】使用 Ref 穿透闭包，始终获取最新的问题选择状态
+  const selectedQuestionsRef = useRef<Record<string, string[]>>({});
+  const customQuestionsRef = useRef<Record<string, string>>({});
+  // 【修复闭包陷阱】使用 Ref 穿透闭包，始终获取最新的上传文件状态
+  const uploadedFilesRef = useRef<UploadedFile[]>([]);
 
   // ================= 副作用处理 =================
 
@@ -182,6 +187,21 @@ const LegalConsultationPage: React.FC = () => {
       setMessages([welcomeMessage]);
     }
   }, []);
+
+  // 【修复闭包陷阱】同步 Ref 与 State：保持 selectedQuestionsRef 始终最新
+  useEffect(() => {
+    selectedQuestionsRef.current = selectedSuggestedQuestions;
+  }, [selectedSuggestedQuestions]);
+
+  // 【修复闭包陷阱】同步 Ref 与 State：保持 customQuestionsRef 始终最新
+  useEffect(() => {
+    customQuestionsRef.current = customQuestions;
+  }, [customQuestions]);
+
+  // 【修复闭包陷阱】同步 Ref 与 State：保持 uploadedFilesRef 始终最新
+  useEffect(() => {
+    uploadedFilesRef.current = uploadedFiles;
+  }, [uploadedFiles]);
 
   // ================= 逻辑处理函数 =================
 
@@ -315,7 +335,8 @@ const LegalConsultationPage: React.FC = () => {
 
       // 处理响应
       if (response.need_confirmation) {
-        handleConfirmationResponse(response);
+        // 【关键修复】传递文件 ID 列表给确认回调
+        handleConfirmationResponse(response, uploadedFileIds);
       } else {
         handleNormalResponse(response);
       }
@@ -363,7 +384,7 @@ const LegalConsultationPage: React.FC = () => {
   };
 
   // 处理需要确认的响应（两阶段）
-  const handleConfirmationResponse = (response: any) => {
+  const handleConfirmationResponse = (response: any, fileIds: string[] = []) => {
     // 保存专家信息到状态
     if (response.specialist_role || response.primary_type) {
       setDynamicSpecialistInfo({
@@ -383,15 +404,26 @@ const LegalConsultationPage: React.FC = () => {
       suggestedQuestions: response.suggested_questions || [],
       directQuestions: response.direct_questions || [],
       onConfirm: async () => {
+        // 【关键修复】使用传入的 fileIds 参数，而非从 state/ref 读取
+        // 因为 uploadedFiles 在 handleSendMessage 中已被清空
+        console.log('[DEBUG Frontend] onConfirm 使用传入的 fileIds:', fileIds);
+
+        const uploadedFileIds = fileIds;  // 直接使用传入参数
+
         // 用户点击确认
-        const selected = selectedSuggestedQuestions[confirmId] || [];
-        const custom = customQuestions[confirmId];
+        // 【修复闭包陷阱】使用 Ref 获取最新状态，而非闭包捕获的旧 State
+        const selected = selectedQuestionsRef.current[confirmId] || [];
+        const custom = customQuestionsRef.current[confirmId];
         const allQuestions = [...selected, ...(custom ? [custom] : [])];
 
         // 【调试增强】详细的调试日志
         console.log('[DEBUG Frontend] ===== 用户确认时的调试信息 =====');
         console.log('[DEBUG Frontend] confirmId:', confirmId);
-        console.log('[DEBUG Frontend] selectedSuggestedQuestions:', selectedSuggestedQuestions);
+        console.log('[DEBUG Frontend] selectedQuestionsRef.current:', selectedQuestionsRef.current);
+        console.log('[DEBUG Frontend] customQuestionsRef.current:', customQuestionsRef.current);
+        console.log('[DEBUG Frontend] uploadedFilesRef.current (可能为空):', uploadedFilesRef.current);
+        console.log('[DEBUG Frontend] fileIds (传入参数):', fileIds);  // 新增
+        console.log('[DEBUG Frontend] uploadedFileIds (最终使用):', uploadedFileIds);  // 更新
         console.log('[DEBUG Frontend] selected (用户选择的补充问题):', selected);
         console.log('[DEBUG Frontend] custom (用户自定义问题):', custom);
         console.log('[DEBUG Frontend] allQuestions (最终问题列表):', allQuestions);
@@ -400,6 +432,7 @@ const LegalConsultationPage: React.FC = () => {
         console.log('[DEBUG Frontend] response.direct_questions:', response.direct_questions);
         console.log('[DEBUG Frontend] response.suggested_questions:', response.suggested_questions);
         console.log('[DEBUG Frontend] 将发送的 selected_suggested_questions:', allQuestions.length > 0 ? allQuestions : undefined);
+        console.log('[DEBUG Frontend] 将发送的 uploaded_files:', uploadedFileIds.length > 0 ? uploadedFileIds : undefined);
         console.log('[DEBUG Frontend] ===== 调试信息结束 =====');
 
         // 添加"正在转交"提示
@@ -418,6 +451,8 @@ const LegalConsultationPage: React.FC = () => {
             question: lastUserQuestionRef.current,
             user_confirmed: true,
             selected_suggested_questions: allQuestions.length > 0 ? allQuestions : undefined,
+            // 【修复闭包陷阱】传递上传的文件ID列表
+            uploaded_files: uploadedFileIds.length > 0 ? uploadedFileIds : undefined,
             session_id: sessionStorage.getItem('consultation_session_id')
           });
 

@@ -199,7 +199,7 @@ export function updateLastActiveTask(sessionId: string): void {
  */
 export async function restoreTaskFromBackend(sessionId: string): Promise<any | null> {
   try {
-    const response = await api.get(`/risk-analysis-v2/status/${sessionId}`);
+    const response = await api.get(`/risk-analysis/status/${sessionId}`);
     const taskData = response.data;
 
     console.log(`[TaskStorage] 从后端恢复任务: ${sessionId}`, taskData);

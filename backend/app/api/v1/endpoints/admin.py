@@ -4,6 +4,7 @@
 
 提供系统统计、用户管理、JSON 审查规则管理等功能
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -11,6 +12,7 @@ from typing import Optional, List
 
 from app.database import get_db
 from app.models.user import User
+from app.models.task import Task
 from app.models.contract_template import ContractTemplate
 from app.models.rule import ReviewRule  # ✅ 从 contract.py 移动到独立的 rule.py
 from app.schemas import (
@@ -22,7 +24,8 @@ from app.schemas import (
 )
 from app.api.deps import get_current_user
 from app.services.review_rules_service import review_rules_service
-import logging
+from datetime import datetime, timedelta
+from app.api.websocket import manager
 
 logger = logging.getLogger(__name__)
 
@@ -37,40 +40,78 @@ async def get_system_stats(
     current_user: User = Depends(get_current_user)
 ):
     """
-    获取系统统计信息
-
+    获取系统统计信息 - 增强版
+    包含用户统计、任务统计、模板统计和趋势数据
     仅管理员可访问
     """
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可访问")
 
-    # 统计用户总数
+    # 用户统计
     total_users = db.query(User).count()
+    active_users = db.query(User).filter(User.is_active == True).count()
+    admin_users = db.query(User).filter(User.is_admin == True).count()
 
-    # 统计模板总数
+    # 任务统计
+    total_tasks = db.query(Task).count()
+    pending_tasks = db.query(Task).filter(Task.status == "pending").count()
+    in_progress_tasks = db.query(Task).filter(Task.status == "processing").count()
+    completed_tasks = db.query(Task).filter(Task.status == "completed").count()
+    failed_tasks = db.query(Task).filter(Task.status == "failed").count()
+
+    # 今日任务统计
+    today = datetime.now().date()
+    tasks_created_today = db.query(Task).filter(
+        func.date(Task.created_at) == today
+    ).count()
+
+    # 任务类型分布
+    task_types = db.query(Task.task_type, func.count(Task.id)).group_by(Task.task_type).all()
+    task_type_distribution = {ttype: count for ttype, count in task_types if ttype}
+
+    # 实时在线用户（通过 WebSocket manager）
+    online_users = manager.get_connection_count()
+
+    # 模板统计
     total_templates = db.query(ContractTemplate).filter(
         ContractTemplate.status == "active"
     ).count()
-
-    # 统计总下载量
     total_downloads = db.query(func.sum(ContractTemplate.download_count)).scalar() or 0
 
-    # 统计任务总数（如果有的话，这里先返回0）
-    total_tasks = 0
-
-    # 统计今日活跃用户（简化版：统计所有注册用户）
-    active_users_today = total_users
-
-    # 统计总在线时间（简化版）
-    total_online_time = 0
+    # 最近7天任务趋势数据
+    trend_data = []
+    for i in range(6, -1, -1):
+        target_date = datetime.now().date() - timedelta(days=i)
+        day_start = datetime.combine(target_date, datetime.min.time())
+        day_end = datetime.combine(target_date, datetime.max.time())
+        count = db.query(Task).filter(
+            Task.created_at >= day_start,
+            Task.created_at <= day_end
+        ).count()
+        trend_data.append({"date": target_date.isoformat(), "count": count})
 
     return {
-        "total_users": total_users,
-        "total_templates": total_templates,
-        "total_downloads": total_downloads,
-        "total_tasks": total_tasks,
-        "active_users_today": active_users_today,
-        "total_online_time": total_online_time
+        "users": {
+            "total": total_users,
+            "active": active_users,
+            "admins": admin_users,
+            "online": online_users
+        },
+        "tasks": {
+            "total": total_tasks,
+            "pending": pending_tasks,
+            "in_progress": in_progress_tasks,
+            "completed": completed_tasks,
+            "failed": failed_tasks,
+            "created_today": tasks_created_today,
+            "by_type": task_type_distribution,
+            "trend_7days": trend_data
+        },
+        "templates": {
+            "total": total_templates,
+            "total_downloads": total_downloads
+        },
+        "timestamp": datetime.now().isoformat()
     }
 
 

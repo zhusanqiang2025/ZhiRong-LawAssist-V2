@@ -41,35 +41,29 @@ class LitigationAnalysisHistoryManager {
         if (cached && cached.length > 0) return cached;
       }
 
-      // 从后端获取 - 使用统一的任务接口
-      const response = await api.get('/tasks', {
+      // 从后端获取 - 使用专用的案件分析 sessions 接口
+      const response = await api.get('/litigation-analysis/sessions', {
         params: { status: 'pending,processing,completed' }
       });
 
-      // 过滤出案件分析的任务
-      const litigationTasks = response.data.filter(
-        (item: any) => item.source === 'litigation_analysis'
-      );
+      // 后端已返回专门的案件分析会话数据
+      const sessionsData = response.data.sessions;
 
-      const sessions: LitigationHistoryItem[] = litigationTasks.map((s: any) => ({
-        session_id: s.id,
-        title: s.title || '案件分析',
+      const sessions: LitigationHistoryItem[] = sessionsData.map((s: any) => ({
+        session_id: s.session_id,
+        title: s.title,
         timestamp: new Date(s.created_at).getTime(),
         status: s.status,
         case_type: s.case_type || '未知',
         case_position: s.case_position || '未知',
-        is_completed: s.status === 'completed'
+        is_completed: s.is_completed
       }));
 
       // 保存到缓存
       this.saveToCache(sessions);
 
-      // 更新未完成计数
-      const incompleteCount = sessions.filter(item =>
-        item.status === 'pending' ||
-        item.status === 'processing' ||
-        item.status === 'started'
-      ).length;
+      // 更新未完成计数（使用后端提供的统计）
+      const incompleteCount = response.data.incomplete_count || 0;
       this.updateIncompleteCount(incompleteCount);
 
       this.lastSyncTime = now;

@@ -1159,13 +1159,15 @@ class RiskAnalysisWorkflowService:
                 raise Exception(continue_state.get("error", "规则组装失败"))
 
             # 2. 多模型分析
-            logger.error(f"👉 [TRACK] 开始执行 multi_model_analyze_node, session_id={session_id}")
+            analysis_mode_display = continue_state.get("analysis_mode", "multi")
+            mode_text = "单模型" if analysis_mode_display == "single" else "多模型"
+            logger.error(f"👉 [TRACK] 开始执行 {mode_text}分析节点, session_id={session_id}, mode={analysis_mode_display}")
             result2 = await multi_model_analyze_node(continue_state)
-            logger.error(f"👉 [TRACK] multi_model_analyze_node 返回, status={result2.get('status')}, session_id={session_id}")
+            logger.error(f"👉 [TRACK] {mode_text}分析节点返回, status={result2.get('status')}, session_id={session_id}")
             continue_state.update(result2)
             if continue_state.get("status") == "failed":
-                logger.error(f"👉 [TRACK] 多模型分析失败, error={continue_state.get('error')}, session_id={session_id}")
-                raise Exception(continue_state.get("error", "多模型分析失败"))
+                logger.error(f"👉 [TRACK] {mode_text}分析失败, error={continue_state.get('error')}, session_id={session_id}")
+                raise Exception(continue_state.get("error", f"{mode_text}分析失败"))
 
             # 3. 报告生成
             logger.error(f"👉 [TRACK] 开始执行 generate_report_node, session_id={session_id}")

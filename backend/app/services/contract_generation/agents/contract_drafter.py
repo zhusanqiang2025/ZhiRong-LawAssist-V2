@@ -31,6 +31,47 @@ class ContractDrafterAgent:
         self.llm = llm
         self.system_prompt = self._build_system_prompt()
 
+    @staticmethod
+    def _clean_markdown_code_blocks(content: str) -> str:
+        """
+        【修复】清洗 Markdown 代码块标记
+
+        移除字符串开头和结尾的 ```markdown 或 ``` 代码块标记，
+        但保留中间内容的格式。
+
+        Args:
+            content: LLM 返回的原始内容
+
+        Returns:
+            str: 清洗后的内容
+        """
+        if not content:
+            return content
+
+        content = content.strip()
+
+        # 移除开头的 ```markdown 或 ```
+        if content.startswith("```markdown"):
+            content = content[13:].lstrip()  # 移除 ```markdown
+        elif content.startswith("```"):
+            content = content[3:].lstrip()     # 移除 ```
+
+        # 移除结尾的 ```
+        if content.endswith("```"):
+            content = content[:-3].rstrip()
+
+        # 移除开头的 ```markdown 或 ```（如果有多个）
+        while content.startswith("```markdown"):
+            content = content[13:].lstrip()
+        while content.startswith("```"):
+            content = content[3:].lstrip()
+
+        # 移除结尾的 ```（如果有多个）
+        while content.endswith("```"):
+            content = content[:-3].rstrip()
+
+        return content.strip()
+
     def draft(
         self,
         requirement: Dict,
@@ -879,6 +920,10 @@ class ContractDrafterAgent:
             ])
 
             content = response.content.strip()
+
+            # 【修复】清洗 Markdown 代码块标记
+            content = self._clean_markdown_code_blocks(content)
+
             logger.info(f"[ContractDrafter] 从零起草完成，长度: {len(content)} 字符")
 
             return content
@@ -989,6 +1034,10 @@ class ContractDrafterAgent:
             ])
 
             content = response.content.strip()
+
+            # 【修复】清洗 Markdown 代码块标记
+            content = self._clean_markdown_code_blocks(content)
+
             logger.info(f"[ContractDrafter] 模板起草完成，长度: {len(content)} 字符")
 
             return content, template_info

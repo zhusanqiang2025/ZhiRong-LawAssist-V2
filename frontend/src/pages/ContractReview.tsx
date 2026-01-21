@@ -5,7 +5,7 @@ import { DocumentEditor } from "@onlyoffice/document-editor-react";
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { logger } from '../utils/logger';
-import { Button, Spin, Select, Input, message, Tag, Alert, Card, Modal, Checkbox, Dropdown, Space, Form, Table, Popconfirm, Collapse, Badge, Tabs, Progress, Row, Col, Statistic } from 'antd';
+import { Button, Spin, Select, Input, Tag, Alert, Card, Modal, Checkbox, Dropdown, Space, Form, Table, Popconfirm, Collapse, Badge, Tabs, Progress, Row, Col, Statistic, App } from 'antd';
 import {
   EditOutlined,
   CheckOutlined,
@@ -106,6 +106,7 @@ const parsePartiesString = (parties: string | string[] | undefined): string[] =>
 
 const ContractReview: React.FC = () => {
   const navigate = useNavigate();
+  const { message: messageApi } = App.useApp(); // 【修复】使用 App.useApp() 替代静态 message
   const [editorConfig, setEditorConfig] = useState<any>(null);
   const [contractId, setContractId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -123,6 +124,10 @@ const ContractReview: React.FC = () => {
   const [fileUploaded, setFileUploaded] = useState(false);
   const [processingStatus, setProcessingStatus] = useState<string>('');
   const [showUploadProgress, setShowUploadProgress] = useState(false);
+
+  // ⭐ 新增：会话恢复状态
+  const [hasPendingSession, setHasPendingSession] = useState(false);
+  const [pendingSessionInfo, setPendingSessionInfo] = useState<any>(null);
 
   // ⭐ 新增：监控 showUploadProgress 状态变化
   useEffect(() => {
@@ -177,142 +182,119 @@ const ContractReview: React.FC = () => {
     }
   };
 
+  // ⭐ 新增：清除会话，开始新任务
+  const startNewTask = () => {
+    // 清除 localStorage 中的会话数据
+    localStorage.removeItem('contractReview_contractId');
+    localStorage.removeItem('contractReview_step');
+
+    // 重置所有状态
+    setContractId(null);
+    setStep('upload');
+    setEditorConfig(null);
+    setEditedMetadata({});
+    setStance('甲方');
+    setReviews([]);
+    setMetadataExtracting(false);
+    setMetadataExtracted(false);
+    setFileUploaded(false);
+    setProcessingStatus('');
+    setShowUploadProgress(false);
+    setSelectedTransactionStructures([]);
+    setActiveResultTab('suggestions');
+    setReviewProgress('');
+
+    // 清除会话提示
+    setHasPendingSession(false);
+    setPendingSessionInfo(null);
+
+    messageApi.success('已开始新任务');
+  };
+
+  // ⭐ 新增：恢复旧会话
+  const restorePendingSession = async () => {
+    if (!pendingSessionInfo) return;
+
+    const { savedContractId, status, metadata, canLoadEditor } = pendingSessionInfo;
+
+    try {
+      setContractId(parseInt(savedContractId));
+
+      // 恢复编辑器配置
+      if (canLoadEditor) {
+        const cfgRes = await api.get(`/contract-review/${savedContractId}/onlyoffice-config`);
+        const cfg = cfgRes.data.config;
+        const tkn = cfgRes.data.token;
+        setEditorConfig({ ...cfg, token: tkn });
+      }
+
+      // 恢复元数据
+      if (metadata) {
+        setEditedMetadata(prev => ({
+          ...prev,
+          contract_name: metadata.contract_name || prev.contract_name || '',
+          parties: parsePartiesString(metadata.parties),
+          amount: metadata.amount || prev.amount || '',
+          contract_type: metadata.contract_type || prev.contract_type || '',
+          core_terms: metadata.core_terms || prev.core_terms || '',
+          legal_features: metadata.legal_features || prev.legal_features,
+        }));
+        setMetadataExtracting(false);
+        setMetadataExtracted(true);
+      }
+
+      // 恢复步骤
+      const savedStep = localStorage.getItem('contractReview_step');
+      if (savedStep) {
+        setStep(savedStep as any);
+      }
+
+      setHasPendingSession(false);
+      setPendingSessionInfo(null);
+      messageApi.success('已恢复上次的会话');
+    } catch (error) {
+      console.error('恢复会话失败', error);
+      messageApi.error('恢复会话失败，请开始新任务');
+      startNewTask();
+    }
+  };
+
   // 组件挂载时获取自定义规则
   useEffect(() => {
-    const restoreSession = async () => {
+    const checkPendingSession = async () => {
       try {
         // 从 localStorage 读取上次保存的 contractId
         const savedContractId = localStorage.getItem('contractReview_contractId');
         if (!savedContractId) return;
 
-        console.log('🔄 检测到上次的会话，contractId:', savedContractId);
+        console.log('🔍 检测到上次的会话，contractId:', savedContractId);
 
         // 查询合同处理状态
-        const statusRes = await api.get(`/contract/${savedContractId}/processing-status`);
+        const statusRes = await api.get(`/contract-review/${savedContractId}/processing-status`);
         const { processing_status, can_load_editor, has_metadata, metadata } = statusRes.data;
 
-        console.log('🔄 上次会话状态:', processing_status, 'can_load_editor:', can_load_editor, 'has_metadata:', has_metadata);
+        console.log('🔍 上次会话状态:', processing_status, 'can_load_editor:', can_load_editor, 'has_metadata:', has_metadata);
 
-        // 恢复 contractId
-        setContractId(parseInt(savedContractId));
+        // ⭐ 修改：不自动恢复，而是设置待恢复会话信息，让用户选择
+        setPendingSessionInfo({
+          savedContractId,
+          status: processing_status,
+          canLoadEditor: can_load_editor,
+          hasMetadata: has_metadata,
+          metadata
+        });
+        setHasPendingSession(true);
 
-        // 恢复编辑器配置（如果已就绪）
-        if (can_load_editor) {
-          try {
-            const cfgRes = await api.get(`/contract/${savedContractId}/onlyoffice-config`);
-            const cfg = cfgRes.data.config;
-            const tkn = cfgRes.data.token;
-            setEditorConfig({ ...cfg, token: tkn });
-            console.log('🔄 恢复 OnlyOffice 配置');
-          } catch (err) {
-            console.warn('恢复 OnlyOffice 配置失败', err);
-          }
-        }
-
-        // 恢复元数据（如果已提取）
-        if (has_metadata && metadata) {
-          setEditedMetadata(prev => ({
-            ...prev,
-            contract_name: metadata.contract_name || prev.contract_name || '',
-            parties: parsePartiesString(metadata.parties),
-            amount: metadata.amount || prev.amount || '',
-            contract_type: metadata.contract_type || prev.contract_type || '',
-            core_terms: metadata.core_terms || prev.core_terms || '',
-            legal_features: metadata.legal_features || prev.legal_features,
-          }));
-          setMetadataExtracting(false);
-          setMetadataExtracted(true);
-          console.log('🔄 恢复元数据');
-        }
-
-        // 恢复步骤状态
-        const savedStep = localStorage.getItem('contractReview_step');
-        if (savedStep) {
-          setStep(savedStep as any);
-          console.log('🔄 恢复步骤:', savedStep);
-        }
-
-        // 检查审查任务状态
-        try {
-          // 先检查是否有正在进行的审查任务（获取当前用户的所有任务，然后过滤出这个合同的）
-          const tasksRes = await api.get(`/contract/review-tasks`, {
-            params: { limit: 50 } // 获取最近50条任务
-          });
-          const allTasks = tasksRes.data || [];
-
-          // 过滤出当前合同的任务
-          const contractTasks = allTasks.filter((t: any) => t.contract_id === parseInt(savedContractId));
-
-          // 查找运行中的任务
-          const runningTask = contractTasks.find((t: any) => t.status === 'running' || t.status === 'pending');
-
-          if (runningTask) {
-            console.log('🔄 发现正在进行的审查任务:', runningTask.id, 'status:', runningTask.status);
-            setStep('reviewing');
-            message.info('检测到正在进行的审查任务，正在恢复...');
-
-            // 恢复审查任务轮询 - 轮询任务状态直到完成
-            const pollReviewTask = async (taskId: number, retries = 0) => {
-              const MAX_RETRIES = 180; // 最多等待6分钟
-
-              if (retries >= MAX_RETRIES) {
-                message.warning('审查任务执行时间过长，请稍后手动刷新查看结果');
-                return;
-              }
-
-              try {
-                const taskRes = await api.get(`/contract/review-tasks/${taskId}`);
-                const task = taskRes.data;
-
-                if (task.status === 'completed') {
-                  message.success('合同审查完成！');
-                  // 获取审查结果
-                  const reviewRes = await api.get(`/contract/${savedContractId}/review-results`);
-                  if (reviewRes.data && reviewRes.data.length > 0) {
-                    setReviews(reviewRes.data);
-                    setStep('results');
-                  }
-                  return;
-                } else if (task.status === 'failed') {
-                  message.error(`审查任务失败: ${task.error_message || '未知错误'}`);
-                  return;
-                }
-
-                // 继续轮询
-                setTimeout(() => pollReviewTask(taskId, retries + 1), 2000);
-              } catch (err) {
-                console.error('轮询任务状态失败', err);
-                setTimeout(() => pollReviewTask(taskId, retries + 1), 2000);
-              }
-            };
-
-            // 开始轮询
-            pollReviewTask(runningTask.id);
-          }
-
-          // 检查是否有已完成的审查结果
-          const reviewRes = await api.get(`/contract/${savedContractId}/review-results`);
-          if (reviewRes.data && reviewRes.data.length > 0) {
-            setReviews(reviewRes.data);
-            if (!runningTask) {
-              setStep('results');
-            }
-            console.log('🔄 恢复审查结果，', reviewRes.data.length, ' 条风险点');
-          }
-        } catch (err) {
-          console.log('🔄 无审查任务或查询失败');
-        }
-
-        message.info('已恢复上次的会话状态');
+        messageApi.info('检测到上次的未完成任务，可在下方选择继续或开始新任务');
       } catch (error) {
-        console.error('恢复会话失败', error);
+        console.error('检查会话失败', error);
         // 清除无效的会话数据
         localStorage.removeItem('contractReview_contractId');
         localStorage.removeItem('contractReview_step');
       }
     };
 
-    restoreSession();
+    checkPendingSession();
   }, []);
 
   // ⭐ 新增：保存关键状态到 localStorage
@@ -334,11 +316,11 @@ const ContractReview: React.FC = () => {
         rule_category: 'custom',
         is_system: false
       });
-      message.success('自定义规则创建成功');
+      messageApi.success('自定义规则创建成功');
       fetchCustomRules();
       setCustomRuleCreateModalVisible(false);
     } catch (error: any) {
-      message.error(error.response?.data?.detail || '创建失败');
+      messageApi.error(error.response?.data?.detail || '创建失败');
     }
   };
 
@@ -346,10 +328,10 @@ const ContractReview: React.FC = () => {
   const handleDeleteCustomRule = async (id: number) => {
     try {
       await api.delete(`/admin/rules/${id}`);
-      message.success('删除成功');
+      messageApi.success('删除成功');
       fetchCustomRules();
     } catch (error: any) {
-      message.error(error.response?.data?.detail || '删除失败');
+      messageApi.error(error.response?.data?.detail || '删除失败');
     }
   };
 
@@ -357,10 +339,10 @@ const ContractReview: React.FC = () => {
   const handleToggleCustomRule = async (id: number) => {
     try {
       await api.put(`/admin/rules/${id}/toggle`);
-      message.success('状态更新成功');
+      messageApi.success('状态更新成功');
       fetchCustomRules();
     } catch (error: any) {
-      message.error(error.response?.data?.detail || '更新失败');
+      messageApi.error(error.response?.data?.detail || '更新失败');
     }
   };
 
@@ -379,7 +361,7 @@ const ContractReview: React.FC = () => {
     const isSupported = supportedFormats.some(ext => fileName.endsWith(ext));
 
     if (!isSupported) {
-      message.error('支持的格式：文档 (.doc/.docx/.pdf/.txt/.rtf/.odt) 或图片 (.jpg/.png/.bmp)');
+      messageApi.error('支持的格式：文档 (.doc/.docx/.pdf/.txt/.rtf/.odt) 或图片 (.jpg/.png/.bmp)');
       return;
     }
 
@@ -388,11 +370,11 @@ const ContractReview: React.FC = () => {
 
     // 提示用户
     if (isImage) {
-      message.info('正在上传图片文件，系统将使用 OCR 识别文字内容...');
+      messageApi.info('正在上传图片文件，系统将使用 OCR 识别文字内容...');
     } else if (fileName.endsWith('.doc') || fileName.endsWith('.pdf') ||
         fileName.endsWith('.txt') || fileName.endsWith('.rtf') ||
         fileName.endsWith('.odt')) {
-      message.info(`正在上传 ${fileName.split('.').pop()} 文件，系统将自动转换为 .docx 格式...`);
+      messageApi.info(`正在上传 ${fileName.split('.').pop()} 文件，系统将自动转换为 .docx 格式...`);
     }
 
     setLoading(true);
@@ -413,7 +395,7 @@ const ContractReview: React.FC = () => {
 
       console.log('🔵 上传进度状态已同步设置，showUploadProgress:', showUploadProgress, 'uploadProgressRef.current:', uploadProgressRef.current);
 
-      const res = await api.uploadContract(file); // 新接口：/api/contract/upload
+      const res = await api.uploadContract(file); // 新接口：/api/contract-review/upload
       const contract_id = res.data.contract_id;
 
       console.log('上传成功，contract_id:', contract_id, '响应数据:', res.data);
@@ -424,12 +406,12 @@ const ContractReview: React.FC = () => {
       if (res.data.preprocess_info) {
         const { original_format } = res.data.preprocess_info;
         if (original_format && original_format !== 'docx') {
-          message.success(`文件上传成功！正在转换 ${original_format.toUpperCase()} 格式...`);
+          messageApi.success(`文件上传成功！正在转换 ${original_format.toUpperCase()} 格式...`);
         } else {
-          message.success('文件上传成功！正在后台处理...');
+          messageApi.success('文件上传成功！正在后台处理...');
         }
       } else {
-        message.success('文件上传成功！正在后台处理...');
+        messageApi.success('文件上传成功！正在后台处理...');
       }
 
       // 上传接口已经返回了 config 和 token，直接使用
@@ -467,7 +449,7 @@ const ContractReview: React.FC = () => {
       else {
         // ⭐ 优化：立即显示文件信息，后台异步获取编辑器配置
         // 不阻塞界面显示，用户可以立即看到文件已上传
-        message.info('文件上传成功，正在后台处理格式和预览...');
+        messageApi.info('文件上传成功，正在后台处理格式和预览...');
 
         // 后台异步轮询获取配置，不阻塞界面
         const pollProcessingComplete = async (retries = 0) => {
@@ -476,7 +458,7 @@ const ContractReview: React.FC = () => {
           if (retries >= MAX_RETRIES) {
             console.warn('后台处理轮询超时，尝试获取配置');
             try {
-              const cfgRes = await api.get(`/contract/${contract_id}/onlyoffice-config`);
+              const cfgRes = await api.get(`/contract-review/${contract_id}/onlyoffice-config`);
               const cfg = cfgRes.data.config;
               const tkn = cfgRes.data.token;
               setEditorConfig({ ...cfg, token: tkn });
@@ -489,7 +471,7 @@ const ContractReview: React.FC = () => {
 
           try {
             // 查询处理状态
-            const statusRes = await api.get(`/contract/${contract_id}/processing-status`);
+            const statusRes = await api.get(`/contract-review/${contract_id}/processing-status`);
             const { processing_status, can_load_editor } = statusRes.data;
 
             // ⭐ 更新处理状态，用于显示不同提示
@@ -499,7 +481,7 @@ const ContractReview: React.FC = () => {
 
             // ⭐ 关键优化：只要 docx 格式转换完成就可以加载编辑器（不需要等PDF和元数据）
             if (can_load_editor) {
-              const cfgRes = await api.get(`/contract/${contract_id}/onlyoffice-config`);
+              const cfgRes = await api.get(`/contract-review/${contract_id}/onlyoffice-config`);
               const cfg = cfgRes.data.config;
               const tkn = cfgRes.data.token;
               setEditorConfig({ ...cfg, token: tkn });
@@ -531,11 +513,11 @@ const ContractReview: React.FC = () => {
 
               // 根据处理状态显示不同的提示
               if (processing_status === 'completed') {
-                message.success('文件处理完成，可以开始编辑');
+                messageApi.success('文件处理完成，可以开始编辑');
               } else if (processing_status === 'metadata_extraction') {
-                message.info('编辑器已就绪，正在提取合同元数据...');
+                messageApi.info('编辑器已就绪，正在提取合同元数据...');
               } else if (processing_status === 'pdf_generation') {
-                message.info('编辑器已就绪，正在生成PDF预览...');
+                messageApi.info('编辑器已就绪，正在生成PDF预览...');
               }
               return; // ✅ 配置已设置，退出轮询
             } else {
@@ -582,7 +564,7 @@ const ContractReview: React.FC = () => {
             flushSync(() => {
               setShowUploadProgress(false);
             });
-            message.warning({
+            messageApi.warning({
               content: '文件处理耗时较长，可能是文件格式较复杂。您可以稍后刷新页面或继续填写合同信息。',
               duration: 6,
             });
@@ -591,7 +573,7 @@ const ContractReview: React.FC = () => {
 
           try {
             // ⭐ 使用新的处理状态端点
-            const statusRes = await api.get(`/contract/${contract_id}/processing-status`);
+            const statusRes = await api.get(`/contract-review/${contract_id}/processing-status`);
             console.log(`轮询处理状态 (第${retries + 1}次):`, statusRes.data);
 
             const { processing_status, can_load_editor, has_metadata, metadata, error_message } = statusRes.data;
@@ -602,7 +584,7 @@ const ContractReview: React.FC = () => {
               console.log('✅ 检测到可以加载编辑器');
 
               // ⭐ 立即获取并设置 editorConfig，确保隐藏上传进度前 editorConfig 已设置
-              const cfgRes = await api.get(`/contract/${contract_id}/onlyoffice-config`);
+              const cfgRes = await api.get(`/contract-review/${contract_id}/onlyoffice-config`);
               const cfg = cfgRes.data.config;
               const tkn = cfgRes.data.token;
               setEditorConfig({ ...cfg, token: tkn });
@@ -636,17 +618,17 @@ const ContractReview: React.FC = () => {
 
               // 根据处理状态显示不同的提示
               if (processing_status === 'completed') {
-                message.success('文件处理完成，可以开始编辑');
+                messageApi.success('文件处理完成，可以开始编辑');
               } else if (processing_status === 'metadata_extraction') {
-                message.info('编辑器已就绪，正在提取合同元数据...');
+                messageApi.info('编辑器已就绪，正在提取合同元数据...');
               } else if (processing_status === 'pdf_generation') {
-                message.info('编辑器已就绪，正在生成PDF预览...');
+                messageApi.info('编辑器已就绪，正在生成PDF预览...');
               }
             }
 
             // 显示进度提示（每10次显示一次）
             if (retries > 0 && retries % 10 === 0) {
-              message.info(getProgressMessage(processing_status, retries), 2);
+              messageApi.info(getProgressMessage(processing_status, retries), 2);
             }
 
             // 检查是否有错误
@@ -658,7 +640,7 @@ const ContractReview: React.FC = () => {
               flushSync(() => {
                 setShowUploadProgress(false);
               });
-              message.error(`文件处理失败: ${error_message}`);
+              messageApi.error(`文件处理失败: ${error_message}`);
               return;
             }
 
@@ -684,7 +666,7 @@ const ContractReview: React.FC = () => {
               setMetadataExtracting(false);
               setMetadataExtracted(true);
 
-              message.success('合同信息提取成功，可修改后确认');
+              messageApi.success('合同信息提取成功，可修改后确认');
               return; // ✅ 元数据提取完成，停止轮询
             } else {
               // 继续轮询
@@ -703,7 +685,7 @@ const ContractReview: React.FC = () => {
       }
     } catch (error: any) {
       console.error("上传失败", error);
-      message.error(error.response?.data?.detail || "文件上传失败");
+      messageApi.error(error.response?.data?.detail || "文件上传失败");
     } finally {
       setLoading(false);
     }
@@ -718,7 +700,7 @@ const ContractReview: React.FC = () => {
     setReviewProgress('📋 正在启动审查任务...'); // ⭐ 初始化进度提示
 
     // ⭐ 显示审查开始提示
-    message.info({
+    messageApi.info({
       content: '正在启动合同深度审查...',
       duration: 3
     });
@@ -733,7 +715,7 @@ const ContractReview: React.FC = () => {
       // ⭐ 调用新的审查API，传递交易结构参数
       const formData = new FormData();
       formData.append('stance', stance);
-      formData.append('use_custom_rules', useCustomRules.toString());
+      formData.append('enable_custom_rules', useCustomRules.toString());
       formData.append('use_langgraph', 'true');
       formData.append('use_celery', 'true'); // ⭐ 改为异步模式
 
@@ -747,13 +729,13 @@ const ContractReview: React.FC = () => {
       formData.append('updated_metadata', JSON.stringify(processedMetadata));
       console.log('📤 发送元数据:', processedMetadata);
 
-      const response = await api.post(`/contract/${contractId}/deep-review`, formData, {
+      const response = await api.post(`/contract-review/${contractId}/deep-review`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       // ⭐ 显示任务已提交提示
       if (response.data.success) {
-        message.success('深度审查任务已提交，正在后台加载审查规则并分析合同...');
+        messageApi.success('深度审查任务已提交，正在后台加载审查规则并分析合同...');
       }
 
       // 轮询结果
@@ -762,7 +744,7 @@ const ContractReview: React.FC = () => {
       console.error("审查启动失败", error);
       console.error("错误详情:", error.response?.data);
       setReviewProgress(''); // ⭐ 清除进度提示
-      message.error(error.response?.data?.detail || "审查启动失败");
+      messageApi.error(error.response?.data?.detail || "审查启动失败");
       setStep('metadata');
     } finally {
       setLoading(false);
@@ -800,7 +782,7 @@ const ContractReview: React.FC = () => {
           currentProgressStep = progressSteps.indexOf(currentStep);
           // ⭐ 更新状态以便在UI中显示
           setReviewProgress(currentStep.message);
-          message.loading({
+          messageApi.loading({
             content: currentStep.message,
             duration: 4,
             key: 'review-progress'
@@ -817,7 +799,7 @@ const ContractReview: React.FC = () => {
           setReviews(review_items);
           setStep('results');
           setReviewProgress(''); // ⭐ 清除进度提示
-          message.success({
+          messageApi.success({
             content: `✅ 审查完成！发现 ${review_items.length} 个风险点`,
             duration: 5
           });
@@ -828,7 +810,7 @@ const ContractReview: React.FC = () => {
             setTimeout(poll, 3000);
           } else {
             setReviewProgress(''); // ⭐ 清除进度提示
-            message.error('审查超时，请稍后刷新查看结果');
+            messageApi.error('审查超时，请稍后刷新查看结果');
           }
         } else {
           // 继续轮询
@@ -841,7 +823,7 @@ const ContractReview: React.FC = () => {
           setTimeout(poll, 5000);
         } else {
           setReviewProgress(''); // ⭐ 清除进度提示
-          message.error('获取审查结果超时');
+          messageApi.error('获取审查结果超时');
         }
       }
     };
@@ -874,11 +856,11 @@ const ContractReview: React.FC = () => {
           : item
       ));
 
-      message.success('审查意见已更新');
+      messageApi.success('审查意见已更新');
       setEditModalVisible(false);
     } catch (error: any) {
       console.error('更新审查意见失败', error);
-      message.error(error.response?.data?.detail || '更新失败');
+      messageApi.error(error.response?.data?.detail || '更新失败');
     }
   };
 
@@ -888,7 +870,7 @@ const ContractReview: React.FC = () => {
 
     const idsToApply = itemIds || selectedItemIds;
     if (idsToApply.length === 0) {
-      message.warning('请先选择要应用的修改意见');
+      messageApi.warning('请先选择要应用的修改意见');
       return;
     }
 
@@ -908,17 +890,17 @@ const ContractReview: React.FC = () => {
           ? ` (原文件格式: ${res.data.original_format?.toUpperCase() || 'PDF'}，已自动转换为 Word 格式)`
           : '';
 
-        message.success(`已应用 ${res.data.applied_count} 条修订建议${formatMsg}` +
+        messageApi.success(`已应用 ${res.data.applied_count} 条修订建议${formatMsg}` +
           (res.data.not_found_count > 0 ? `，${res.data.not_found_count} 条未找到原文` : ''));
 
         // 显示修订样式说明
-        message.info('修订样式：红色删除线 = 原文，黄色高亮下划线 = 修订内容');
+        messageApi.info('修订样式：红色删除线 = 原文，黄色高亮下划线 = 修订内容');
       } else {
-        message.error('生成修订文档失败');
+        messageApi.error('生成修订文档失败');
       }
     } catch (error: any) {
       console.error('应用修订失败', error);
-      message.error(error.response?.data?.detail || '应用修订失败');
+      messageApi.error(error.response?.data?.detail || '应用修订失败');
     } finally {
       setApplyingRevisions(false);
     }
@@ -949,7 +931,7 @@ const ContractReview: React.FC = () => {
     const trimmedQuote = quote.trim();
 
     if (!trimmedQuote) {
-      message.warning("审查意见原文为空");
+      messageApi.warning("审查意见原文为空");
       return;
     }
 
@@ -972,7 +954,7 @@ const ContractReview: React.FC = () => {
           "replaceString": searchQuery,
           "matchCase": false
         }).then(() => {
-          message.success(`已定位到关键词: "${searchQuery}"${keywords.length > 1 ? ` (其他: ${keywords.slice(1).join(', ')})` : ''}`);
+          messageApi.success(`已定位到关键词: "${searchQuery}"${keywords.length > 1 ? ` (其他: ${keywords.slice(1).join(', ')})` : ''}`);
         }).catch((err: any) => {
           console.warn('[高亮定位] executeMethod 失败:', err);
           // 降级到方法2
@@ -1042,9 +1024,9 @@ const ContractReview: React.FC = () => {
           }, (result: any) => {
             const nFoundCount = typeof result === 'number' ? result : 0;
             if (nFoundCount > 0) {
-              message.success(`已定位到 ${nFoundCount} 处相关内容，关键词: ${keywords.join(', ')}`);
+              messageApi.success(`已定位到 ${nFoundCount} 处相关内容，关键词: ${keywords.join(', ')}`);
             } else {
-              message.info(`未在文档中找到精确匹配，建议关键词: ${keywords.join(', ')}`);
+              messageApi.info(`未在文档中找到精确匹配，建议关键词: ${keywords.join(', ')}`);
             }
           });
           return;
@@ -1058,7 +1040,7 @@ const ContractReview: React.FC = () => {
 
     // 方法3: 最终降级 - 提示用户手动搜索
     setTimeout(() => {
-      message.info(`💡 提示：请按 Ctrl+F 在文档中搜索，建议关键词: ${keywords.join(', ')}`);
+      messageApi.info(`💡 提示：请按 Ctrl+F 在文档中搜索，建议关键词: ${keywords.join(', ')}`);
     }, 800);
   };
 
@@ -1076,10 +1058,10 @@ const ContractReview: React.FC = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      message.success(docType === 'revised' ? '修订版文件下载成功' : '原始文件下载成功');
+      messageApi.success(docType === 'revised' ? '修订版文件下载成功' : '原始文件下载成功');
     } catch (error: any) {
       console.error('下载失败', error);
-      message.error(error.response?.data?.detail || '下载失败');
+      messageApi.error(error.response?.data?.detail || '下载失败');
     }
   };
 
@@ -1184,7 +1166,7 @@ const ContractReview: React.FC = () => {
       key: 'legal-search',
       label: '法律检索',
       icon: <SearchOutlined />,
-      onClick: () => message.info('法律检索功能开发中')
+      onClick: () => messageApi.info('法律检索功能开发中')
     },
     { key: 'divider2', type: 'divider' },
     {
@@ -1211,13 +1193,13 @@ const ContractReview: React.FC = () => {
       key: 'case-analysis',
       label: '案件分析',
       icon: <FileSearchOutlined />,
-      onClick: () => message.info('案件分析功能开发中')
+      onClick: () => messageApi.info('案件分析功能开发中')
     },
     {
       key: 'document-drafting',
       label: '司法文书',
       icon: <FileTextOutlined />,
-      onClick: () => message.info('司法文书功能开发中')
+      onClick: () => messageApi.info('司法文书功能开发中')
     },
     { key: 'divider4', type: 'divider' },
     {
@@ -1685,6 +1667,37 @@ const ContractReview: React.FC = () => {
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* 统一导航栏 */}
       <EnhancedModuleNavBar currentModuleKey="contract-review" />
+
+      {/* ⭐ 新增：会话恢复提示 */}
+      {hasPendingSession && (
+        <div style={{
+          background: '#fff7e6',
+          borderBottom: '1px solid #ffd591',
+          padding: '12px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <WarningOutlined style={{ fontSize: '18px', color: '#fa8c16' }} />
+            <div>
+              <div style={{ fontWeight: 500, color: '#d46b08' }}>检测到上次的未完成任务</div>
+              <div style={{ fontSize: '12px', color: '#8c8c8c' }}>
+                {pendingSessionInfo?.metadata?.contract_name || `合同 #${pendingSessionInfo?.savedContractId}`} -
+                状态: {pendingSessionInfo?.status === 'completed' ? '已完成' : '进行中'}
+              </div>
+            </div>
+          </div>
+          <Space>
+            <Button size="small" onClick={startNewTask}>
+              开始新任务
+            </Button>
+            <Button type="primary" size="small" onClick={restorePendingSession}>
+              继续上次任务
+            </Button>
+          </Space>
+        </div>
+      )}
 
       {/* 原有内容区域 */}
       <div className="review-container">

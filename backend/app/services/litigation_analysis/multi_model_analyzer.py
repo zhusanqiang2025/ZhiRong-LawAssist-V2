@@ -57,6 +57,7 @@ class ModelResponse:
     model_name: str
     data: Optional[ScenarioAnalysisResult]
     error: Optional[str] = None
+    raw_data: Optional[str] = None  # 新增：保存原始响应用于调试
 
 
 # ==================== 2. 分析器实现 ====================
@@ -115,24 +116,20 @@ class MultiModelAnalyzer:
                 logger.warning(f"Qwen3 加载失败: {e}")
 
         # 2. DeepSeek-R1 (逻辑推理)
-        # 对应配置: DEEPSEEK_API_...
+        # 注意：此配置实际指向火山引擎的 Qwen 模型
         if settings.DEEPSEEK_API_KEY and settings.DEEPSEEK_API_URL:
             try:
-                # 尝试使用配置中的 MODEL_NAME，如果没有则使用 deepseek-chat
-                model_name = getattr(settings, "MODEL_NAME", "deepseek-chat")
-                # 如果环境变量 MODEL_NAME 被 Qwen 占用了 (看配置好像有点混用)，这里手动指定 safe value
-                # 根据 volceapi 的通常配置
-                if "Qwen" in model_name: 
-                    model_name = "deepseek-r1-250120" # 或者是你配置中第一行的 DeepSeek-R1-0528
+                # 直接使用配置中的模型名称，不要强制覆盖
+                model_name = getattr(settings, "DEEPSEEK_MODEL", "Qwen3-235B-A22B-Thinking-2507")
 
                 models["deepseek"] = ChatOpenAI(
-                    model=model_name, 
+                    model=model_name,
                     api_key=settings.DEEPSEEK_API_KEY,
                     base_url=settings.DEEPSEEK_API_URL,
                     temperature=0.2,
-                    max_tokens=4000
+                    max_tokens=8000
                 )
-                logger.info("[Analyzer] DeepSeek 模型加载成功")
+                logger.info(f"[Analyzer] DeepSeek 模型加载成功 | 实际模型: {model_name}")
             except Exception as e:
                 logger.warning(f"DeepSeek 加载失败: {e}")
 
@@ -176,6 +173,7 @@ class MultiModelAnalyzer:
             return {"error": "服务配置错误：无可用模型", "status": "failed"}
 
         logger.info(f"[{session_id}] 开始分析 | 模式: {self.mode} | 场景: {scenario}")
+        logger.info(f"[{session_id}] 输入参数: context长度={len(context)}, rules数={len(rules)}")
 
         # 1. 构建 Prompt
         system_prompt = self._build_system_prompt(scenario, case_position)
@@ -190,6 +188,7 @@ class MultiModelAnalyzer:
             )
 
             if result.error:
+                logger.error(f"[{session_id}] 分析失败: {result.error}")
                 return {
                     "error": f"模型 {self.selected_model} 分析失败: {result.error}",
                     "status": "failed",
@@ -197,44 +196,120 @@ class MultiModelAnalyzer:
                     "selected_model": self.selected_model
                 }
 
-            if result.data is None:
-                return {
-                    "error": f"模型 {self.selected_model} 返回空结果",
-                    "status": "failed",
-                    "mode": "single",
-                    "selected_model": self.selected_model
-                }
-
-            return self._format_final_output(result.data, model_name=self.selected_model, mode="single")
+            output = self._format_final_output(result.data, model_name=self.selected_model, mode="single")
+            logger.info(f"[{session_id}] 分析成功 | facts数={len(output.get('final_facts', []))}")
+            return output
 
         else:
             # === 多模型模式 (Qwen3 + DeepSeek + GPT-OSS) ===
             tasks = []
             for name, model_instance in self.models_pool.items():
                 tasks.append(self._call_single_model(name, model_instance, system_prompt, user_prompt))
-            
+
             results = await asyncio.gather(*tasks)
-            return self._synthesize_multi_results(results)
+            output = self._synthesize_multi_results(results)
+
+            if "error" in output:
+                logger.error(f"[{session_id}] 分析失败: {output['error']}")
+            else:
+                logger.info(f"[{session_id}] 分析成功 | facts数={len(output.get('final_facts', []))}")
+
+            return output
 
     async def _call_single_model(
-        self, 
-        name: str, 
-        model: ChatOpenAI, 
-        sys_prompt: str, 
+        self,
+        name: str,
+        model: ChatOpenAI,
+        sys_prompt: str,
         user_prompt: str
     ) -> ModelResponse:
-        """调用单个模型"""
-        logger.debug(f"模型 {name} 开始执行...")
+        """调用单个模型（原始生成 + 强力清洗模式）"""
+        logger.info(f"[{name}] 模型开始执行 | context长度: {len(user_prompt)}")
+
+        # 1. 强制使用原始调用 (不使用 structured_output)
         try:
-            structured_llm = model.with_structured_output(ScenarioAnalysisResult)
-            result_obj = await structured_llm.ainvoke([
+            import re
+
+            # 提示 LLM 返回 JSON，但不依赖框架校验
+            sys_prompt += "\n\n请务必只返回纯 JSON 格式，不要包含 Markdown 标记，不要包含其他解释。"
+
+            response = await model.ainvoke([
                 SystemMessage(content=sys_prompt),
                 HumanMessage(content=user_prompt)
             ])
-            return ModelResponse(model_name=name, data=result_obj)
+
+            raw_text = response.content
+            logger.info(f"[{name}] 原始响应预览(前500字): {raw_text[:500]}...")
+
+            # 2. 强力清洗 (核心修复)
+            # 尝试提取 ```json ... ```
+            json_match = re.search(r'```json\s*(.*?)\s*```', raw_text, re.DOTALL)
+            if json_match:
+                clean_text = json_match.group(1)
+                logger.info(f"[{name}] 从 ```json 代码块提取成功")
+            else:
+                # 尝试提取第一个 { 到最后一个 }
+                json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
+                clean_text = json_match.group(0) if json_match else raw_text
+                logger.info(f"[{name}] 从原始文本提取 JSON")
+
+            # 3. 解析与对象构建
+            try:
+                data_dict = json.loads(clean_text)
+
+                # 手动构建 Pydantic 对象 (容错处理)
+                result_obj = ScenarioAnalysisResult(
+                    summary=data_dict.get("summary", "分析完成"),
+                    key_facts=data_dict.get("key_facts", []),
+                    legal_arguments=data_dict.get("legal_arguments", []),
+                    rule_application=data_dict.get("rule_application", []),
+                    favorable_factors=data_dict.get("favorable_factors", []),
+                    unfavorable_factors=data_dict.get("unfavorable_factors", []),
+                    win_rate_prediction=float(data_dict.get("win_rate_prediction", 0.5)),
+                    conclusion=data_dict.get("conclusion", "无详细结论"),
+                    confidence=float(data_dict.get("confidence", 0.8))
+                )
+
+                logger.info(f"[{name}] 解析成功，生成有效结果 | 置信度: {result_obj.confidence}")
+                return ModelResponse(model_name=name, data=result_obj)
+
+            except json.JSONDecodeError as je:
+                logger.error(f"[{name}] JSON解析失败: {je}")
+                logger.error(f"[{name}] 清洗后的文本(前500字): {clean_text[:500]}...")
+                # 即使 JSON 失败，也尝试把原始文本塞进去，不要丢弃
+                fallback_obj = ScenarioAnalysisResult(
+                    summary="格式解析失败，请查看原始数据",
+                    key_facts=[],
+                    legal_arguments=[],
+                    rule_application=[],
+                    favorable_factors=[],
+                    unfavorable_factors=["JSON格式解析失败"],
+                    win_rate_prediction=0.5,
+                    conclusion=raw_text[:2000],  # 把原始分析结果放这里
+                    confidence=0.1
+                )
+                return ModelResponse(model_name=name, data=fallback_obj, raw_data=raw_text)
+
         except Exception as e:
-            logger.error(f"模型 {name} 调用异常: {e}")
-            return ModelResponse(model_name=name, data=None, error=str(e))
+            logger.error(f"[{name}] 模型调用异常: {e}")
+            import traceback
+            logger.error(f"[{name}] 异常堆栈: {traceback.format_exc()}")
+            # 返回降级对象
+            return ModelResponse(model_name=name, error=str(e), data=self._get_fallback_data())
+
+    def _get_fallback_data(self) -> ScenarioAnalysisResult:
+        """返回降级数据对象"""
+        return ScenarioAnalysisResult(
+            summary="模型分析失败，基于规则生成基础结论",
+            key_facts=["由于技术限制无法自动提取关键事实，请人工审查原文"],
+            legal_arguments=["建议咨询专业律师进行详细分析"],
+            rule_application=[],
+            favorable_factors=["需要人工审查"],
+            unfavorable_factors=["模型分析失败"],
+            win_rate_prediction=0.5,
+            conclusion="建议人工审查案件材料后进行专业法律咨询",
+            confidence=0.1
+        )
 
     def _synthesize_multi_results(self, results: List[ModelResponse]) -> Dict[str, Any]:
         """多模型结果聚合"""

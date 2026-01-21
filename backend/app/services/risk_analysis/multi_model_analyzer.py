@@ -200,7 +200,8 @@ class MultiModelAnalyzer:
         logger.info(f"[MultiModelAnalyzer] 即将运行的模型: {list(target_models.keys())}")
 
         # 阶段2：执行并行分析 (78-88%)
-        await update_progress("parallel_analysis", 0.78, "正在执行多模型并行分析...")
+        analysis_message = "正在执行单模型分析..." if analysis_mode == "single" else "正在执行多模型并行分析..."
+        await update_progress("parallel_analysis", 0.78, analysis_message)
 
         # 3. 第一阶段：执行分析
         # 注意：这里传入 target_models 而不是 self.models
@@ -210,7 +211,8 @@ class MultiModelAnalyzer:
         if not successful_results:
             return {"error": "模型分析失败", "stage1_results": {}}
 
-        await update_progress("parallel_analysis", 0.88, "多模型分析完成")
+        complete_message = "单模型分析完成" if analysis_mode == "single" else "多模型分析完成"
+        await update_progress("parallel_analysis", 0.88, complete_message)
 
         # ==========================================
         # 分支逻辑：单模型 vs 多模型

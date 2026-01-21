@@ -96,56 +96,125 @@ class StrategyGenerator:
         scenario: str = "pre_litigation"
     ) -> List[Dict[str, Any]]:
         """
-        生成策略主入口
-
-        Args:
-            case_strength: 来自 MultiModelAnalyzer 的结果 (包含 win_rate, risks 等)
-            evidence: 来自 EvidenceAnalyzer 的结果 (包含 gaps, impeachment 等)
-            case_type: 案由
-            case_position: 地位
-            scenario: 场景
-
-        Returns:
-            List[Dict]: 策略列表
+        生成策略主入口（原始生成 + 强力清洗模式）
         """
         logger.info(f"[StrategyGenerator] 开始生成策略 | 场景: {scenario}")
+        logger.info(f"[StrategyGenerator] 输入: case_strength keys={list(case_strength.keys())}")
 
         try:
-            # 1. 准备上下文
-            # 如果上一步分析失败，这里可能拿不到完整数据，需要做容错
-            win_rate = case_strength.get("final_strength", 0.5)
-            analysis_summary = case_strength.get("final_summary", "暂无详细分析")
-            
-            # 2. 构建 Prompt
+            # 1. 验证输入数据
+            if not case_strength or case_strength.get("status") == "failed":
+                logger.warning(f"[StrategyGenerator] 上游分析失败，使用降级策略")
+                return self._get_fallback_strategies(scenario, case_type, "上游分析失败")
+
+            # 2. 提取数据，带默认值
+            win_rate = case_strength.get("final_strength", case_strength.get("win_rate_prediction", 0.5))
+            analysis_summary = case_strength.get("final_summary", case_strength.get("conclusion", "暂无详细分析"))
+
+            if not analysis_summary or analysis_summary == "暂无详细分析":
+                logger.warning(f"[StrategyGenerator] 分析摘要为空，使用降级策略")
+                return self._get_fallback_strategies(scenario, case_type, "分析数据不足")
+
+            # 3. 构建 Prompt
             system_prompt = self._build_system_prompt(scenario, case_position)
             user_prompt = self._build_user_prompt(
                 case_type, win_rate, analysis_summary, evidence, scenario
             )
 
-            # 3. 调用 LLM
-            structured_llm = self.llm.with_structured_output(StrategyList)
-            result = await structured_llm.ainvoke([
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=user_prompt)
-            ])
+            # 4. 强制使用原始调用 (不使用 structured_output)
+            try:
+                import re
 
-            # 4. 空值检查
-            if result is None:
-                logger.error("[StrategyGenerator] LLM 返回结果为空")
-                return self._get_fallback_strategies(scenario)
+                # 提示 LLM 返回 JSON
+                system_prompt += "\n\n请务必只返回纯 JSON 格式，不要包含 Markdown 标记，不要包含其他解释。"
 
-            # 5. 格式化输出
-            strategies = [strategy.dict() for strategy in result.strategies]
-            
-            # 按推荐分排序
-            strategies.sort(key=lambda x: x['recommendation_score'], reverse=True)
-            
-            logger.info(f"[StrategyGenerator] 生成了 {len(strategies)} 条策略")
-            return strategies
+                response = await self.llm.ainvoke([
+                    SystemMessage(content=system_prompt),
+                    HumanMessage(content=user_prompt)
+                ])
+
+                raw_text = response.content
+                logger.info(f"[StrategyGenerator] 原始响应预览(前500字): {raw_text[:500]}...")
+
+                # 5. 强力清洗 JSON
+                # 尝试提取 ```json ... ```
+                json_match = re.search(r'```json\s*(.*?)\s*```', raw_text, re.DOTALL)
+                if json_match:
+                    clean_text = json_match.group(1)
+                    logger.info(f"[StrategyGenerator] 从 ```json 代码块提取成功")
+                else:
+                    # 尝试提取第一个 { 到最后一个 }
+                    json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
+                    clean_text = json_match.group(0) if json_match else raw_text
+                    logger.info(f"[StrategyGenerator] 从原始文本提取 JSON")
+
+                # 6. 解析 JSON
+                data_dict = json.loads(clean_text)
+
+                # 兼容两种格式: {"strategies": [...]} 或直接 [...]
+                strategies_data = data_dict.get("strategies", []) if isinstance(data_dict, dict) else []
+                if not strategies_data and isinstance(data_dict, list):
+                    strategies_data = data_dict
+
+                if not strategies_data:
+                    logger.warning(f"[StrategyGenerator] 解析后的策略列表为空，使用降级策略")
+                    return self._get_fallback_strategies(scenario, case_type, "解析结果为空")
+
+                # 7. 手动构建策略对象（容错处理）
+                strategies = []
+                for item in strategies_data:
+                    try:
+                        strategy = {
+                            "strategy_id": item.get("strategy_id", f"S_AUTO_{len(strategies)+1}"),
+                            "title": item.get("title", "未命名策略"),
+                            "type": item.get("type", "balanced"),
+                            "description": item.get("description", ""),
+                            "steps": [],
+                            "expected_outcome": item.get("expected_outcome", ""),
+                            "risk_mitigation": item.get("risk_mitigation", ""),
+                            "recommendation_score": int(item.get("recommendation_score", 3))
+                        }
+
+                        # 处理 steps
+                        steps_data = item.get("steps", [])
+                        if isinstance(steps_data, list):
+                            for step in steps_data:
+                                if isinstance(step, dict):
+                                    strategy["steps"].append({
+                                        "step_name": step.get("step_name", "未命名步骤"),
+                                        "description": step.get("description", ""),
+                                        "executor": step.get("executor", "律师"),
+                                        "deadline": step.get("deadline", "尽快")
+                                    })
+
+                        strategies.append(strategy)
+                    except Exception as e:
+                        logger.warning(f"[StrategyGenerator] 单个策略解析失败: {e}")
+                        continue
+
+                if not strategies:
+                    logger.warning(f"[StrategyGenerator] 所有策略解析失败，使用降级策略")
+                    return self._get_fallback_strategies(scenario, case_type, "策略解析失败")
+
+                # 按推荐分排序
+                strategies.sort(key=lambda x: x['recommendation_score'], reverse=True)
+
+                logger.info(f"[StrategyGenerator] 成功生成 {len(strategies)} 条策略")
+                return strategies
+
+            except json.JSONDecodeError as je:
+                logger.error(f"[StrategyGenerator] JSON解析失败: {je}")
+                logger.error(f"[StrategyGenerator] 清洗后的文本(前500字): {clean_text[:500] if 'clean_text' in locals() else 'N/A'}...")
+                # 即使 JSON 失败，也尝试把原始文本塞进去
+                fallback_strategies = self._get_fallback_strategies(scenario, case_type, "JSON解析失败")
+                # 将原始响应添加到第一个策略的描述中
+                if fallback_strategies and 'raw_text' in locals():
+                    fallback_strategies[0]["description"] += f"\n\n原始LLM响应:\n{raw_text[:1000]}..."
+                return fallback_strategies
 
         except Exception as e:
             logger.error(f"[StrategyGenerator] 策略生成失败: {e}", exc_info=True)
-            return self._get_fallback_strategies(scenario)
+            return self._get_fallback_strategies(scenario, case_type, f"异常: {str(e)}")
 
     def _build_system_prompt(self, scenario: str, position: str) -> str:
         """构建人设"""
@@ -206,27 +275,65 @@ class StrategyGenerator:
 """
         return prompt
 
-    def _get_fallback_strategies(self, scenario: str) -> List[Dict[str, Any]]:
-        """降级策略 (LLM 挂了时的兜底)"""
+    def _get_fallback_strategies(self, scenario: str, case_type: str = "", reason: str = "") -> List[Dict[str, Any]]:
+        """降级策略（增强版：基于案件类型）"""
+        logger.info(f"[StrategyGenerator] 使用降级策略 | scenario={scenario}, case_type={case_type}, reason={reason}")
+
+        base_description = f"系统分析遇到问题（{reason}）。"
+
         if scenario == "pre_litigation":
             return [{
-                "strategy_id": "FALLBACK_01",
+                "strategy_id": "FALLBACK_PRE_01",
                 "title": "补充证据并咨询律师",
                 "type": "conservative",
-                "description": "系统分析遇到问题。建议人工整理证据材料，梳理完整证据链后咨询专业律师。",
-                "steps": [],
-                "expected_outcome": "明确案情",
-                "risk_mitigation": "无",
-                "recommendation_score": 3
+                "description": f"{base_description}建议人工整理证据材料，梳理完整证据链后咨询专业律师。",
+                "steps": [
+                    {"step_name": "整理证据", "description": "按时间顺序整理所有相关文件", "executor": "当事人", "deadline": "立即"},
+                    {"step_name": "咨询律师", "description": "携带材料咨询专业律师", "executor": "当事人", "deadline": "3日内"}
+                ],
+                "expected_outcome": "明确案情和诉讼可行性",
+                "risk_mitigation": "避免诉讼时效届满",
+                "recommendation_score": 5
+            }]
+        elif scenario == "defense":
+            return [{
+                "strategy_id": "FALLBACK_DEF_01",
+                "title": "积极应诉准备",
+                "type": "balanced",
+                "description": f"{base_description}建议立即查阅法院送达的材料，核实答辩期限。",
+                "steps": [
+                    {"step_name": "核对材料", "description": "仔细阅读起诉状和证据", "executor": "律师", "deadline": "收到后2日内"},
+                    {"step_name": "准备答辩", "description": "起草答辩状", "executor": "律师", "deadline": "答辩期内"}
+                ],
+                "expected_outcome": "避免缺席审判",
+                "risk_mitigation": "保护诉讼权利",
+                "recommendation_score": 5
+            }]
+        elif scenario == "appeal":
+            return [{
+                "strategy_id": "FALLBACK_APP_01",
+                "title": "审查一审判决",
+                "type": "conservative",
+                "description": f"{base_description}建议仔细审查一审判决书，寻找程序或事实错误。",
+                "steps": [
+                    {"step_name": "审查判决", "description": "逐条审查一审判决认定的事实和法律适用", "executor": "律师", "deadline": "收到判决后5日内"},
+                    {"step_name": "评估上诉", "description": "评估上诉的必要性和可行性", "executor": "律师", "deadline": "上诉期内"}
+                ],
+                "expected_outcome": "确定上诉策略",
+                "risk_mitigation": "避免错过上诉期",
+                "recommendation_score": 5
             }]
         else:
             return [{
-                "strategy_id": "FALLBACK_02",
-                "title": "积极应诉准备",
-                "type": "balanced",
-                "description": "建议立即查阅法院送达的材料，核实答辩期限，避免缺席审判。",
-                "steps": [],
-                "expected_outcome": "避免程序失权",
-                "risk_mitigation": "无",
-                "recommendation_score": 5
+                "strategy_id": "FALLBACK_DEFAULT_01",
+                "title": "寻求专业法律帮助",
+                "type": "conservative",
+                "description": f"{base_description}建议尽快咨询专业律师。",
+                "steps": [
+                    {"step_name": "整理材料", "description": "整理所有相关文件", "executor": "当事人", "deadline": "立即"},
+                    {"step_name": "法律咨询", "description": "咨询专业律师", "executor": "当事人", "deadline": "3日内"}
+                ],
+                "expected_outcome": "获得专业指导",
+                "risk_mitigation": "避免法律程序失误",
+                "recommendation_score": 4
             }]

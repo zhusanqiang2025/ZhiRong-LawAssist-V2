@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useAuth } from './context/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { SessionProvider } from './context/SessionContext';
-import { Spin } from 'antd';
+import { Spin, App as AntdApp } from 'antd';
 
 // ==================== 代码分割和懒加载 ====================
 // 使用 React.lazy() 进行路由级别的代码分割
@@ -66,9 +66,10 @@ const App: React.FC = () => {
   return (
     <SessionProvider>
       <ErrorBoundary>
-        <Router>
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
+        <AntdApp>
+          <Router>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
             <Route path="/login" element={<LoginPage />} />
 
             {/* 首页 */}
@@ -302,7 +303,8 @@ const App: React.FC = () => {
           </Routes>
           </Suspense>
       </Router>
-    </ErrorBoundary>
+    </AntdApp>
+  </ErrorBoundary>
     </SessionProvider>
   );
 };

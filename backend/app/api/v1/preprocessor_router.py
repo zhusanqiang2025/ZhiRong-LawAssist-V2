@@ -20,7 +20,6 @@ from app.services.document_preprocessor import (
 )
 
 router = APIRouter(
-    prefix="/api/preprocessor",
     tags=["Document Preprocessor"]
 )
 

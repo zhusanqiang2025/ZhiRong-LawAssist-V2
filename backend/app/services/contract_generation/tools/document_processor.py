@@ -154,7 +154,8 @@ class DocumentProcessorTool:
                     logger.warning(f"[DocumentProcessor] PDF 转换失败: {str(e)}")
 
             # 5. 生成预览和下载 URL
-            file_url = f"http://localhost:8000/storage/uploads/{docx_filename}"
+            backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+            file_url = f"{backend_url}/storage/uploads/{docx_filename}"
 
             return DocumentProcessorOutput(
                 success=True,

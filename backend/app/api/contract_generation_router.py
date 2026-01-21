@@ -33,7 +33,6 @@ from app.services.contract_generation.exceptions import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter(
-    prefix="/api/contract-generation",
     tags=["Contract Generation"]
 )
 

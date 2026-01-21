@@ -57,7 +57,7 @@ export const riskRulePackagesApi = {
   listPackages: async (category?: string): Promise<RiskRulePackagesResponse> => {
     const params = category ? { category } : {};
     const response = await apiClient.get<RiskRulePackagesResponse>(
-      '/risk-analysis-v2/packages',
+      '/risk-analysis/packages',
       { params }
     );
     return response.data;
@@ -69,7 +69,7 @@ export const riskRulePackagesApi = {
    */
   getPackageDetail: async (packageId: string): Promise<RiskRulePackage> => {
     const response = await apiClient.get<RiskRulePackage>(
-      `/risk-analysis-v2/packages/${packageId}`
+      `/risk-analysis/packages/${packageId}`
     );
     return response.data;
   },
@@ -80,7 +80,7 @@ export const riskRulePackagesApi = {
    */
   createPackage: async (data: RiskRulePackageRequest): Promise<RiskRulePackage> => {
     const response = await apiClient.post<RiskRulePackage>(
-      '/risk-analysis-v2/packages',
+      '/risk-analysis/packages',
       data
     );
     return response.data;
@@ -96,7 +96,7 @@ export const riskRulePackagesApi = {
     data: Partial<RiskRulePackageRequest>
   ): Promise<RiskRulePackage> => {
     const response = await apiClient.put<RiskRulePackage>(
-      `/risk-analysis-v2/packages/${packageId}`,
+      `/risk-analysis/packages/${packageId}`,
       data
     );
     return response.data;
@@ -107,7 +107,7 @@ export const riskRulePackagesApi = {
    * @param packageId 规则包ID
    */
   deletePackage: async (packageId: string): Promise<void> => {
-    await apiClient.delete(`/risk-analysis-v2/packages/${packageId}`);
+    await apiClient.delete(`/risk-analysis/packages/${packageId}`);
   },
 
   /**
@@ -120,7 +120,7 @@ export const riskRulePackagesApi = {
     isActive: boolean
   ): Promise<RiskRulePackage> => {
     const response = await apiClient.patch<RiskRulePackage>(
-      `/risk-analysis-v2/packages/${packageId}/status`,
+      `/risk-analysis/packages/${packageId}/status`,
       { is_active: isActive }
     );
     return response.data;

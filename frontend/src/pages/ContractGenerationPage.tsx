@@ -754,8 +754,15 @@ const ContractGenerationPage: React.FC = () => {
   };
 
   // 【新增函数】：启动任务监听（WebSocket 连接）
-  const startTaskMonitoring = async (taskId: string, taskToken?: string) => {
-    const token = taskToken || localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
+  const startTaskMonitoring = async (taskId: string) => {
+    // 修复：始终使用用户的 JWT token（accessToken），而不是后端返回的随机 UUID task_token
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || '';
+
+    if (!token) {
+      console.error('[WebSocket] 未找到用户 token');
+      message.error('未找到登录凭证，请重新登录');
+      return;
+    }
 
     // 【修复】检查是否已经连接到相同的任务
     const currentStatus = getWebSocketStatus();
@@ -889,7 +896,7 @@ const ContractGenerationPage: React.FC = () => {
         message.info(celeryResult.message || '合同生成任务已提交后台处理，请稍候...');
 
         // 启动 WebSocket 监听
-        await startTaskMonitoring(celeryResult.task_id!, celeryResult.task_token);
+        await startTaskMonitoring(celeryResult.task_id!);
       } else if (result.task_system === 'sync' || !result.task_system) {
         // Sync 模式或旧版本兼容：直接显示结果（原有逻辑）
         const syncResult = result as any; // 兼容旧格式
@@ -1034,7 +1041,7 @@ const ContractGenerationPage: React.FC = () => {
         setTaskId(celeryResult.task_id);
         setTaskStatus('pending');
         message.info('变更/解除协议生成任务已提交后台处理，请稍候...');
-        await startTaskMonitoring(celeryResult.task_id, celeryResult.task_token);
+        await startTaskMonitoring(celeryResult.task_id!);
       } else {
         // 同步模式
         const syncResult = result as ContractGenerationSyncResponse;

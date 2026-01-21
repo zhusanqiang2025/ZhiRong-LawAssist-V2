@@ -4,7 +4,7 @@ services:
     image: pgvector/pgvector:pg15
     container_name: legal_assistant_v3_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-legal_assistant_db}
       POSTGRES_USER: ${POSTGRES_USER:-admin}
@@ -173,9 +173,9 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - FLOWER_PORT=5555
+      - FLOWER_PORT=5556
     ports:
-      - "5555:5555"
+      - "5556:5555"
     depends_on:
       redis:
         condition: service_healthy
@@ -199,8 +199,8 @@ services:
       - JWT_HEADER=Authorization
       - JWT_IN_BODY=true
     ports:
-      # 映射到宿主机 8082 端口，前端访问编辑器地址为 http://localhost:8082
-      - "8082:80"
+      # 映射到宿主机 8083 端口，前端访问编辑器地址为 http://180.184.47.218:8083
+      - "8083:80"
     volumes:
       - onlyoffice_data:/var/www/onlyoffice/Data
       - onlyoffice_log:/var/log/onlyoffice
@@ -253,7 +253,7 @@ services:
       - AI_POSTPROCESS_CONFIDENCE_THRESHOLD=0.7
       - AI_POSTPROCESS_ONLY_AMBIGUOUS=true
     ports:
-      - "8000:8000"
+      - "9000:8000"
     volumes:
       # 挂载backend代码到/app，便于开发时实时更新
       - ./backend:/app:rw
@@ -277,10 +277,10 @@ services:
       dockerfile: Dockerfile
       # 构建时传入环境变量（生产环境使用相对路径）
       args:
-        - VITE_API_BASE_URL=
-        - VITE_ONLYOFFICE_URL=
+        - VITE_API_BASE_URL=http://180.184.47.218:9000
+        - VITE_ONLYOFFICE_URL=http://180.184.47.218:8083
     ports:
-      - "3000:80"
+      - "3001:80"
     depends_on:
       - backend
       - onlyoffice

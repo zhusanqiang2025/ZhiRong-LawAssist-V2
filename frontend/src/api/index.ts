@@ -1,6 +1,7 @@
 // frontend/src/api/index.ts
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 import { getApiBaseUrl } from '../utils/apiConfig';
+import { contractReviewApi } from './contractReview';
 import {
   User,
   Template,
@@ -433,53 +434,39 @@ const api: ApiClient = {
   updateCategory: (id: number, data: Partial<CategoryCreateRequest>) => axiosInstance.put(`/categories/${id}`, data),
   deleteCategory: (id: number) => axiosInstance.delete(`/categories/${id}`),
 
-  // --- 新合同审查接口（完全替换旧的） ---
-  uploadContract: (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    // 不手动设置 Content-Type，让浏览器/axios 自动加上 boundary
-    return axiosInstance.post('/contract/upload', formData);
-  },
+  // --- 合同审查接口（委托给 contractReviewApi）---
+  // TODO: 逐步迁移到直接使用 contractReviewApi，这里保留向后兼容
+  uploadContract: (file: File) => contractReviewApi.uploadContract(file),
 
   extractContractMetadata: (contractId: number) =>
-    axiosInstance.post(`/contract/${contractId}/extract-metadata`),
+    contractReviewApi.extractMetadata(contractId),
 
   startDeepReview: (contractId: number, stance: string, metadata?: any, enableCustomRules: boolean = false) =>
-    axiosInstance.post(`/contract/${contractId}/deep-review`, {
+    contractReviewApi.startDeepReview(contractId, {
       stance,
       updated_metadata: metadata,
       enable_custom_rules: enableCustomRules
     }),
 
   getReviewResults: (contractId: number) =>
-    axiosInstance.get(`/contract/${contractId}/review-results`),
+    contractReviewApi.getReviewResults(contractId),
 
   // --- 审查意见编辑与修订 ---
   updateReviewItem: (itemId: number, data: { explanation: string; suggestion: string }) =>
-    axiosInstance.put(`/contract/review-items/${itemId}`, data),
+    contractReviewApi.updateReviewItem(itemId, data),
 
   applyRevisions: (contractId: number, reviewItemIds: number[], autoApply: boolean = false) =>
-    axiosInstance.post(`/contract/${contractId}/apply-revisions`, {
-      review_item_ids: reviewItemIds,
-      auto_apply: autoApply
-    }),
+    contractReviewApi.applyRevisions(contractId, reviewItemIds, autoApply),
 
   getRevisionConfig: (contractId: number) =>
-    axiosInstance.get(`/contract/${contractId}/revision-config`),
+    contractReviewApi.getRevisionConfig(contractId),
 
-  downloadContract: async (contractId: number, docType: 'original' | 'revised') => {
-    const endpoint = docType === 'revised'
-      ? `/contract/${contractId}/download-revised`
-      : `/contract/${contractId}/download`;
-    const response = await axiosInstance.get(endpoint, {
-      responseType: 'blob'
-    });
-    return response.data;
-  },
+  downloadContract: (contractId: number, docType: 'original' | 'revised') =>
+    contractReviewApi.downloadContract(contractId, docType),
 
-  // --- 合同健康度评估（新增）---
+  // --- 合同健康度评估 ---
   getHealthAssessment: (contractId: number) =>
-    axiosInstance.get(`/contract/${contractId}/health-assessment`),
+    contractReviewApi.getHealthAssessment(contractId),
 
   // --- 合同生成接口实现 ---
   analyzeRequirement: (data: ContractGenerationAnalyzeRequest) =>
@@ -550,17 +537,17 @@ const api: ApiClient = {
   getContractGenerationTaskDetail: (taskId: string) =>
     axiosInstance.get(`/contract-generation/tasks/${taskId}`),
 
-  // --- 文档预览接口 ---
+  // --- 文档预览接口（已统一到 /api/v1/document-generation）---
   getDocumentPreviewConfig: (filename: string) =>
-    axiosInstance.get(`/document/preview/by-filename/${filename}`),
+    axiosInstance.get(`/document-generation/preview/by-filename/${filename}`),
 
-  // --- 法律咨询接口实现 ---
+  // --- 智能咨询接口实现（已统一到 /api/v1/consultation）---
   submitLegalQuestion: (data: ConsultationRequest) =>
     axiosInstance.post('/consultation', data),
 
-  // --- 费用计算接口实现 ---
+  // --- 费用计算接口实现（已统一到 /api/v1/cost-calculation）---
   calculateCost: (data: any) =>
-    axiosInstance.post('/cost-calculation', data),
+    axiosInstance.post('/cost-calculation/', data),
 
   // --- 费用计算 V2 接口实现（新增：支持资料上传和信息提取）---
   uploadCostCalcDocuments: (formData: FormData) =>
@@ -584,7 +571,7 @@ const api: ApiClient = {
   },
 
   startRiskAnalysis: (sessionId: string) =>
-    axiosInstance.post(`/risk-analysis-v2/start/${sessionId}`),
+    axiosInstance.post(`/risk-analysis/start/${sessionId}`),
 
   getRiskAnalysisStatus: (sessionId: string) =>
     axiosInstance.get(`/risk-analysis/status/${sessionId}`),
@@ -618,9 +605,9 @@ const api: ApiClient = {
   delete: <T = any>(url: string, config?: AxiosRequestConfig) => axiosInstance.delete(url, config)
 };
 
-// ==================== 法律咨询文件上传相关API ====================
+// ==================== 智能咨询文件上传相关API ====================
 
-// 上传文件用于法律咨询
+// 上传文件用于智能咨询
 export const uploadConsultationFile = async (file: File): Promise<ConsultationFileUploadResponse> => {
   const formData = new FormData();
   formData.append('file', file);
@@ -641,7 +628,7 @@ export const deleteConsultationFile = async (fileId: string): Promise<{ message:
   return response.data;
 };
 
-// 法律咨询（使用 axiosInstance）
+// 智能咨询（使用 axiosInstance）
 export const consultLaw = async (data: ConsultationRequest): Promise<ConsultationResponse> => {
   // 智能咨询可能需要较长时间（文件分析、LLM调用），设置5分钟超时
   const response = await axiosInstance.post('/consultation', data, {

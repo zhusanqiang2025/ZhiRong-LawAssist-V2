@@ -130,6 +130,10 @@ class ContractGenerationState(TypedDict):
     # 【新增】Step 2 确认的变更/解除信息（用于简化流程）
     confirmed_modification_termination_info: Optional[Dict[str, Any]]
 
+    # 【新增】标记当前请求是否包含用户确认过的规划
+    # 用于区分"生成规划"和"基于已有规划生成合同"两种场景
+    is_plan_confirmed: Optional[bool]         # true=基于确认的规划生成，false=仅生成规划
+
 
 # ==================== 节点函数 ====================
 
@@ -469,11 +473,15 @@ async def draft_termination_agreement(state: ContractGenerationState) -> Contrac
     llm = _get_llm()
     drafter = ContractDrafterAgent(llm)
 
+    # 【修复】安全访问 analysis_result，防止 None 崩溃
+    analysis_result = state.get("analysis_result") or {}
+    key_info = analysis_result.get("key_info") or {}
+
     content = drafter.draft_termination(
         state.get("original_contract", {}).get("content", ""),
-        state["analysis_result"].get("key_info", {}).get("termination_reason", ""),
-        state["analysis_result"].get("key_info", {}).get("post_termination", {}),
-        user_requirements=state["user_input"]
+        key_info.get("termination_reason", ""),
+        key_info.get("post_termination") or {},
+        user_requirements=state.get("user_input") or ""
     )
 
     state["drafted_content"] = content
@@ -594,12 +602,14 @@ async def draft_single_contract(state: ContractGenerationState) -> ContractGener
     # 模式 A: 基于模板生成
     if template_content:
         logger.info("模式：基于本地 Markdown 模板生成")
+        # 【修复】确保传递的 analysis_result 不为 None
+        safe_analysis_result = state.get("analysis_result") or {}
         content, template_info = drafter._draft_with_template_new(
-            analysis_result=state["analysis_result"],
+            analysis_result=safe_analysis_result,
             template_content=template_content,
             strategy=strategy,
             reference_content=reference_content,
-            knowledge_graph_features=knowledge_graph_features
+            knowledge_graph_features=knowledge_graph_features or {}
         )
     # 模式 B: 无模板纯生成（✨ 支持两阶段生成）
     else:
@@ -616,8 +626,10 @@ async def draft_single_contract(state: ContractGenerationState) -> ContractGener
                 two_stage_drafter = get_two_stage_drafter()
 
                 # 构建表单数据（从 analysis_result 中提取）
+                # 【修复】安全访问 analysis_result，防止 None 崩溃
                 form_data = {}
-                key_info = state.get("analysis_result", {}).get("key_info", {})
+                analysis_result = state.get("analysis_result") or {}
+                key_info = analysis_result.get("key_info") or {}
                 if key_info:
                     # 将 key_info 转换为表单格式
                     for key, value in key_info.items():
@@ -625,10 +637,16 @@ async def draft_single_contract(state: ContractGenerationState) -> ContractGener
                             form_data[key] = value
 
                 # 两阶段生成
+                # 【修复】确保传入的参数不为 None
+                # 【核心修复】确保 knowledge_graph_features 格式正确，legal_features 兜底为空字典
+                safe_kg_features = knowledge_graph_features or {}
+                if not safe_kg_features.get("legal_features"):
+                    safe_kg_features["legal_features"] = {}  # 兜底为空字典
+
                 content = two_stage_drafter.draft_with_two_stages(
-                    analysis_result=state["analysis_result"],
-                    knowledge_graph_features=knowledge_graph_features,
-                    user_input=state["user_input"],
+                    analysis_result=analysis_result,
+                    knowledge_graph_features=safe_kg_features,
+                    user_input=state.get("user_input") or "",
                     form_data=form_data
                 )
 
@@ -638,24 +656,33 @@ async def draft_single_contract(state: ContractGenerationState) -> ContractGener
                 logger.error(f"[Workflow] 两阶段生成失败: {e}，降级到单次生成", exc_info=True)
                 # 降级到单次生成
                 logger.info("模式：无模板纯生成（降级）")
+                # 【修复】确保传入的参数不为 None
+                safe_analysis_result = state.get("analysis_result") or {}
                 content = drafter.draft_from_scratch(
-                    analysis_result=state["analysis_result"],
+                    analysis_result=safe_analysis_result,
                     reference_content=reference_content,
                     strategy=strategy,
-                    knowledge_graph_features=knowledge_graph_features
+                    knowledge_graph_features=knowledge_graph_features or {}
                 )
         else:
             logger.info("模式：无模板纯生成（单次）")
+            # 【修复】确保传入的参数不为 None
+            safe_analysis_result = state.get("analysis_result") or {}
             content = drafter.draft_from_scratch(
-                analysis_result=state["analysis_result"],
+                analysis_result=safe_analysis_result,
                 reference_content=reference_content,
                 strategy=strategy,
-                knowledge_graph_features=knowledge_graph_features
+                knowledge_graph_features=knowledge_graph_features or {}
             )
+
+    # 【修复】安全访问合同类型
+    safe_analysis_result = state.get("analysis_result") or {}
+    safe_key_info = safe_analysis_result.get("key_info") or {}
+    contract_type = safe_key_info.get("contract_type") or "合同"
 
     contract_data = {
         "content": content,
-        "filename": f"{state['analysis_result'].get('key_info', {}).get('contract_type', '合同')}.docx",
+        "filename": f"{contract_type}.docx",
         "file_generated": False,
         "docx_path": "",
         "pdf_path": "",
@@ -962,6 +989,29 @@ def should_continue_planning(state: ContractGenerationState) -> str:
         return "done"
 
 
+def should_generate_from_plan_or_end(state: ContractGenerationState) -> str:
+    """
+    决策：规划完成后是否直接生成合同
+
+    - 如果 is_plan_confirmed=True，则进入生成流程
+    - 否则直接结束，等待用户确认
+
+    Args:
+        state: 当前工作流状态
+
+    Returns:
+        str: "generate" 或 "done"
+    """
+    is_confirmed = state.get("is_plan_confirmed", False)
+
+    if is_confirmed:
+        logger.info("[Workflow] 规划已确认，开始生成合同")
+        return "generate"
+    else:
+        logger.info("[Workflow] 规划完成，等待用户确认")
+        return "done"
+
+
 # ==================== 工作流构建 ====================
 
 def build_workflow() -> StateGraph:
@@ -1045,12 +1095,25 @@ def build_workflow() -> StateGraph:
     # 【新增】简化版单节点直接结束
     workflow.add_edge("generate_modification_termination_simple", END)
 
-    # 【修正】路由 5: 规划流程
-    # 单模型规划 -> 起草节点
-    workflow.add_edge("plan_contracts", "generate_from_plan")
+    # 【修正】路由 5: 规划流程（第一阶段：生成规划）
+    # 【修改】规划完成后直接结束，等待用户确认
+    workflow.add_conditional_edges(
+        "plan_contracts",
+        should_generate_from_plan_or_end,
+        {
+            "generate": "generate_from_plan",  # 仅在用户确认后才生成
+            "done": END  # 默认：规划完成后停止
+        }
+    )
 
-    # 多模型规划 -> 起草节点
-    workflow.add_edge("plan_contracts_multi", "generate_from_plan")
+    workflow.add_conditional_edges(
+        "plan_contracts_multi",
+        should_generate_from_plan_or_end,
+        {
+            "generate": "generate_from_plan",
+            "done": END
+        }
+    )
 
     # 循环控制：继续起草或结束
     workflow.add_conditional_edges(
@@ -1086,7 +1149,9 @@ async def generate_contract_simple(
     # 【新增】是否跳过模板匹配（不用模板时为 true）
     skip_template: Optional[bool] = False,
     # 【新增】Step 2 确认的变更/解除信息
-    confirmed_modification_termination_info: Optional[Dict[str, Any]] = None
+    confirmed_modification_termination_info: Optional[Dict[str, Any]] = None,
+    # 【新增】支持基于已有规划生成合同
+    contract_plan: Optional[List[Dict]] = None
 ) -> Dict[str, Any]:
     """
     合同生成 API 入口
@@ -1098,6 +1163,7 @@ async def generate_contract_simple(
         planning_mode: 规划模式（"single_model" 或 "multi_model"）
         skip_template: 是否跳过模板匹配（默认 false）
         confirmed_modification_termination_info: Step 2 确认的变更/解除信息（可选）
+        contract_plan: 已确认的合同规划（可选，用于第二阶段生成）
 
     Returns:
         Dict: 生成结果
@@ -1132,8 +1198,18 @@ async def generate_contract_simple(
             # 【新增】多模型融合报告
             "multi_model_synthesis_report": None,
             # 【新增】Step 2 确认的变更/解除信息
-            "confirmed_modification_termination_info": confirmed_modification_termination_info
+            "confirmed_modification_termination_info": confirmed_modification_termination_info,
+            # 【新增】标记当前请求是否包含用户确认过的规划
+            "is_plan_confirmed": False
         }
+
+        # 【新增】如果传入了 contract_plan，表示基于已有规划生成合同
+        if contract_plan:
+            initial_state["contract_plan"] = contract_plan
+            initial_state["is_plan_confirmed"] = True
+            logger.info(f"[Workflow] 基于已有规划生成，合同数量: {len(contract_plan)}")
+        else:
+            initial_state["is_plan_confirmed"] = False
 
         workflow = get_contract_workflow()
 
@@ -1339,6 +1415,25 @@ async def analyze_and_get_clarification_form(
                 "success": True,
                 "processing_type": "contract_planning",
                 "requirement_type": "contract_planning",
+                # 【新增】要求用户选择规划模式
+                "requires_user_choice": True,
+                "user_choice_options": {
+                    "title": "检测到您的需求属于合同规划场景",
+                    "description": "系统将为您规划一个完整的合同架构，包含多份相关合同。请选择规划模式：",
+                    "options": [
+                        {
+                            "value": "single_model",
+                            "label": "单模型快速规划",
+                            "description": "使用单个 AI 模型快速生成规划方案"
+                        },
+                        {
+                            "value": "multi_model",
+                            "label": "多模型综合规划",
+                            "description": "使用多个 AI 模型从不同专业视角分析，生成更全面的规划方案"
+                        }
+                    ],
+                    "default": planning_mode or "single_model"
+                },
                 "clarification_form": {
                     "questions": [
                         {

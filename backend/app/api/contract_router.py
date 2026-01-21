@@ -25,7 +25,6 @@ from app.api.deps import get_current_user
 logger = logging.getLogger(__name__)
 
 router = APIRouter(
-    prefix="/api/contract",
     tags=["Contract Review System"]
 )
 
@@ -640,7 +639,7 @@ def get_onlyoffice_config(contract_id: int, db: Session = Depends(get_db)):
     # OnlyOffice 服务器需要使用内部地址访问后端（Docker 网络内部）
     backend_internal_url = "http://backend:8000"
     file_url = f"{backend_internal_url}/storage/uploads/{os.path.basename(contract.original_file_path)}"
-    callback_url = f"{backend_internal_url}/api/contract/{contract.id}/callback"
+    callback_url = f"{backend_internal_url}/api/v1/contract-review/{contract.id}/callback"
 
     config = {
         "document": {

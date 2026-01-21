@@ -1,7 +1,7 @@
 // frontend/src/pages/ContractReviewHistory.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api';
+import { contractReviewApi } from '../api/contractReview';
 import { Table, Tag, Button, Space, Popconfirm, message, Card, Tooltip, Badge } from 'antd';
 import {
   EyeOutlined,
@@ -46,15 +46,12 @@ const ContractReviewHistory: React.FC = () => {
   const fetchTasks = async (page: number = 1, pageSize: number = 20) => {
     setLoading(true);
     try {
-      const params: any = {
+      const response = await contractReviewApi.getReviewTasks({
+        page,
         skip: (page - 1) * pageSize,
-        limit: pageSize
-      };
-      if (statusFilter) {
-        params.status = statusFilter;
-      }
-
-      const response = await api.get('/contract/review-tasks', { params });
+        limit: pageSize,
+        status: statusFilter
+      });
       setTasks(response.data);
       setPagination(prev => ({ ...prev, current: page, pageSize }));
     } catch (error: any) {
@@ -77,7 +74,7 @@ const ContractReviewHistory: React.FC = () => {
   // 暂停任务
   const handlePause = async (taskId: number) => {
     try {
-      await api.put(`/contract/review-tasks/${taskId}/pause`);
+      await contractReviewApi.pauseTask(String(taskId));
       message.success('任务已暂停');
       fetchTasks(pagination.current, pagination.pageSize);
     } catch (error: any) {
@@ -89,7 +86,7 @@ const ContractReviewHistory: React.FC = () => {
   // 恢复任务
   const handleResume = async (taskId: number) => {
     try {
-      await api.put(`/contract/review-tasks/${taskId}/resume`);
+      await contractReviewApi.resumeTask(String(taskId));
       message.success('任务已恢复');
       fetchTasks(pagination.current, pagination.pageSize);
     } catch (error: any) {
@@ -101,7 +98,7 @@ const ContractReviewHistory: React.FC = () => {
   // 删除任务
   const handleDelete = async (taskId: number) => {
     try {
-      await api.delete(`/contract/review-tasks/${taskId}`);
+      await contractReviewApi.deleteTask(String(taskId));
       message.success('任务已删除');
       fetchTasks(pagination.current, pagination.pageSize);
     } catch (error: any) {

@@ -515,9 +515,24 @@ async def assistant_node(state: ConsultationState) -> ConsultationState:
     llm = get_assistant_llm()
 
     # 构建消息
+    # 人类消息：客户咨询问题
+    human_content = f"客户咨询问题：\n\n{question}"
+
+    # 【新增】追加文件预读内容（如果有）
+    file_preview = context.get("file_preview_text")
+    if file_preview and file_preview.strip():
+        human_content += f"""
+
+---
+**📎 客户上传的文件内容**：
+{file_preview}
+---
+"""
+        logger.info(f"[律师助理节点] 文件预读内容长度：{len(file_preview)} 字符")
+
     messages = [
         SystemMessage(content=ASSISTANT_SYSTEM_PROMPT),
-        HumanMessage(content=f"客户咨询问题：\n\n{question}\n\n请严格按照 JSON 格式输出分析结果。")
+        HumanMessage(content=f"{human_content}\n\n请严格按照 JSON 格式输出分析结果。")
     ]
 
     # 如果有上传的文件内容，添加到消息中
@@ -788,7 +803,13 @@ SPECIALIST_SYSTEM_PROMPT_TEMPLATE = """你是一位{specialist_role}，拥有15�
 
 ---
 
-## 一、问题解答
+## 一、文件情况
+
+<<<FILE_DESCRIPTION_PLACEHOLDER>>>
+
+---
+
+## 二、问题解答
 
 **【必须逐一回答用户提出的所有问题】**
 
@@ -796,7 +817,7 @@ SPECIALIST_SYSTEM_PROMPT_TEMPLATE = """你是一位{specialist_role}，拥有15�
 
 ---
 
-## 二、简要分析
+## 三、简要分析
 
 **基于事实情况的法律分析（2-3段）**：
 
@@ -806,7 +827,7 @@ SPECIALIST_SYSTEM_PROMPT_TEMPLATE = """你是一位{specialist_role}，拥有15�
 
 ---
 
-## 三、专业建议
+## 四、专业建议
 
 **具体、可操作的建议（3-5条）**：
 
@@ -818,7 +839,7 @@ SPECIALIST_SYSTEM_PROMPT_TEMPLATE = """你是一位{specialist_role}，拥有15�
 
 ---
 
-## 四、风险提示
+## 五、风险提示
 
 **主要法律风险（按严重程度排序）**：
 
@@ -1045,26 +1066,32 @@ async def specialist_node(state: ConsultationState) -> ConsultationState:
     logger.info(f"[专业律师节点] state.selected_suggested_questions = {state.get('selected_suggested_questions')}")
     logger.info(f"[专业律师节点] state keys = {list(state.keys())}")
 
-    # 【修复问题1】严格处理用户选择的问题优先级
-    # 优先使用用户选择的补充问题，如果没有则使用默认问题
-    # 关键修复：只选择一种来源，不要混合
+    # 【修复问题1】始终包含原始问题 + (用户选择 OR 推荐问题)
+    # 构建问题列表：原始问题 + (用户选择 OR 推荐问题)
+    questions_to_answer = []
+
+    # 1. 始终包含用户的原始输入（除非是"继续"等无关输入）
+    original_question = state.get("question")
+    if original_question and "继续" not in original_question and original_question.strip():
+        questions_to_answer.append(original_question)
+        logger.info(f"[专业律师节点] 添加原始问题: {original_question[:50]}...")
+
+    # 2. 追加补充问题（优先用户选择，其次 AI 推荐）
     selected_questions = state.get("selected_suggested_questions")
-
     if selected_questions and len(selected_questions) > 0:
-        # 用户选择了补充问题，只回答用户选择的问题
-        # 不使用 extend，直接替换，确保只回答用户选择的
-        questions_to_answer = selected_questions.copy()
-        logger.info(f"[专业律师节点] 使用用户选择的补充问题: {questions_to_answer}")
+        # A方案：用户有明确选择
+        for q in selected_questions:
+            if q not in questions_to_answer:  # 避免重复
+                questions_to_answer.append(q)
+        logger.info(f"[专业律师节点] 追加用户选择的 {len(selected_questions)} 个补充问题")
     elif classification.get("direct_questions"):
-        # 用户没有选择补充问题，使用默认问题
-        questions_to_answer = classification["direct_questions"].copy()
-        logger.info(f"[专业律师节点] 使用律师助理的默认问题: {questions_to_answer}")
-    else:
-        # 兜底：使用原始问题
-        questions_to_answer = [question]
-        logger.warning(f"[专业律师节点] 无问题列表，使用原始问题")
+        # B方案：用户无选择，追加 AI 推荐的核心问题
+        for q in classification["direct_questions"]:
+            if q not in questions_to_answer:  # 避免重复
+                questions_to_answer.append(q)
+        logger.info(f"[专业律师节点] 追加 AI 推荐的 {len(classification['direct_questions'])} 个问题")
 
-    logger.info(f"[专业律师节点] questions_to_answer 最终数量 = {len(questions_to_answer)}, 内容 = {questions_to_answer}")
+    logger.info(f"[专业律师节点] 最终问题列表: {len(questions_to_answer)} 个问题")
 
     # 如果有用户选择的问题，填充到系统提示词中
     if questions_to_answer:
@@ -1081,36 +1108,82 @@ async def specialist_node(state: ConsultationState) -> ConsultationState:
         system_prompt = system_prompt.replace("<<<USER_QUESTIONS_PLACEHOLDER>>>", questions_formatted)
         logger.info(f"[专业律师节点] 已填充 {len(questions_to_answer)} 个用户问题到系统提示词（增强格式）")
     else:
-        # 没有具体问题时，使用原始问题
-        questions_formatted = f"### 问题 1：{question}\n**直接回答**：\n- 明确结论\n- 法律依据\n- 简要说明"
-        system_prompt = system_prompt.replace("<<<USER_QUESTIONS_PLACEHOLDER>>>", questions_formatted)
+        # 理论上不会进入这里（因为至少有原始问题）
+        logger.warning("[专业律师节点] 无问题列表，使用兜底逻辑")
 
-    # 构建人类消息
+    # ==================== 构建文件描述 ====================
+    file_description = ""
+    document_analysis = state.get("document_analysis")
+    if document_analysis and document_analysis.get("document_summaries"):
+        # 有文件：构建文件描述
+        file_description = "客户已提供以下文件：\n\n"
+
+        # 从 context 获取文件信息（用于获取文件名和类型）
+        context = state.get("context", {})
+        uploaded_file_ids = context.get("uploaded_files", [])
+
+        # 从全局存储获取文件信息
+        from app.api.consultation_router import uploaded_files as global_uploaded_files
+        file_info_map = {}
+        if isinstance(uploaded_file_ids, list):
+            for file_id in uploaded_file_ids:
+                if isinstance(file_id, str) and file_id in global_uploaded_files:
+                    file_info_map[file_id] = global_uploaded_files[file_id]
+
+        summaries = document_analysis.get("document_summaries", {})
+
+        # 遍历所有摘要，生成文件描述
+        for file_path, summary in summaries.items():
+            # 获取文件名和类型
+            filename = "未知文件"
+            file_type = "未知类型"
+
+            # 从 file_info_map 中查找匹配的文件信息
+            for file_id, info in file_info_map.items():
+                if info.get("file_path") == file_path or file_path.endswith(info.get("filename", "")):
+                    filename = info.get("filename", "未知文件")
+                    file_type = info.get("file_type", "未知类型")
+                    break
+
+            # 限制摘要长度（300字）
+            summary_text = summary.summary
+            if len(summary_text) > 300:
+                summary_text = summary_text[:300] + "..."
+
+            file_description += f"**文件名称**: {filename}\n"
+            file_description += f"**文件类型**: {file_type}\n"
+            file_description += f"**文件摘要**: {summary_text}\n\n"
+
+        logger.info(f"[专业律师节点] 已添加 {len(summaries)} 个文件的描述")
+    else:
+        # 无文件：不添加文件描述部分
+        file_description = ""
+        logger.info("[专业律师节点] 无文件，跳过文件描述")
+
+    # 填充文件描述占位符
+    if file_description:
+        system_prompt = system_prompt.replace("<<<FILE_DESCRIPTION_PLACEHOLDER>>>", file_description)
+    else:
+        # 移除整个"一、文件情况"部分
+        system_prompt = system_prompt.replace("## 一、文件情况\n\n<<<FILE_DESCRIPTION_PLACEHOLDER>>>\n\n---\n\n", "")
+        logger.info("[专业律师节点] 无文件描述，已移除文件情况章节")
+
+    # 构建人类消息 - 简洁版本，因为问题已在 system prompt 中
     if questions_to_answer:
-        # 【修复问题2】有明确的问题列表 - 使用更显眼的格式
-        questions_summary = "\n\n" + "="*60 + "\n"
-        questions_summary += f"【客户要求逐一回答的问题清单】（共 {len(questions_to_answer)} 个问题）\n"
-        questions_summary += "="*60 + "\n\n"
-        for i, q in enumerate(questions_to_answer):
-            questions_summary += f"🔷 **问题 {i+1}**：{q}\n\n"
-        questions_summary += "="*60 + "\n"
-
-        human_content = f"""【原始客户咨询】{question}
-
-{questions_summary}
+        # 有明确的问题列表 - 使用简洁格式（问题详情已在 system prompt 中）
+        human_content = f"""【客户咨询】{original_question}
 
 {additional_context}
 
 ---
 **🚨 输出要求（严格执行）**：
-1. **必须逐一回答上述所有 {len(questions_to_answer)} 个问题，不可遗漏任何一个**
+1. **必须逐一回答上述系统提示词中的所有 {len(questions_to_answer)} 个问题，不可遗漏任何一个**
 2. 每个问题的回答应包含：直接回答 + 法律依据 + 具体建议
-3. **禁止只回答原始咨询而忽略问题清单**
-4. **建议使用清晰的标题格式，如："🔷 问题1：[问题标题]"**
+3. **建议使用清晰的标题格式，如："🔷 问题1：[问题标题]"**
 """
     else:
-        # 没有具体问题列表
-        human_content = f"客户咨询问题：{question}{additional_context}"
+        # 没有具体问题列表（兜底逻辑）
+        human_content = f"客户咨询问题：{original_question}{additional_context}"
 
     messages = [
         SystemMessage(content=system_prompt),

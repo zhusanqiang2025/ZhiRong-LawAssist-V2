@@ -208,16 +208,17 @@ class ContractIntentAnalyzer:
                     SystemMessage(content=self.system_prompt),
                     HumanMessage(content=prompt)
                 ])
+                logger.debug(f"[ContractIntentAnalyzer] structured_output 返回: {result}")
             except Exception as e:
                 # 某些模型（如 Qwen3）可能不支持 with_structured_output
                 # 使用基于 JSON 解析的降级方案
                 logger.warning(f"[ContractIntentAnalyzer] with_structured_output 失败: {e}，使用 JSON 解析降级方案")
                 result = self._parse_json_response(user_input, prompt)
 
-            # 验证结果是否有效
+            # 验证结果是否有效（with_structured_output 可能返回 None）
             if result is None:
-                logger.error("[ContractIntentAnalyzer] LLM返回None，使用基于关键词的降级识别")
-                result = self._fallback_keyword_detection(user_input)
+                logger.error("[ContractIntentAnalyzer] structured_output 返回None，使用 JSON 解析降级方案")
+                result = self._parse_json_response(user_input, prompt)
 
             # 调试日志：记录LLM原始返回
             logger.info(f"[ContractIntentAnalyzer] 意图分析完成:")
@@ -297,7 +298,12 @@ class ContractIntentAnalyzer:
             ("借款协议", "借款协议"),
             ("贷款", "借款合同"),
             ("融资", "借款合同"),
-            # 买卖类
+            # 买卖类（【修复】添加购房相关关键词）
+            ("购房", "房屋买卖合同"),
+            ("买房", "房屋买卖合同"),
+            ("房产", "房屋买卖合同"),
+            ("房子", "房屋买卖合同"),
+            ("不动产", "不动产买卖合同"),
             ("买卖", "货物买卖合同"),
             ("采购", "设备采购合同"),
             ("购买", "货物买卖合同"),
@@ -338,17 +344,19 @@ class ContractIntentAnalyzer:
                     ]
                 )
 
-        # 默认返回委托合同
-        logger.warning("[ContractIntentAnalyzer] 关键词匹配失败，使用默认合同类型")
+        # 【修复】当所有分析都失败时，使用用户输入的前15个字作为合同类型，而不是默认返回"委托合同"
+        # 这样至少能保留用户的原始意图，避免完全误判
+        user_input_prefix = user_input[:15].strip() if user_input else "合同"
+        logger.warning(f"[ContractIntentAnalyzer] 关键词匹配失败，使用用户输入前缀作为合同类型: '{user_input_prefix}'")
         return IntentResult(
-            contract_type="委托合同",
-            intent_description="无法识别具体合同类型，默认为委托合同",
-            key_elements={},
+            contract_type=user_input_prefix,
+            intent_description=f"未能识别具体合同类型，使用用户描述: {user_input_prefix}",
+            key_elements={"用户原始输入": user_input},
             confidence=0.3,
             needs_clarification=True,
             clarification_questions=[
-                "请提供更详细的合同需求描述，以便我们识别正确的合同类型",
-                "例如：您需要什么类型的合同？（借款、买卖、委托、租赁等）"
+                f"系统识别您的需求可能与'{user_input_prefix}'相关，请确认合同类型",
+                "请补充合同的详细信息（当事人、标的、价格、期限等）"
             ]
         )
 
@@ -368,29 +376,66 @@ class ContractIntentAnalyzer:
 
             # 提取响应内容
             response_text = response.content if hasattr(response, 'content') else str(response)
+            logger.debug(f"[ContractIntentAnalyzer] LLM 原始响应: {response_text[:500]}...")
 
             # 尝试提取 JSON（处理可能的前后缀文本）
             import json
             import re
 
-            # 查找 JSON 对象
-            json_match = re.search(r'\{[^{}]*\{.*\}[^{}]*\}|\{[^{}]+\}', response_text, re.DOTALL)
-            if json_match:
-                json_str = json_match.group(0)
-            else:
-                # 如果没找到嵌套的 JSON，尝试提取整个 JSON 对象
-                json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-                if json_match:
-                    json_str = json_match.group(0)
+            # 策略1: 查找 ```json 代码块
+            if "```json" in response_text:
+                match = re.search(r'```json\s*(.*?)\s*```', response_text, re.DOTALL)
+                if match:
+                    json_str = match.group(1).strip()
+                    logger.debug(f"[ContractIntentAnalyzer] 从 ```json 代码块提取 JSON")
                 else:
-                    raise ValueError("无法从响应中提取 JSON")
+                    json_str = None
+            elif "```" in response_text:
+                # 策略2: 查找普通 ``` 代码块
+                match = re.search(r'```\s*(.*?)\s*```', response_text, re.DOTALL)
+                if match:
+                    json_str = match.group(1).strip()
+                    logger.debug(f"[ContractIntentAnalyzer] 从 ``` 代码块提取 JSON")
+                else:
+                    json_str = None
+            else:
+                # 策略3: 查找最外层的 {}（支持嵌套）
+                start = response_text.find('{')
+                if start != -1:
+                    # 使用栈来匹配嵌套的 {}
+                    stack = []
+                    for i in range(start, len(response_text)):
+                        if response_text[i] == '{':
+                            stack.append(i)
+                        elif response_text[i] == '}':
+                            if stack:
+                                stack.pop()
+                            if not stack:
+                                json_str = response_text[start:i+1]
+                                logger.debug(f"[ContractIntentAnalyzer] 从裸 JSON 提取")
+                                break
+                    else:
+                        # 没有找到闭合的 }
+                        json_str = None
+                else:
+                    json_str = None
+
+            if not json_str:
+                raise ValueError("无法从响应中提取 JSON")
+
+            logger.debug(f"[ContractIntentAnalyzer] 提取的 JSON 字符串: {json_str[:200]}...")
 
             # 解析 JSON
             data = json.loads(json_str)
 
+            # 验证必需字段
+            contract_type = data.get("contract_type", "")
+            if not contract_type:
+                raise ValueError("JSON 中缺少 contract_type 字段")
+
             # 创建 IntentResult 对象
             result = IntentResult(
-                contract_type=data.get("contract_type", "委托合同"),
+                contract_type=contract_type,
                 intent_description=data.get("intent_description", "基于LLM分析"),
                 key_elements=data.get("key_elements", {}),
                 confidence=float(data.get("confidence", 0.7)),

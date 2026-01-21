@@ -650,3 +650,83 @@ async def download_analysis_report(
         filename=filename,
         media_type=media_type
     )
+
+
+@router.get("/sessions")
+async def list_litigation_sessions(
+    status: Optional[str] = Query(None, description="状态过滤: pending, processing, completed, failed"),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    """
+    获取当前用户的案件分析会话列表
+
+    参考风险评估模块的实现，支持状态过滤和分页
+    """
+    # 基础查询：过滤当前用户
+    base_query = db.query(LitigationAnalysisSession).filter(
+        LitigationAnalysisSession.user_id == current_user.id
+    )
+
+    # 状态过滤
+    query = base_query
+    if status:
+        query = query.filter(LitigationAnalysisSession.status == status)
+
+    # 按创建时间倒序
+    query = query.order_by(LitigationAnalysisSession.created_at.desc())
+
+    # 分页
+    total = query.count()
+    sessions = query.limit(limit).offset(offset).all()
+
+    # 统计计数
+    completed_count = base_query.filter(LitigationAnalysisSession.status == "completed").count()
+    incomplete_count = total - completed_count
+
+    # 构造返回数据（与风险评估模块保持一致的格式）
+    return {
+        "sessions": [
+            {
+                "session_id": s.session_id,
+                "title": s.user_input or s.case_summary or f"{s.case_type}案件分析",
+                "status": s.status,
+                "created_at": s.created_at.isoformat() if s.created_at else None,
+                "completed_at": s.completed_at.isoformat() if s.completed_at else None,
+                "case_type": s.case_type,
+                "case_position": s.case_position,
+                "is_completed": s.status == "completed"
+            }
+            for s in sessions
+        ],
+        "total": total,
+        "incomplete_count": incomplete_count,
+        "completed_count": completed_count
+    }
+
+
+@router.delete("/sessions/{session_id}")
+async def delete_litigation_session(
+    session_id: str,
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user)
+):
+    """
+    删除案件分析会话
+
+    参考风险评估模块的删除接口实现
+    """
+    session = db.query(LitigationAnalysisSession).filter(
+        LitigationAnalysisSession.session_id == session_id,
+        LitigationAnalysisSession.user_id == current_user.id
+    ).first()
+
+    if not session:
+        raise HTTPException(status_code=404, detail="会话不存在")
+
+    db.delete(session)
+    db.commit()
+
+    return {"message": "会话已删除"}

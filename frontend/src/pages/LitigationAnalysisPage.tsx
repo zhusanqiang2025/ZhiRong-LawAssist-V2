@@ -64,7 +64,8 @@ import LitigationAnalysisHistorySidebar from '../components/LitigationAnalysisHi
 import { caseTypeOptions, positionOptions, getPackageIdByCaseType } from '../config/litigationConfig';
 import { ANALYSIS_GOAL_OPTIONS } from '../types/litigationAnalysis';
 import { caseAnalysisApi } from '../api/litigationAnalysis';
-import { getWsBaseUrl, getApiBaseUrl } from '../utils/apiConfig';
+import { getWsBaseUrl } from '../utils/apiConfig';
+import { axiosInstance } from '../api/index';
 import type {
   LitigationAnalysisResult,
   LitigationPreorganizationResult,
@@ -457,16 +458,13 @@ const LitigationAnalysisPage: React.FC = () => {
     }, 2000); // 每2秒增加5%
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/litigation-analysis/preorganize`, {
-        method: 'POST',
-        body: formData
+      const response = await axiosInstance.post('/litigation-analysis/preorganize', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       clearInterval(progressInterval);
 
-      if (!response.ok) throw new Error('预整理失败');
-
-      const result = await response.json(); // 注意：这里返回的是包含 enhanced_analysis_compatible 的大对象
+      const result = response.data;
 
       setPreorganizeProgress(90);
       setPreorganizeStatusText('正在整理分析结果...');

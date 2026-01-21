@@ -1,8 +1,10 @@
 # backend/app/api/v1/endpoints/tasks.py
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
 from datetime import datetime
+import asyncio
+import logging
 
 from app.api.deps import get_current_user, get_db
 from app.crud import task as crud_task
@@ -17,6 +19,7 @@ except ImportError:
     celery_app = None
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post("/create")
@@ -699,3 +702,111 @@ def _extract_session_progress(session) -> int:
         return 0
     else:
         return 0
+
+
+# ==================== WebSocket 端点 ====================
+
+from app.api.websocket import manager
+from app.core.security import get_current_user_websocket
+
+
+@router.websocket("/ws/{task_id}")
+async def websocket_task_endpoint(
+    websocket: WebSocket,
+    task_id: str,
+    token: str = Query(None, description="JWT认证token")
+):
+    """
+    WebSocket任务进度端点
+
+    鉴权方式：通过 URL Query 参数传递 token
+
+    重要：必须先调用 manager.connect() (内部调用 websocket.accept())，
+    然后才能进行 token 验证，否则 FastAPI 会返回 403。
+    """
+    # 1. 必须先接受连接（避免 403）
+    await manager.connect(websocket, task_id)
+
+    # 2. 验证 token（accept 后才能验证）
+    if not token:
+        logger.warning(f"[WebSocket] Token 为空: task_id={task_id}")
+        await websocket.send_json({"type": "error", "message": "Missing authentication token"})
+        await websocket.close(code=1008, reason="Missing authentication token")
+        return
+
+    # 打印原始 token 信息（前 10 位）
+    token_preview = token[:10] + "..." if len(token) > 10 else token
+    logger.info(f"[WebSocket] 收到原始 token: '{token_preview}', 长度: {len(token)}")
+
+    # 处理 token 格式：移除可能的 "Bearer " 前缀
+    clean_token = token
+    if token.startswith("Bearer "):
+        clean_token = token[7:]  # 移除 "Bearer " 前缀（7个字符）
+        logger.info(f"[WebSocket] Token 包含 'Bearer ' 前缀，已清理")
+
+    # 打印清理后的 token 信息
+    clean_token_preview = clean_token[:10] + "..." if len(clean_token) > 10 else clean_token
+    logger.info(f"[WebSocket] 清理后 token: '{clean_token_preview}', 长度: {len(clean_token)}")
+
+    # 验证 token（带异常捕获）
+    try:
+        logger.info(f"[WebSocket] 开始验证 token: task_id={task_id}")
+        current_user = await get_current_user_websocket(clean_token)
+        logger.info(f"[WebSocket] Token 验证完成: user={current_user.email if current_user else 'None'}")
+    except Exception as e:
+        logger.error(f"[WebSocket] Token 验证异常: {str(e)}", exc_info=True)
+        current_user = None
+
+    if not current_user:
+        logger.error(f"[WebSocket] Token 验证失败: task_id={task_id}, token='{clean_token_preview}'")
+        await websocket.send_json({"type": "error", "message": "Invalid authentication token"})
+        await websocket.close(code=1008, reason="Invalid authentication token")
+        return
+
+    logger.info(f"WebSocket 连接建立: task_id={task_id}, user={current_user.email}")
+
+    # 3. 发送缓存的最新消息（解决时序竞态问题）
+    try:
+        latest_message = manager.get_latest_message(task_id)
+        if latest_message:
+            await websocket.send_json(latest_message)
+            logger.info(f"[CachedMessage] 发送缓存消息: task_id={task_id}")
+    except Exception as e:
+        logger.error(f"[CachedMessage] 发送缓存消息失败: {e}")
+
+    try:
+        while True:
+            try:
+                # 等待接收客户端消息（心跳、ping等），带超时
+                data = await asyncio.wait_for(websocket.receive_text(), timeout=0.5)
+
+                # 处理 ping/pong
+                if data == "ping":
+                    await websocket.send_text("pong")
+
+            except asyncio.TimeoutError:
+                # 超时是正常的，继续检查是否有进度消息
+                pass
+            except WebSocketDisconnect:
+                logger.info(f"WebSocket 正常断开: task_id={task_id}")
+                break
+            except Exception as e:
+                logger.error(f"WebSocket 接收消息错误: {e}")
+                break
+
+            # 从队列获取进度消息并发送
+            try:
+                message = await manager.get_message(task_id, timeout=0.1)
+                if message:
+                    await websocket.send_json(message)
+                    logger.info(f"发送进度消息: task_id={task_id}, type={message.get('type')}")
+            except Exception as e:
+                logger.error(f"发送消息失败: {e}")
+                break
+
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket 断开连接: task_id={task_id}")
+    except Exception as e:
+        logger.error(f"WebSocket 错误: {e}", exc_info=True)
+    finally:
+        await manager.disconnect(task_id)

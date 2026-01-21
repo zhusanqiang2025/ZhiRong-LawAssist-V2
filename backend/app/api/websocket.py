@@ -30,16 +30,21 @@ class ConnectionManager:
         # 【新增】缓存每个任务的最新进度消息（用于新连接时立即发送）
         self.latest_messages: Dict[str, dict] = {}
 
-    async def connect(self, websocket_id: str, websocket: WebSocket):
-        """接受并存储 WebSocket 连接，创建消息队列"""
+    async def connect(self, websocket: WebSocket, session_id: str):
+        """接受并存储 WebSocket 连接，创建消息队列
+
+        Args:
+            websocket: WebSocket 对象
+            session_id: 会话 ID
+        """
         await websocket.accept()
-        self.active_connections[websocket_id] = websocket
+        self.active_connections[session_id] = websocket
         # 为每个连接创建一个消息队列
-        self.message_queues[websocket_id] = asyncio.Queue()
+        self.message_queues[session_id] = asyncio.Queue()
         # 创建一个事件用于通知
-        self.queue_events[websocket_id] = asyncio.Event()
-        queue_id = id(self.message_queues[websocket_id])
-        logger.info(f"WebSocket 连接建立: {websocket_id}, 队列ID: {queue_id}")
+        self.queue_events[session_id] = asyncio.Event()
+        queue_id = id(self.message_queues[session_id])
+        logger.info(f"WebSocket 连接建立: {session_id}, 队列ID: {queue_id}")
 
     async def disconnect(self, websocket_id: str):
         """移除 WebSocket 连接和消息队列"""

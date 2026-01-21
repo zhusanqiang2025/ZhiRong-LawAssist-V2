@@ -25,7 +25,6 @@ from app.services.document_renderer import get_renderer
 logger = logging.getLogger(__name__)
 
 router = APIRouter(
-    prefix="/api/document",
     tags=["Document Generation"]
 )
 

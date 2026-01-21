@@ -31,11 +31,15 @@ class DocumentAnalysisResult:
     summary: str
     document_title: str  # 从文件内容中提取的标题
     key_dates: List[str]
+    key_facts: List[str]  # 关键法律事实
+    key_amounts: List[str]  # 关键金额信息
     parties: List[Dict[str, str]]
     claims_or_defenses: List[str]
     risk_signals: List[str]
     # 额外元数据，用于生成全景图
     extra_meta: Dict[str, Any]
+    # 原文预览（前3000字），用于下游分析
+    raw_preview: str = ""
 
 # ==================== 核心服务类 ====================
 
@@ -125,7 +129,10 @@ class EnhancedCasePreorganizationService:
                 "document_subtype": res.doc_type,
                 "risk_signals": res.risk_signals,
                 "key_dates": res.key_dates,
-                "key_parties": [p["name"] for p in res.parties]
+                "key_facts": res.key_facts,  # 新增：关键法律事实
+                "key_amounts": res.key_amounts,  # 新增：关键金额信息
+                "key_parties": [p["name"] for p in res.parties],
+                "raw_preview": res.raw_preview  # 新增：原文预览
             }
 
         final_result = {
@@ -322,6 +329,8 @@ class EnhancedCasePreorganizationService:
     "document_title": "从文件内容中提取的文档标题，如'民事起诉状'、'仲裁裁决书'、'判决书'等（优先使用文件内容中的真实标题，而非文件名）",
     "parties": [{{"name": "主体名", "role": "申请人/被申请人/原告/被告"}}],
     "key_dates": ["YYYY-MM-DD 事件描述"],
+    "key_facts": ["关键法律事实1（如违约行为、侵权事实、合同条款等）", "关键法律事实2"],
+    "key_amounts": ["金额描述（如：合同金额100万元、欠款50万元、违约金20万元等）"],
     "claims_or_defenses": ["请求1", "抗辩1"],
     "risk_signals": ["程序瑕疵", "证据不足", "时效风险"],
     "extra_meta": {{ "key": "value" }}
@@ -332,7 +341,21 @@ class EnhancedCasePreorganizationService:
         try:
             async with self._semaphore:
                 response = await self.llm.ainvoke([HumanMessage(content=prompt)])
-                data = json.loads(self._clean_json(response.content))
+
+                # 记录原始响应用于调试
+                logger.debug(f"[{filename}] LLM 原始响应长度: {len(response.content)}")
+
+                cleaned_json = self._clean_json(response.content)
+                logger.debug(f"[{filename}] 清理后 JSON 长度: {len(cleaned_json)}")
+
+                try:
+                    data = json.loads(cleaned_json)
+                except json.JSONDecodeError as je:
+                    # JSON 解析失败，记录详细错误
+                    logger.error(f"[{filename}] JSON 解析失败: {je}")
+                    logger.error(f"[{filename}] 清理后的 JSON 前 500 字符: {cleaned_json[:500]}")
+                    # 尝试提取可能的 JSON 片段
+                    raise
 
                 return DocumentAnalysisResult(
                     file_path=doc.metadata.get("file_path", ""),
@@ -341,13 +364,16 @@ class EnhancedCasePreorganizationService:
                     summary=data.get("summary", "无法生成摘要"),
                     document_title=data.get("document_title", ""),  # 从内容提取的标题
                     key_dates=data.get("key_dates", []),
+                    key_facts=data.get("key_facts", []),  # 新增：关键法律事实
+                    key_amounts=data.get("key_amounts", []),  # 新增：关键金额信息
                     parties=data.get("parties", []),
                     claims_or_defenses=data.get("claims_or_defenses", []),
                     risk_signals=data.get("risk_signals", []),
-                    extra_meta=data.get("extra_meta", {})
+                    extra_meta=data.get("extra_meta", {}),
+                    raw_preview=content[:3000]  # 新增：保存前3000字原文用于下游分析
                 )
         except Exception as e:
-            logger.error(f"文档分析失败 {filename}: {e}")
+            logger.error(f"文档分析失败 {filename}: {e}", exc_info=True)
             return DocumentAnalysisResult(
                 file_path=doc.metadata.get("file_path", ""),
                 file_name=filename,
@@ -355,10 +381,13 @@ class EnhancedCasePreorganizationService:
                 summary=f"自动分析失败: {filename}",
                 document_title="",  # 失败时使用空标题
                 key_dates=[],
+                key_facts=[],  # 新增
+                key_amounts=[],  # 新增
                 parties=[],
                 claims_or_defenses=[],
                 risk_signals=[],
-                extra_meta={}
+                extra_meta={},
+                raw_preview=content[:3000]  # 新增：即使分析失败也保存原文
             )
 
     # ==================== 3. 案件全景生成 (整合层) ====================
@@ -475,7 +504,7 @@ class EnhancedCasePreorganizationService:
         return relationships
 
     def _clean_json(self, text: str) -> str:
-        """清理 LLM 返回的 JSON 文本"""
+        """清理 LLM 返回的 JSON 文本（增强版）"""
         if not text:
             return "{}"
 
@@ -491,11 +520,31 @@ class EnhancedCasePreorganizationService:
             start = text.find('{')
             end = text.rfind('}')
             if start != -1 and end != -1 and end > start:
-                return text[start:end+1]
-        except Exception:
-            pass
+                text = text[start:end+1]
 
-        return text
+            # 修复常见的 JSON 格式问题
+            # 1. 修复未转义的反斜杠
+            text = text.replace('\\', '\\\\')
+
+            # 2. 移除可能的注释（虽然 JSON 不支持注释，但 LLM 可能会添加）
+            text = re.sub(r'//.*?\n', '\n', text)
+            text = re.sub(r'/\*.*?\*/', '', text, flags=re.DOTALL)
+
+            # 3. 修复尾随逗号（如 {"a": 1,} -> {"a": 1}）
+            text = re.sub(r',\s*([}\]])', r'\1', text)
+
+            # 4. 移除控制字符
+            text = ''.join(char for char in text if ord(char) >= 32 or char in '\n\r\t')
+
+            return text
+        except Exception as e:
+            logger.warning(f"[JSON清理] 清理失败: {e}, 返回原始内容")
+            # 如果清理失败，至少尝试提取原始的 JSON 部分
+            start = text.find('{')
+            end = text.rfind('}')
+            if start != -1 and end != -1 and end > start:
+                return text[start:end+1]
+            return text
 
 # 工厂函数
 def get_enhanced_case_preorganization_service(llm_service) -> EnhancedCasePreorganizationService:

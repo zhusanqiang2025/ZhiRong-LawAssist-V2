@@ -145,8 +145,9 @@ class TwoStageContractDrafter:
         Returns:
             Dict: 框架结构 (JSON)
         """
-        # 提取关键信息
-        legal_features = knowledge_graph_features.get("legal_features", {})
+        # 🔥 核心修复：确保 knowledge_graph_features 和 legal_features 绝对不为 None
+        kg_features = knowledge_graph_features or {}
+        legal_features = kg_features.get("legal_features") or {}
 
         # 构建提示词
         prompt = f"""## 用户需求
@@ -271,10 +272,13 @@ class TwoStageContractDrafter:
         使用 DeepSeek-R1-0528 基于框架填充每个章节的具体条款内容
         **增强逻辑：上下文感知注入**
         """
+        # 🔥 核心修复：确保 knowledge_graph_features 和 legal_features 绝对不为 None
+        kg_features = knowledge_graph_features or {}
+        legal_features = kg_features.get("legal_features") or {}
+
         chapters = framework.get("chapters", [])
         contract_title = framework.get("title", "合同")
         defined_terms = framework.get("defined_terms", {})  # 获取框架预设的术语
-        legal_features = knowledge_graph_features.get("legal_features", {})
 
         # 构建合同内容容器
         content_parts = [f"# {contract_title}\n"]

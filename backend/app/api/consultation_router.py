@@ -1,7 +1,7 @@
 # backend/app/api/consultation_router.py
 """
-法律咨询 API 路由
-提供法律咨询文件上传和咨询服务
+智能咨询 API 路由
+提供智能咨询文件上传和咨询服务
 """
 
 from fastapi import APIRouter, File, UploadFile, HTTPException
@@ -12,7 +12,7 @@ import os
 import asyncio
 import logging
 
-router = APIRouter(prefix="/api/consultation", tags=["法律咨询"])
+router = APIRouter(tags=["Intelligent Consultation"])
 logger = logging.getLogger(__name__)
 
 # 模拟数据库存储
@@ -287,6 +287,27 @@ async def legal_consultation(request: ConsultationRequest):
 
     logger.info(f"[API] 会话管理: session_id={session_id}, is_follow_up={is_follow_up}, user_confirmed={request.user_confirmed}")
 
+    # ==================== 文件预读功能 ====================
+    # 为律师助理节点预读文件内容，提升分类准确性
+    file_preview_text = ""
+    if request.uploaded_files:
+        try:
+            file_contents = []
+            for file_id in request.uploaded_files:
+                if file_id in uploaded_files:
+                    file_info = uploaded_files[file_id]
+                    if file_info.get("content"):
+                        file_contents.append(f"## 文件：{file_info['filename']}\n{file_info['content']}")
+
+            if file_contents:
+                file_preview_text = "\n\n".join(file_contents)
+                logger.info(f"[API] 文件预读成功，共 {len(file_contents)} 个文件，{len(file_preview_text)} 字符")
+            else:
+                logger.warning(f"[API] 文件预读失败：未找到文件内容")
+
+        except Exception as e:
+            logger.error(f"[API] 文件预读异常：{str(e)}")
+
     # 收集已上传文件的信息（用于AI处理）
     file_contents = []
     file_metadata = []
@@ -322,6 +343,9 @@ async def legal_consultation(request: ConsultationRequest):
         enhanced_context["uploaded_files"] = request.uploaded_files
     if file_metadata:
         enhanced_context["has_file_content"] = True
+    # 【新增】注入文件预读内容，供律师助理节点使用
+    if file_preview_text:
+        enhanced_context["file_preview_text"] = file_preview_text
 
     # 调用 LangGraph 法律咨询工作流（异步）
     try:
