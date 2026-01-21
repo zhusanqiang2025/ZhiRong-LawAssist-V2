@@ -9,61 +9,79 @@ from fastapi.requests import Request
 from fastapi.exceptions import HTTPException
 
 # =================================================================
-# 1. 🚀 强制加载环境变量 (.env)
+# 1. 🚀 强制加载环境变量
 # =================================================================
 current_dir = os.path.dirname(os.path.abspath(__file__))
 env_path = os.path.join(current_dir, ".env")
 
-print(f"🔍 正在加载环境变量文件: {env_path}")
+# 尝试加载
 load_dotenv(dotenv_path=env_path, verbose=True, override=True)
-
-# 🕵️‍♂️ 环境变量自检 (调试用)
-openai_key = os.getenv("OPENAI_API_KEY")
-deepseek_key = os.getenv("DEEPSEEK_API_KEY")
-
-print("-" * 50)
-print("🔑 密钥检查:")
-if openai_key:
-    print(f"✅ OPENAI_API_KEY: {openai_key[:5]}...******")
-else:
-    print("❌ OPENAI_API_KEY: 未找到")
-
-if deepseek_key:
-    print(f"✅ DEEPSEEK_API_KEY: {deepseek_key[:5]}...******")
-else:
-    print("❌ DEEPSEEK_API_KEY: 未找到")
-print("-" * 50)
 
 # =================================================================
 # 2. 🛠️ 修正 Python 搜索路径
 # =================================================================
-# 你的结构是 backend/app/main.py
-# 且代码里用 from app.xxx import ...
-# 所以我们需要把 'backend' 目录加入 sys.path
 backend_path = os.path.join(current_dir, "backend")
-sys.path.insert(0, backend_path) # 插入到最前面，确保优先级
-print(f"🔧 系统路径已添加: {backend_path}")
+sys.path.insert(0, backend_path)
 
 # =================================================================
-# 3. 📥 导入真实的后端应用
+# 3. 📥 导入后端应用
 # =================================================================
 try:
-    # 对应文件: backend/app/main.py
     from app.main import app
     print("✅ 成功导入 app.main")
 except ImportError as e:
     print(f"❌ 导入失败: {e}")
-    traceback.print_exc()
-    # 尝试另一种导入方式 (容错)
-    try:
-        from backend.app.main import app
-        print("✅ 成功通过 backend.app.main 导入")
-    except ImportError as e2:
-        print(f"❌ 二次导入失败: {e2}")
-        sys.exit(1)
+    # 紧急创建一个临时 app 用于报错
+    from fastapi import FastAPI
+    app = FastAPI()
 
 # =================================================================
-# 4. 🔥 全局异常捕获 (显示 500 详情)
+# 🕵️‍♂️ 新增：环境调试接口 (部署后访问这个接口查看真相)
+# =================================================================
+@app.get("/api/debug/env-check")
+async def debug_env_check():
+    """
+    这个接口用于诊断为什么读不到 API Key
+    """
+    # 1. 检查文件是否存在
+    file_exists = os.path.exists(env_path)
+    file_size = os.path.getsize(env_path) if file_exists else 0
+    
+    # 2. 读取文件前几行 (脱敏)
+    file_preview = []
+    if file_exists:
+        try:
+            with open(env_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+                for line in lines:
+                    key = line.split("=")[0].strip()
+                    if key:
+                        file_preview.append(f"{key}=****** (长度: {len(line)})")
+        except Exception as e:
+            file_preview.append(f"读取失败: {str(e)}")
+
+    # 3. 检查实际环境变量
+    openai_key = os.getenv("OPENAI_API_KEY")
+    deepseek_key = os.getenv("DEEPSEEK_API_KEY")
+
+    return {
+        "status": "debug",
+        "file_check": {
+            "path": env_path,
+            "exists": file_exists,
+            "size_bytes": file_size,
+            "content_preview": file_preview
+        },
+        "env_vars_in_memory": {
+            "OPENAI_API_KEY": "✅ 已加载" if openai_key else "❌ 未找到 (None)",
+            "DEEPSEEK_API_KEY": "✅ 已加载" if deepseek_key else "❌ 未找到 (None)",
+            "Current_Dir": current_dir,
+            "Dir_Files": os.listdir(current_dir) # 看看根目录下到底有啥
+        }
+    }
+
+# =================================================================
+# 4. 🔥 全局异常捕获
 # =================================================================
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -74,32 +92,25 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={
             "success": False,
             "message": f"服务器内部错误: {str(exc)}",
-            "tips": "请检查 simple_main.py 启动日志中的密钥检查部分",
-            "traceback": error_detail.split("\n")
+            "tips": "请访问 /api/debug/env-check 接口查看环境变量状态",
+            "timestamp": str(os.times())
         }
     )
 
 # =================================================================
-# 5. 📂 挂载静态文件 (解决 404)
+# 5. 📂 挂载静态文件
 # =================================================================
 frontend_dist_path = os.path.join(current_dir, "frontend", "dist")
-
 if os.path.exists(frontend_dist_path):
-    print(f"📂 挂载前端: {frontend_dist_path}")
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist_path, "assets")), name="assets")
-    
-    # 必须放在最后，且要避开 api 路由
     @app.get("/{full_path:path}")
     async def catch_all(full_path: str):
-        if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("openapi") or full_path.startswith("storage"):
+        if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("storage"):
             raise HTTPException(status_code=404, detail="Not Found")
         return FileResponse(os.path.join(frontend_dist_path, "index.html"))
-else:
-    print(f"⚠️ 前端目录不存在: {frontend_dist_path}")
 
 # =================================================================
 # 6. 🚀 启动
 # =================================================================
 if __name__ == "__main__":
-    print("🚀 simple_main 正在启动服务 (端口 7860)...")
     uvicorn.run(app, host="0.0.0.0", port=7860)
