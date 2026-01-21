@@ -6,7 +6,9 @@ variables:
   GIT_SSL_NO_VERIFY: 'true'
   BUILDKIT_PROGRESS: plain
   DEPLOY_SERVER_NAME: azgpu02/$CI_PROJECT_TITLE
-  DEPLOY_HTTP_PORT: 8000
+  # ⚠️ 注意：这里虽然写了8000，但容器实际监听7860。如果K8s Service配置了8000->7860转发则没问题。
+  # 如果有问题，需确认 K8s 的 Service 配置。
+  DEPLOY_HTTP_PORT: 8000 
 
 build_vendor_image:
   image: registry.cn-hangzhou.aliyuncs.com/sync/hub:docker
@@ -38,6 +40,20 @@ build_image:
     - sudo docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY_URL
   script:
     - echo "$CI_REGISTRY_IMAGE_ID"
+    
+    # 👇👇👇 【修复开始：高强度的 .env 生成逻辑】 👇👇👇
+    # 逻辑：判断 $PROJECT_ENV_FILE 是文件路径还是文本内容
+    # 如果是文件路径(-f)，直接 cp；如果是文本，用 echo 写入
+    - |
+      if [ -f "$PROJECT_ENV_FILE" ]; then
+        cp "$PROJECT_ENV_FILE" .env
+        echo "✅ Detected PROJECT_ENV_FILE as a file, copied to .env"
+      else
+        echo "$PROJECT_ENV_FILE" > .env
+        echo "✅ Detected PROJECT_ENV_FILE as text content, wrote to .env"
+      fi
+    # 👆👆👆 【修复结束】 👆👆👆
+    
     - sed -i "s/__VERSION__/${CI_COMMIT_REF_NAME}_${CI_PIPELINE_ID}/g" docker/Dockerfile
     - sudo docker build --pull --build-arg APP_VERSION="${CI_COMMIT_REF_NAME}_${CI_PIPELINE_ID}" --build-arg CI_PROJECT_TITLE="${CI_PROJECT_TITLE}" -t "$CI_REGISTRY_IMAGE_ID" . -f docker/Dockerfile
     - sudo docker push "$CI_REGISTRY_IMAGE_ID"
