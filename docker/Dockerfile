@@ -1,9 +1,10 @@
 # =================================================================
-# 路径：E:\legal_document_assistant v3\docker\Dockerfile
+# 路径：docker/Dockerfile
 # =================================================================
 
-# 1. 基础镜像
-FROM python:3.11-slim
+# 1. ✅ [必须修改] 使用华为云镜像源 (解决 timeout 问题)
+# 原来的 python:3.11-slim 在国内拉不动，必须换成下面这个长地址：
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/python:3.11-slim
 
 # 2. 接收 GitLab 传入的构建参数
 ARG APP_VERSION
@@ -12,11 +13,12 @@ ARG CI_PROJECT_TITLE
 # 3. 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
+ENV PYTHONUNBUFFERED=1
 
-# 4. 更换为国内镜像源 (加快构建速度)
+# 4. 更换 Debian 系统源 (加速 apt install)
 RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/debian.sources
 
-# 5. 安装系统依赖 (保持与 backend/Dockerfile 一致)
+# 5. 安装系统依赖
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         gcc \
@@ -32,14 +34,15 @@ RUN apt-get update && \
 # 6. 设置工作目录
 WORKDIR /app
 
-# 确保复制所有文件
+# 7. 复制所有文件
 COPY . /app/
 
-# 如果有 .env 注入逻辑 (根据之前的 .gitlab-ci.yml 修改)
-RUN if [ -n "$PROJECT_ENV_FILE" ]; then echo "$PROJECT_ENV_FILE" > .env; fi
+# 8. 安装 Python 依赖 (使用清华源加速)
+# 确保 requirements.txt 在项目根目录
+RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-# 暴露端口
+# 9. 暴露端口
 EXPOSE 7860
 
-# ✅ 修改启动命令，指向 backend 目录下的 main.py
-CMD ["python", "backend/main.py"]
+# 10. ✅ [必须修改] 启动命令指向 simple_main.py
+CMD ["python", "simple_main.py"]
