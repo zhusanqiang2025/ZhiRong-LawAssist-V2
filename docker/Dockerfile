@@ -74,6 +74,7 @@ RUN echo "=== Frontend Build Environment ===" && \
     # 1. 显式设置 VITE 环境变量
     echo "VITE_API_BASE_URL=$VITE_API_BASE_URL" && \
     echo "VITE_ONLYOFFICE_URL=$VITE_ONLYOFFICE_URL" && \
+    echo "VITE_BASE_PATH=$VITE_BASE_PATH" && \
     # 2. 强制使用 development 环境安装依赖 (确保 .bin 下的 vite 可执行)
     NODE_ENV=development npm install --legacy-peer-deps && \
     # 3. (兜底) 手动赋予二进制文件执行权限，防止 error 126
@@ -83,6 +84,8 @@ RUN echo "=== Frontend Build Environment ===" && \
     # 5. 验证构建结果
     echo "=== Checking build output ===" && \
     ls -la dist/ && \
+    echo "=== Checking index.html for asset paths ===" && \
+    grep -o 'href="/assets/[^"]*"' dist/index.html | head -5 && \
     if [ -f dist/index.html ]; then echo "✓ Build SUCCESS"; else echo "✗ Build FAILED"; exit 1; fi
 
 
