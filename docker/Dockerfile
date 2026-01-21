@@ -32,18 +32,14 @@ RUN apt-get update && \
 # 6. 设置工作目录
 WORKDIR /app
 
-# 7. 安装 Python 依赖
-# 先复制 requirements.txt
-COPY requirements.txt ./
-RUN pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple && \
-    pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+# 确保复制所有文件
+COPY . /app/
 
-# 8. 复制项目所有代码 (包括 backend 和 frontend/dist)
-COPY . .
+# 如果有 .env 注入逻辑 (根据之前的 .gitlab-ci.yml 修改)
+RUN if [ -n "$PROJECT_ENV_FILE" ]; then echo "$PROJECT_ENV_FILE" > .env; fi
 
-# 9. 暴露端口 (必须是 7860)
+# 暴露端口
 EXPOSE 7860
 
-# 10. 启动命令
-# 指向 backend/main.py，端口 7860
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "7860", "--ws-ping-interval", "20", "--ws-ping-timeout", "300"]
+# ✅ 修改启动命令，指向 backend 目录下的 main.py
+CMD ["python", "backend/main.py"]
