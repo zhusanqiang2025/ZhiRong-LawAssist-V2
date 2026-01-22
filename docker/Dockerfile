@@ -134,6 +134,17 @@ WORKDIR /app
 # 7. 复制所有文件
 COPY . /app/
 
+# 7.5. 安装 Node.js 20.x 并构建前端
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    cd /app/frontend && \
+    npm install && \
+    npm run build && \
+    cd /app && \
+    apt-get remove -y nodejs && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* /app/frontend/node_modules
+
 # 8. 安装 Python 依赖 (使用清华源加速)
 # 使用根目录的 requirements.txt，包含完整的依赖包（redis, celery, langchain 等）
 RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
