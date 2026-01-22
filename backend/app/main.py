@@ -40,6 +40,53 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ==================== 数据库初始化 ====================
+# 首先尝试连接到 PostgreSQL 默认数据库，检查目标数据库是否存在
+# 如果不存在，则创建目标数据库
+logger.info("Checking if database exists...")
+try:
+    import psycopg2
+    from urllib.parse import urlparse
+
+    # 解析 DATABASE_URL 获取连接信息
+    db_url = os.getenv("DATABASE_URL", "")
+    parsed = urlparse(db_url)
+
+    postgres_server = os.getenv("POSTGRES_SERVER", parsed.hostname)
+    postgres_port = os.getenv("POSTGRES_PORT", parsed.port or 5432)
+    postgres_user = os.getenv("POSTGRES_USER", parsed.username)
+    postgres_password = os.getenv("POSTGRES_PASSWORD", parsed.password)
+    target_database = os.getenv("POSTGRES_DB", parsed.path.lstrip('/'))
+
+    # 先连接到默认的 postgres 数据库
+    conn = psycopg2.connect(
+        host=postgres_server,
+        port=postgres_port,
+        user=postgres_user,
+        password=postgres_password,
+        database="postgres"  # 默认数据库
+    )
+    conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+    cur = conn.cursor()
+
+    # 检查目标数据库是否存在
+    cur.execute("SELECT 1 FROM pg_database WHERE datname=%s", (target_database,))
+    exists = cur.fetchone()
+
+    if not exists:
+        logger.info(f"Database '{target_database}' does not exist. Creating...")
+        cur.execute(f'CREATE DATABASE "{target_database}"')
+        logger.info(f"Database '{target_database}' created successfully.")
+    else:
+        logger.info(f"Database '{target_database}' already exists.")
+
+    cur.close()
+    conn.close()
+
+except Exception as e:
+    logger.warning(f"Could not check/create database: {e}")
+    logger.warning("Assuming database exists or will be created manually...")
+
+# 现在创建表
 logger.info("Creating database tables if they don't exist...")
 try:
     Base.metadata.create_all(bind=engine, checkfirst=True)

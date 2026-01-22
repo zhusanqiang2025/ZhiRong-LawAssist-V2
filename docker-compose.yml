@@ -82,18 +82,8 @@ services:
   celery-worker-medium:
     container_name: legal_assistant_v3_celery_worker_medium
     image: legal_document_assistantv3-backend:latest
-    env_file: .env
-    environment:
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
-      - WORKER_NAME=worker-medium
-      - ENABLE_TWO_STAGE_GENERATION=${ENABLE_TWO_STAGE_GENERATION:-true}
-      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
-      - LANGCHAIN_API_BASE_URL=${LANGCHAIN_API_BASE_URL}
-      - MODEL_NAME=${MODEL_NAME}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_API_BASE=${OPENAI_API_BASE}
+    # 不再使用 env_file，直接使用 Dockerfile 中的 ENV 配置
+    # env_file: .env
     volumes:
       - ./backend:/app:rw
       - ./storage:/app/storage:rw
@@ -169,11 +159,8 @@ services:
   celery-flower:
     container_name: legal_assistant_v3_celery_flower
     image: legal_document_assistantv3-backend:latest
-    env_file: .env
-    environment:
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
-      - FLOWER_PORT=${FLOWER_PORT:-5555}
+    # 不再使用 env_file，直接使用 Dockerfile 中的 ENV 配置
+    # env_file: .env
     ports:
       - "${FLOWER_PORT:-5556}:5555"
     depends_on:
@@ -222,32 +209,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    env_file: .env
-    environment:
-      # LangChain 合同审查专用配置
-      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
-      - LANGCHAIN_API_BASE_URL=${LANGCHAIN_API_BASE_URL}
-      - MODEL_NAME=${MODEL_NAME}
-      # OpenAI 兼容 API 配置（用于合同生成模块）
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_API_BASE=${OPENAI_API_BASE}
-      # MinerU 和 OCR 服务配置
-      - MINERU_API_URL=${MINERU_API_URL}
-      - MINERU_API_TIMEOUT=${MINERU_API_TIMEOUT:-120}
-      - MINERU_ENABLED=${MINERU_ENABLED:-false}
-      - OCR_API_URL=${OCR_API_URL}
-      - OCR_API_TIMEOUT=${OCR_API_TIMEOUT:-60}
-      - OCR_ENABLED=${OCR_ENABLED:-false}
-      # AI 文档预处理配置
-      - AI_POSTPROCESS_ENABLED=${AI_POSTPROCESS_ENABLED:-false}
-      - AI_POSTPROCESS_MODEL=${AI_POSTPROCESS_MODEL:-qwen3-vl:32b-thinking-q8_0}
-      - AI_POSTPROCESS_API_URL=${AI_POSTPROCESS_API_URL}
-      - AI_POSTPROCESS_API_KEY=${AI_POSTPROCESS_API_KEY:-}
-      - AI_POSTPROCESS_TIMEOUT=${AI_POSTPROCESS_TIMEOUT:-30}
-      - AI_POSTPROCESS_BATCH_SIZE=${AI_POSTPROCESS_BATCH_SIZE:-5}
-      - AI_POSTPROCESS_CONFIDENCE_THRESHOLD=${AI_POSTPROCESS_CONFIDENCE_THRESHOLD:-0.7}
-      - AI_POSTPROCESS_ONLY_AMBIGUOUS=${AI_POSTPROCESS_ONLY_AMBIGUOUS:-true}
-      - BACKEND_PUBLIC_URL=${BACKEND_PUBLIC_URL:-http://localhost:8000}
+    # 不再使用 env_file，直接使用 Dockerfile 中的 ENV 配置
+    # env_file: .env
     ports:
       - "${BACKEND_PORT:-9000}:8000"
     volumes:
@@ -272,8 +235,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:9000}
-        - VITE_ONLYOFFICE_URL=${VITE_ONLYOFFICE_URL:-http://localhost:8083}
+        # 生产环境：使用空字符串（相对路径），通过 nginx 代理访问后端
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-}
+        - VITE_ONLYOFFICE_URL=${VITE_ONLYOFFICE_URL:-https://legal-assistant-v3.azgpu02.azshentong.com/onlyoffice}
         - VITE_BASE_PATH=${VITE_BASE_PATH:-/}
     ports:
       - "${FRONTEND_PORT:-3001}:80"

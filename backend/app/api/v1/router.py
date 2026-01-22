@@ -38,8 +38,7 @@ api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_router.include_router(admin.router, prefix="/admin", tags=["Admin"])
 api_router.include_router(categories.router, prefix="/categories", tags=["Categories"])
 
-# ⚠️ RAG管理路由暂时禁用 - ChromaDB与当前环境(pydantic 2.x + Python 3.14)存在兼容性问题
-# 需要修复ChromaDB依赖后才能启用
+# RAG管理路由 (ChromaDB 0.6.x 已兼容 Pydantic 2.x)
 api_router.include_router(rag_management.router, prefix="/rag", tags=["RAG Management"])
 
 api_router.include_router(contract_templates.router, prefix="/contract", tags=["Contract Templates"])
