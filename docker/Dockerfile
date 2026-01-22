@@ -139,6 +139,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     cd /app/frontend && \
     npm install && \
+    chmod +x node_modules/.bin/* && \
     npm run build && \
     cd /app && \
     apt-get remove -y nodejs && \
