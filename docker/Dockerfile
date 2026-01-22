@@ -142,10 +142,13 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     npm config set registry https://registry.npmmirror.com && \
     npm ci --verbose && \
     npx vite build && \
+    # 将构建好的前端复制到后端静态文件目录
+    mkdir -p /app/backend/static/frontend && \
+    cp -r dist/* /app/backend/static/frontend/ && \
     cd /app && \
     apt-get remove -y nodejs && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* /app/frontend/node_modules
+    rm -rf /var/lib/apt/lists/* /app/frontend/node_modules /app/frontend/dist
 
 # 8. 安装 Python 依赖 (使用清华源加速)
 # 使用根目录的 requirements.txt，包含完整的依赖包（redis, celery, langchain 等）
