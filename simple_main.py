@@ -129,6 +129,15 @@ def _load_env_from_dockerfile():
 # 执行环境变量加载
 _load_env_from_dockerfile()
 
+# 🔍 调试：打印关键环境变量（用于排查问题）
+print("=" * 60)
+print("[调试] 关键环境变量检查:")
+print(f"  OPENAI_API_KEY: {'✅ 已设置' if os.getenv('OPENAI_API_KEY') else '❌ 未设置'}")
+print(f"  DEEPSEEK_API_KEY: {'✅ 已设置' if os.getenv('DEEPSEEK_API_KEY') else '❌ 未设置'}")
+print(f"  LANGCHAIN_API_KEY: {'✅ 已设置' if os.getenv('LANGCHAIN_API_KEY') else '❌ 未设置'}")
+print(f"  QWEN3_THINKING_API_KEY: {'✅ 已设置' if os.getenv('QWEN3_THINKING_API_KEY') else '❌ 未设置'}")
+print("=" * 60)
+
 # 额外：也尝试加载 .env 文件（如果存在，可以覆盖 Dockerfile 配置）
 current_dir = os.path.dirname(os.path.abspath(__file__))
 env_path = os.path.join(current_dir, ".env")
@@ -165,11 +174,12 @@ async def debug_env_check():
         "status": "debug",
         "env_source": "从 Dockerfile 配置加载（无需 .env 文件）",
         "critical_vars": {
-            "OPENAI_API_KEY": "✅ 已配置" if os.getenv("OPENAI_API_KEY") else "❌ 未配置",
-            "LANGCHAIN_API_KEY": "✅ 已配置" if os.getenv("LANGCHAIN_API_KEY") else "❌ 未配置",
-            "DEEPSEEK_API_KEY": "✅ 已配置" if os.getenv("DEEPSEEK_API_KEY") else "❌ 未配置",
+            "OPENAI_API_KEY": f"✅ 已配置 (长度: {len(os.getenv('OPENAI_API_KEY', ''))})" if os.getenv("OPENAI_API_KEY") else "❌ 未配置",
+            "LANGCHAIN_API_KEY": f"✅ 已配置 (长度: {len(os.getenv('LANGCHAIN_API_KEY', ''))})" if os.getenv("LANGCHAIN_API_KEY") else "❌ 未配置",
+            "DEEPSEEK_API_KEY": f"✅ 已配置 (长度: {len(os.getenv('DEEPSEEK_API_KEY', ''))})" if os.getenv("DEEPSEEK_API_KEY") else "❌ 未配置",
+            "QWEN3_THINKING_API_KEY": f"✅ 已配置 (长度: {len(os.getenv('QWEN3_THINKING_API_KEY', ''))})" if os.getenv("QWEN3_THINKING_API_KEY") else "❌ 未配置",
             "DATABASE_URL": f"✅ {os.getenv('DATABASE_URL', '')[:50]}..." if os.getenv("DATABASE_URL") else "❌ 未配置",
-            "REDIS_URL": "✅ 已配置" if os.getenv("REDIS_URL") else "❌ 未配置",
+            "REDIS_URL": f"✅ 已配置" if os.getenv("REDIS_URL") else "❌ 未配置",
         },
         "all_env_vars_count": len(os.environ),
         "current_dir": current_dir,
