@@ -151,6 +151,131 @@ backend_path = os.path.join(current_dir, "backend")
 sys.path.insert(0, backend_path)
 
 # =================================================================
+# 2.5 🗄️ 数据库初始化（在导入 app.main 之前执行）
+# =================================================================
+def init_database():
+    """初始化数据库和表"""
+    try:
+        import psycopg2
+        from urllib.parse import urlparse
+
+        # 解析 DATABASE_URL
+        db_url = os.getenv("DATABASE_URL", "")
+        if not db_url:
+            print("⚠️  警告: DATABASE_URL 未设置，跳过数据库初始化")
+            return False
+
+        parsed = urlparse(db_url)
+        postgres_server = os.getenv("POSTGRES_SERVER", parsed.hostname)
+        postgres_port = os.getenv("POSTGRES_PORT", parsed.port or 5432)
+        postgres_user = os.getenv("POSTGRES_USER", parsed.username)
+        postgres_password = os.getenv("POSTGRES_PASSWORD", parsed.password)
+        target_database = os.getenv("POSTGRES_DB", parsed.path.lstrip('/'))
+
+        print("=" * 60)
+        print("🗄️  开始数据库初始化...")
+        print(f"   服务器: {postgres_server}:{postgres_port}")
+        print(f"   数据库: {target_database}")
+        print("=" * 60)
+
+        # 1. 先连接到默认的 postgres 数据库
+        print("🔌 连接到默认数据库 'postgres'...")
+        conn = psycopg2.connect(
+            host=postgres_server,
+            port=postgres_port,
+            user=postgres_user,
+            password=postgres_password,
+            database="postgres"
+        )
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        cur = conn.cursor()
+
+        # 2. 检查目标数据库是否存在
+        print(f"🔍 检查数据库 '{target_database}' 是否存在...")
+        cur.execute("SELECT 1 FROM pg_database WHERE datname=%s", (target_database,))
+        exists = cur.fetchone()
+
+        if not exists:
+            print(f"📦 创建数据库 '{target_database}'...")
+            cur.execute(f'CREATE DATABASE "{target_database}"')
+            print(f"✅ 数据库 '{target_database}' 创建成功")
+        else:
+            print(f"✅ 数据库 '{target_database}' 已存在")
+
+        cur.close()
+        conn.close()
+
+        # 3. 现在导入 SQLAlchemy 并创建表
+        from app.database import Base, engine
+        from sqlalchemy import text
+
+        print("📊 创建数据库表...")
+
+        # 先启用 pgvector 扩展（如果存在）
+        try:
+            with engine.connect() as conn:
+                # 尝试创建 vector 扩展
+                conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+                conn.commit()
+                print("✅ pgvector 扩展已启用")
+        except Exception as e:
+            print(f"⚠️  警告: 无法启用 pgvector 扩展: {e}")
+            print("   如果代码中使用了 Vector 类型，表创建可能会失败")
+
+        Base.metadata.create_all(bind=engine, checkfirst=True)
+        print("✅ 数据库表创建成功")
+
+        # 4. 验证关键表是否创建成功
+        conn = psycopg2.connect(
+            host=postgres_server,
+            port=postgres_port,
+            user=postgres_user,
+            password=postgres_password,
+            database=target_database
+        )
+        cur = conn.cursor()
+
+        tables_to_check = ['users', 'tasks', 'task_view_records']
+        all_exist = True
+        for table in tables_to_check:
+            cur.execute("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables
+                    WHERE table_schema = 'public'
+                    AND table_name = %s
+                );
+            """, (table,))
+            exists = cur.fetchone()[0]
+            status = "✅" if exists else "❌"
+            print(f"   {status} 表 '{table}': {'存在' if exists else '不存在'}")
+            if not exists:
+                all_exist = False
+
+        cur.close()
+        conn.close()
+
+        if all_exist:
+            print("=" * 60)
+            print("✅ 数据库初始化完成!")
+            print("=" * 60)
+        else:
+            print("⚠️  警告: 部分表未创建成功")
+
+        return all_exist
+
+    except Exception as e:
+        print(f"❌ 数据库初始化失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+# 执行数据库初始化
+print("\n🚀 正在启动应用...")
+init_success = init_database()
+if not init_success:
+    print("⚠️  警告: 数据库初始化失败，但应用将继续启动")
+
+# =================================================================
 # 3. 📥 导入后端应用
 # =================================================================
 try:

@@ -2,7 +2,7 @@
 from sqlalchemy import Column, String, Text, Integer, Float, DateTime, Boolean, JSON, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from pgvector.sqlalchemy import Vector  # 向量数据库支持
+# from pgvector.sqlalchemy import Vector  # 向量数据库支持 - 暂时注释
 import uuid
 
 from app.database import Base
@@ -97,12 +97,15 @@ class ContractTemplate(Base):
 
     # ==================== 🤖 向量搜索字段 (RAG) ====================
     # 对应 BGE-M3 模型维度 (1024)
-    # 必须确保数据库已执行: CREATE EXTENSION vector;
-    embedding = Column(
-        Vector(1024),
-        nullable=True,
-        comment="内容向量嵌入(1024维)"
-    )
+    # 注意：需要数据库已安装 pgvector 扩展
+    # 暂时注释以支持无 pgvector 环境的部署
+    # from pgvector.sqlalchemy import Vector
+    # embedding = Column(
+    #     Vector(1024),
+    #     nullable=True,
+    #     comment="内容向量嵌入(1024维)"
+    # )
+    embedding = Column(JSON, nullable=True, comment="内容向量嵌入(临时使用JSON存储)")
     embedding_updated_at = Column(DateTime(timezone=True), nullable=True, comment="向量最后更新时间")
     embedding_text_hash = Column(String(64), nullable=True, comment="向量源文本哈希")
 
