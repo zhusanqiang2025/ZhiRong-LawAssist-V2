@@ -24,6 +24,7 @@ aiofiles
 
 # 文档生成与处理
 python-docx
+markdown>=3.5.0
 # weasyprint  # 注释掉以避免Docker构建问题，需要额外的系统依赖
 htmldocx
 
@@ -53,6 +54,10 @@ pytesseract
 
 # 文件类型检测
 # python-magic  # 注释掉以避免Docker构建问题，需要系统库libmagic1
+
+# 其他工具
+pyyaml>=6.0
+lxml>=4.9.0
 
 # --- 搜索工具 ---
 duckduckgo-search==6.2.6

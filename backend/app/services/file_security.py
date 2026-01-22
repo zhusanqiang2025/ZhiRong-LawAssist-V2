@@ -4,7 +4,6 @@
 """
 import os
 import hashlib
-import magic
 import logging
 from typing import List, Optional, Tuple
 from pathlib import Path
@@ -17,6 +16,16 @@ from ..core.config import settings
 from ..core.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
+
+# 尝试导入 python-magic（用于 MIME 类型检测）
+# 如果不可用，将使用文件扩展名和文件头验证作为替代方案
+try:
+    import magic
+    HAS_MAGIC = True
+    logger.info("[FileSecurity] python-magic 可用，启用 MIME 类型检测")
+except ImportError:
+    HAS_MAGIC = False
+    logger.warning("[FileSecurity] python-magic 不可用，将使用文件扩展名和文件头验证")
 
 class FileSecurityValidator:
     """文件安全验证器"""
@@ -169,6 +178,11 @@ class FileSecurityValidator:
 
     def _validate_mime_type(self, file_content: bytes) -> Tuple[bool, Optional[str]]:
         """验证 MIME 类型"""
+        if not HAS_MAGIC:
+            # python-magic 不可用，跳过 MIME 类型验证
+            # 将依赖文件扩展名验证和文件头验证
+            return True, None
+
         try:
             mime_type = magic.from_buffer(file_content, mime=True)
 

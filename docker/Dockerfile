@@ -135,11 +135,11 @@ WORKDIR /app
 COPY . /app/
 
 # 8. 安装 Python 依赖 (使用清华源加速)
-# 确保 requirements.txt 在项目根目录
+# 使用根目录的 requirements.txt，包含完整的依赖包（redis, celery, langchain 等）
 RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-# 9. 暴露端口
-EXPOSE 7860
+# 9. 暴露端口（与 K8s Service 端口匹配）
+EXPOSE 8000
 
 # 10. ✅ [必须修改] 启动命令指向 simple_main.py
 CMD ["python", "simple_main.py"]
