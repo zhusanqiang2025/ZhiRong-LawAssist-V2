@@ -205,9 +205,29 @@ async def global_exception_handler(request: Request, exc: Exception):
 # =================================================================
 # 5. 📂 挂载静态文件 (前端构建产物)
 # =================================================================
-frontend_dist_path = os.path.join(current_dir, "frontend", "dist")
-if os.path.exists(frontend_dist_path):
-    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist_path, "assets")), name="assets")
+# 尝试多个路径查找前端构建文件
+frontend_paths = [
+    os.path.join(current_dir, "backend", "static", "frontend"),  # Docker 构建后的路径
+    os.path.join(current_dir, "frontend", "dist"),  # 本地开发路径
+]
+
+frontend_dist_path = None
+for path in frontend_paths:
+    if os.path.exists(path):
+        frontend_dist_path = path
+        print(f"✅ 找到前端构建目录: {frontend_dist_path}")
+        break
+
+if not frontend_dist_path:
+    print("⚠️  警告: 未找到前端构建目录，将只提供 API 服务")
+    print(f"   查找路径: {frontend_paths}")
+else:
+    # 挂载前端静态资源
+    assets_dir = os.path.join(frontend_dist_path, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+        print(f"✅ 已挂载前端资源目录: /assets -> {assets_dir}")
+
     @app.get("/{full_path:path}")
     async def catch_all(full_path: str):
         # 排除 API 路由、静态资源、文档等路径
