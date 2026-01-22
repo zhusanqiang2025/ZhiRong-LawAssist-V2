@@ -135,12 +135,13 @@ WORKDIR /app
 COPY . /app/
 
 # 7.5. 安装 Node.js 20.x 并构建前端
+# 使用 npm 中国镜像加速下载
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     cd /app/frontend && \
-    npm install && \
-    chmod +x node_modules/.bin/* && \
-    npm run build && \
+    npm config set registry https://registry.npmmirror.com && \
+    npm ci --verbose && \
+    npx vite build && \
     cd /app && \
     apt-get remove -y nodejs && \
     apt-get autoremove -y && \
