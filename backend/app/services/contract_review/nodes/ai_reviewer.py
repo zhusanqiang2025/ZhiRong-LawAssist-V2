@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 import httpx
 from typing import Dict, Any, Optional, List, Tuple
 
@@ -13,27 +12,29 @@ from ..state import AgentState
 from ..schemas import ReviewOutput, ContractProfile, LegalRelationshipAnalysis
 from ..rule_assembler import rule_assembler
 
+# ================= 配置区（使用硬编码配置）=================
+from app.core.config import settings
+
 logger = logging.getLogger(__name__)
 
-# ================= 配置区 =================
-API_KEY = os.getenv("LANGCHAIN_API_KEY", "your-api-key")
-API_BASE_URL = os.getenv("LANGCHAIN_API_BASE_URL", "https://api.openai.com/v1")
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
-
 def get_model(json_mode=False):
-    """初始化 LLM 模型"""
+    """初始化 LLM 模型（使用硬编码配置）"""
+    from app.core.llm_config import get_qwen_llm
+
     # 使用 httpx 忽略 SSL 证书问题 (沿用你之前的配置)
     http_client = httpx.Client(verify=False, trust_env=False)
-    
-    return ChatOpenAI(
-        model=MODEL_NAME,
-        api_key=API_KEY,
-        base_url=API_BASE_URL,
-        temperature=0.1, # 保持低温度以确保逻辑严谨
-        http_client=http_client,
-        # 只有支持 json_object 的模型才开启此选项
-        model_kwargs={"response_format": {"type": "json_object"}} if json_mode else {}
-    )
+
+    llm = get_qwen_llm()
+    if not llm:
+        raise ValueError("LLM 初始化失败")
+
+    # 设置自定义 http_client
+    llm.http_client = http_client
+    # 设置 json_mode
+    if json_mode:
+        llm.model_kwargs = {"response_format": {"type": "json_object"}}
+
+    return llm
 
 # ================= Stage 1: 合同法律画像 (Profile) =================
 
@@ -164,12 +165,12 @@ def execute_stage_3(
     1. 合同法律画像: {json.dumps(profile, ensure_ascii=False)}
     2. 法律关系定性: {json.dumps(relationships, ensure_ascii=False)}
     """
-    
+
     # 3. 调用 LLM - ⭐ 使用鲁棒的解析器
     from ..json_parser import create_robust_parser
 
-    # 根据模型能力决定是否启用JSON模式
-    model_name = os.getenv("MODEL_NAME", "gpt-4o-mini")
+    # 根据模型能力决定是否启用JSON模式（使用硬编码配置）
+    model_name = settings.QWEN3_THINKING_MODEL
     use_json_mode = not any(keyword in model_name.lower()
                            for keyword in ["deepseek", "qwen", "baichuan", "yi", "chatglm"])
 
@@ -559,9 +560,9 @@ def _review_single_window(
     # 构建Prompt - ⭐ 使用鲁棒的解析器，支持非JSON模式
     from ..json_parser import create_robust_parser
 
-    # 根据模型能力决定是否启用JSON模式
+    # 根据模型能力决定是否启用JSON模式（使用硬编码配置）
     # 某些模型（如DeepSeek、Qwen）对JSON模式支持不佳，使用文本模式更稳定
-    model_name = os.getenv("MODEL_NAME", "gpt-4o-mini")
+    model_name = settings.QWEN3_THINKING_MODEL
 
     # 对于国产模型，禁用JSON模式以提高稳定性
     use_json_mode = not any(keyword in model_name.lower()

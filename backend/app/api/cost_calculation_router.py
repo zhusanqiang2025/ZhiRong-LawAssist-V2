@@ -394,21 +394,16 @@ async def _extract_case_info_with_ai(content: str) -> CaseInfo:
     from langchain_core.messages import HumanMessage, SystemMessage
     import httpx
 
-    # 创建 LLM - 使用现有配置
+    # 创建 LLM - 使用硬编码配置
     http_client = httpx.Client(verify=False, trust_env=False)
 
-    # 优先使用 Qwen3 Thinking 模型，其次使用 DeepSeek
-    api_key = os.getenv("QWEN3_THINKING_API_KEY") or os.getenv("DEEPSEEK_API_KEY") or "your-api-key-here"
-    base_url = os.getenv("QWEN3_THINKING_API_URL") or os.getenv("DEEPSEEK_API_URL") or "https://api.openai.com/v1"
-    model_name = os.getenv("QWEN3_THINKING_MODEL") or os.getenv("MODEL_NAME") or "gpt-4o-mini"
-
-    llm = ChatOpenAI(
-        model=model_name,
-        api_key=api_key,
-        base_url=base_url,
-        temperature=0.1,
-        http_client=http_client
-    )
+    # 使用 Qwen3 Thinking 模型（硬编码配置）
+    from app.core.llm_config import get_qwen_llm
+    llm = get_qwen_llm()
+    if not llm:
+        raise HTTPException(status_code=500, detail="LLM 初始化失败")
+    # 使用自定义 http_client
+    llm.http_client = http_client
 
     # 构建提取提示词
     system_prompt = """你是一个专业的法律文书分析助手。请从提供的法律文书内容中提取关键信息，并以 JSON 格式返回。

@@ -1,5 +1,4 @@
 # backend/app/services/contract_review_service.py
-import os
 import json
 import httpx
 import logging
@@ -37,13 +36,14 @@ from app.services.pdf_service import PdfService
 # ⭐ 新增：规则组装器
 from app.services.contract_review.rule_assembler import rule_assembler
 
+# === 配置读取（使用硬编码配置）===
+from app.core.config import settings
 
-# === 配置读取 ===
 # ⭐ 使用 Qwen3-Thinking 模型进行元数据提取和合同审查
-QWEN3_API_KEY = os.getenv("QWEN3_THINKING_API_KEY")
-QWEN3_API_URL = os.getenv("QWEN3_THINKING_API_URL")
-QWEN3_MODEL = os.getenv("QWEN3_THINKING_MODEL", "Qwen3-235B-A22B-Thinking-2507")
-QWEN3_ENABLED = os.getenv("QWEN3_THINKING_ENABLED", "true").lower() == "true"
+QWEN3_API_KEY = settings.QWEN3_THINKING_API_KEY
+QWEN3_API_URL = settings.QWEN3_THINKING_API_URL
+QWEN3_MODEL = settings.QWEN3_THINKING_MODEL
+QWEN3_ENABLED = settings.QWEN3_THINKING_ENABLED
 
 if not QWEN3_API_KEY:
     print("警告: QWEN3_THINKING_API_KEY 未配置，合同审查功能将不可用")

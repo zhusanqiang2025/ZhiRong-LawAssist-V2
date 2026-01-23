@@ -174,16 +174,14 @@ class RequirementAnalyzer:
         # 使用 LLM 语义分析，判断所有四种类型
         try:
             from langchain_core.messages import SystemMessage, HumanMessage
-            from langchain_openai import ChatOpenAI
-            import os
-            import json
 
-            llm = ChatOpenAI(
-                model=os.getenv("MODEL_NAME", "deepseek-chat"),
-                api_key=os.getenv("OPENAI_API_KEY") or os.getenv("LANGCHAIN_API_KEY"),
-                base_url=os.getenv("OPENAI_API_BASE") or os.getenv("LANGCHAIN_API_BASE_URL"),
-                temperature=0
-            )
+            # 使用类初始化时传入的 LLM，如果没有则尝试获取
+            llm = self.llm
+            if not llm:
+                from app.core.llm_config import get_qwen_llm
+                llm = get_qwen_llm()
+                if not llm:
+                    raise ValueError("LLM 初始化失败")
 
             prompt = f"""你是一位资深的法律专家，精通《中华人民共和国民法典》合同编。请根据以下标准，判断用户的需求属于哪种合同处理类型。
 

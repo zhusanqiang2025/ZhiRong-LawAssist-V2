@@ -36,21 +36,14 @@ logger = logging.getLogger(__name__)
 
 
 def _get_llm():
-    """获取 LLM 实例"""
-    api_key = os.getenv("OPENAI_API_KEY") or os.getenv("DEEPSEEK_API_KEY") or os.getenv("LANGCHAIN_API_KEY", "")
-    api_base = os.getenv("OPENAI_API_BASE") or os.getenv("DEEPSEEK_API_URL") or os.getenv("LANGCHAIN_API_BASE_URL", "https://api.deepseek.com/v1")
-    model_name = os.getenv("MODEL_NAME", "deepseek-chat")
+    """获取 LLM 实例（使用硬编码配置）"""
+    from app.core.llm_config import get_qwen_llm
 
-    if not api_key:
-        logger.warning("[_get_llm] 未找到 API_KEY，LLM 功能将不可用")
+    llm = get_qwen_llm()
+    if not llm:
+        logger.warning("[_get_llm] LLM 初始化失败")
 
-    return ChatOpenAI(
-        model=model_name,
-        api_key=api_key,
-        base_url=api_base,
-        temperature=0.3,
-        max_tokens=16000
-    )
+    return llm
 
 
 # ==================== 状态定义 ====================

@@ -4,11 +4,12 @@ AI 法律特征生成服务
 
 利用大语言模型为合同类型生成专业的法律特征定义。
 """
-import os
 import logging
 import httpx
 from typing import Dict, Optional
 from pydantic import BaseModel
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +29,11 @@ class LegalFeaturesGenerator:
     """
 
     def __init__(self):
-        self.api_url = os.getenv("QWEN3_THINKING_API_URL")
-        self.api_key = os.getenv("QWEN3_THINKING_API_KEY")
-        self.model_name = os.getenv("QWEN3_THINKING_MODEL", "Qwen3-235B-A22B-Thinking-2507")
-        self.timeout = int(os.getenv("QWEN3_THINKING_TIMEOUT", "120"))
+        # 使用硬编码配置
+        self.api_url = settings.QWEN3_THINKING_API_URL
+        self.api_key = settings.QWEN3_THINKING_API_KEY
+        self.model_name = settings.QWEN3_THINKING_MODEL
+        self.timeout = settings.QWEN3_THINKING_TIMEOUT
 
         if not self.api_url or not self.api_key:
             logger.warning("[LegalFeaturesGenerator] AI 模型配置缺失，无法使用 AI 功能")

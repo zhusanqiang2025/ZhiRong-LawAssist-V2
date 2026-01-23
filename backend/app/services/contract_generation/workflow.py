@@ -46,24 +46,14 @@ logger = logging.getLogger(__name__)
 _executor = ThreadPoolExecutor(max_workers=4)
 
 def _get_llm():
-    """获取 LLM 实例"""
-    # 优先使用 OPENAI_API_KEY，如果没有则使用 DEEPSEEK_API_KEY
-    api_key = os.getenv("OPENAI_API_KEY") or os.getenv("DEEPSEEK_API_KEY") or os.getenv("LANGCHAIN_API_KEY", "")
-    # 优先使用 OPENAI_API_BASE，如果没有则使用 DEEPSEEK_API_URL 或 LANGCHAIN_API_BASE_URL
-    api_base = os.getenv("OPENAI_API_BASE") or os.getenv("DEEPSEEK_API_URL") or os.getenv("LANGCHAIN_API_BASE_URL") or "https://api.deepseek.com/v1"
-    # 优先使用 MODEL_NAME，如果没有则使用环境变量中的模型名，默认为 deepseek-chat
-    model_name = os.getenv("MODEL_NAME", "deepseek-chat")
+    """获取 LLM 实例（使用硬编码配置）"""
+    from app.core.llm_config import get_qwen_llm
 
-    if not api_key:
-        logger.warning("[_get_llm] 未找到 API_KEY，LLM 功能将不可用")
+    llm = get_qwen_llm()
+    if not llm:
+        logger.warning("[_get_llm] LLM 初始化失败")
 
-    return ChatOpenAI(
-        model=model_name,
-        api_key=api_key,
-        base_url=api_base,
-        temperature=0.3,
-        max_tokens=16000  # 支持长合同生成
-    )
+    return llm
 
 
 # ==================== 状态定义 ====================

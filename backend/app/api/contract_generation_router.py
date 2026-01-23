@@ -632,15 +632,11 @@ async def extract_modification_termination_info_endpoint(request: ExtractModific
     返回的结构化信息会展示给用户确认/编辑。
     """
     try:
-        import os
-        from langchain_openai import ChatOpenAI
-
-        # 创建 LLM
-        llm = ChatOpenAI(
-            model=os.getenv("MODEL_NAME", "deepseek-chat"),
-            api_key=os.getenv("OPENAI_API_KEY") or os.getenv("LANGCHAIN_API_KEY"),
-            base_url=os.getenv("OPENAI_API_BASE") or os.getenv("LANGCHAIN_API_BASE_URL")
-        )
+        # 创建 LLM（使用硬编码配置）
+        from app.core.llm_config import get_qwen_llm
+        llm = get_qwen_llm()
+        if not llm:
+            raise HTTPException(status_code=500, detail="LLM 初始化失败")
 
         # 创建分析器
         from app.services.contract_generation.agents.requirement_analyzer import RequirementAnalyzer
@@ -691,15 +687,12 @@ async def generate_with_form_data(request: GenerateWithFormDataRequest):
 
                 try:
                     from app.services.contract_generation.agents.requirement_analyzer import RequirementAnalyzer
-                    from langchain_openai import ChatOpenAI
-                    import os
+                    from app.core.llm_config import get_qwen_llm
 
-                    # 创建 LLM 和分析器
-                    llm = ChatOpenAI(
-                        model=os.getenv("MODEL_NAME", "deepseek-chat"),
-                        api_key=os.getenv("OPENAI_API_KEY") or os.getenv("LANGCHAIN_API_KEY"),
-                        base_url=os.getenv("OPENAI_API_BASE") or os.getenv("LANGCHAIN_API_BASE_URL")
-                    )
+                    # 创建 LLM 和分析器（使用硬编码配置）
+                    llm = get_qwen_llm()
+                    if not llm:
+                        raise Exception("LLM 初始化失败")
                     analyzer = RequirementAnalyzer(llm)
 
                     # 从用户原始输入中提取核心信息
