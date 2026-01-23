@@ -3,6 +3,10 @@ FROM registry.cn-hangzhou.aliyuncs.com/starzz/az:${CI_PROJECT_TITLE}_vendor AS b
 
 # 环境变量在  docker/Dockerfile.vendor
 
+ENV REDIS_URL=redis://:123myredissecret@redis7.gms.svc.cluster.local:6379/1
+ENV CELERY_BROKER_URL=redis://:123myredissecret@redis7.gms.svc.cluster.local:6379/1
+ENV CELERY_RESULT_BACKEND=redis://:123myredissecret@redis7.gms.svc.cluster.local:6379/1
+
 # 6. 设置工作目录
 WORKDIR /app
 
