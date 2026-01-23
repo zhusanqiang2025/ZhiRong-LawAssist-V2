@@ -458,7 +458,7 @@ async def check_onlyoffice_health():
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             # 尝试连接 OnlyOffice
-            response = client.get(
+            response = await client.get(
                 f"{ONLYOFFICE_URL}/",
                 headers={"User-Agent": "HealthCheck/1.0"}
             )
