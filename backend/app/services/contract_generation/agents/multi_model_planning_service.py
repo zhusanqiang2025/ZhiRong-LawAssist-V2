@@ -294,7 +294,9 @@ class MultiModelPlanningService:
             for future in as_completed(futures):
                 model_key, _ = futures[future]
                 try:
-                    result = future.result(timeout=120)  # 单个模型最多 120 秒
+                    # 【修复】235B 模型需要更长时间，从 120 秒增加到 300 秒
+                    # 这与 llm_config.py 中的 request_timeout=(30, 300) 保持一致
+                    result = future.result(timeout=300)  # 单个模型最多 300 秒
                     results.append(result)
                     logger.info(f"[MultiModelPlanning] {model_key} 规划完成，耗时: {result.execution_time:.2f}s")
                 except Exception as e:
