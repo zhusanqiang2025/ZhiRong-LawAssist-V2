@@ -16,22 +16,23 @@ ENV TZ=Asia/Shanghai
 ENV PYTHONUNBUFFERED=1
 
 # ==================== API 密钥配置 ====================
+# 【修复】使用有效的 API Key
 # DeepSeek / LangChain / OpenAI API Key
-ENV DEEPSEEK_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ
-ENV DEEPSEEK_API_URL=https://newapi.dev.azshentong.com/v1
+ENV DEEPSEEK_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+ENV DEEPSEEK_API_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
 ENV DEEPSEEK_MODEL=Qwen3-235B-A22B-Thinking-2507
 ENV DEEPSEEK_TEMPERATURE=0.7
 ENV DEEPSEEK_MAX_TOKENS=2000
 ENV DEEPSEEK_TIMEOUT=60
 
 # LangChain API (用于风险评估等核心功能)
-ENV LANGCHAIN_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ
-ENV LANGCHAIN_API_BASE_URL=https://newapi.dev.azshentong.com/v1
+ENV LANGCHAIN_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+ENV LANGCHAIN_API_BASE_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
 ENV MODEL_NAME=Qwen3-235B-A22B-Thinking-2507
 
 # OpenAI API (用于合同生成模块)
-ENV OPENAI_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ
-ENV OPENAI_API_BASE=https://newapi.dev.azshentong.com/v1
+ENV OPENAI_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
+ENV OPENAI_API_BASE=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
 
 # Qwen3-235B-Thinking 模型配置
 # 【修复】使用有效的 API Key

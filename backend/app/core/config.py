@@ -53,8 +53,9 @@ class Settings(BaseSettings):
     API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
 
     # --- DeepSeek/Qwen 配置（用于智能对话）---
-    DEEPSEEK_API_URL: str = "https://newapi.dev.azshentong.com/v1"
-    DEEPSEEK_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
+    # 【修复】使用有效的 API Key
+    DEEPSEEK_API_URL: str = "https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1"
+    DEEPSEEK_API_KEY: str = "7adb34bf-3cb3-4dea-af41-b79de8c08ca3"
     DEEPSEEK_MODEL: str = "Qwen3-235B-A22B-Thinking-2507"
     DEEPSEEK_TEMPERATURE: float = 0.7
     DEEPSEEK_MAX_TOKENS: int = 2000
@@ -69,13 +70,15 @@ class Settings(BaseSettings):
     QWEN3_THINKING_ENABLED: bool = True
 
     # --- LangChain 配置（用于风险评估工作流）---
-    LANGCHAIN_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
-    LANGCHAIN_API_BASE_URL: str = "https://newapi.dev.azshentong.com/v1"
+    # 【修复】使用有效的 API Key
+    LANGCHAIN_API_KEY: str = "7adb34bf-3cb3-4dea-af41-b79de8c08ca3"
+    LANGCHAIN_API_BASE_URL: str = "https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1"
     MODEL_NAME: str = "Qwen3-235B-A22B-Thinking-2507"
 
     # --- OpenAI 兼容 API 配置（用于合同生成）---
-    OPENAI_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
-    OPENAI_API_BASE: str = "https://newapi.dev.azshentong.com/v1"
+    # 【修复】使用有效的 API Key
+    OPENAI_API_KEY: str = "7adb34bf-3cb3-4dea-af41-b79de8c08ca3"
+    OPENAI_API_BASE: str = "https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1"
     OPENAI_MODEL_NAME: str = "Qwen3-235B-A22B-Thinking-2507"
 
     # ==================== AI 文档预处理配置（硬编码）====================
