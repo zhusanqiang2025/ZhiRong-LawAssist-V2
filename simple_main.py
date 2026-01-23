@@ -404,10 +404,9 @@ if __name__ == "__main__":
         """在单独的线程中运行 Celery Worker"""
         global celery_worker_process
 
-        # Celery Worker 命令（不使用 --detach，直接运行）
+        # 使用 Python -m celery 方式启动，确保命令能找到
         celery_cmd = [
-            "celery",
-            "-A", "app.tasks.celery_app",
+            sys.executable, "-m", "celery", "-A", "app.tasks.celery_app",
             "worker",
             "--loglevel=info",
             "--concurrency=2",
@@ -416,6 +415,7 @@ if __name__ == "__main__":
         ]
 
         print("[Celery Worker] 启动命令:", " ".join(celery_cmd))
+        print("[Celery Worker] 工作目录:", os.getcwd())
 
         try:
             # 使用 Popen 运行，不等待完成
@@ -425,7 +425,8 @@ if __name__ == "__main__":
                 stderr=subprocess.STDOUT,
                 text=True,
                 bufsize=1,
-                universal_newlines=True
+                universal_newlines=True,
+                env=os.environ.copy()  # 传递环境变量
             )
 
             print(f"[Celery Worker] PID: {celery_worker_process.pid}")
@@ -438,6 +439,11 @@ if __name__ == "__main__":
             return_code = celery_worker_process.wait()
             print(f"[Celery Worker] 进程退出，返回码: {return_code}")
 
+        except FileNotFoundError as e:
+            print(f"[Celery Worker] 启动失败 - 命令未找到: {e}")
+            print(f"[Celery Worker] 请确保 celery 包已安装: pip install celery redis")
+            import traceback
+            traceback.print_exc()
         except Exception as e:
             print(f"[Celery Worker] 启动失败: {e}")
             import traceback

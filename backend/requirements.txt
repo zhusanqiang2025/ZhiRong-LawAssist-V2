@@ -115,6 +115,7 @@ graphviz==0.20.3   # Graphviz Python 封装
 celery==5.3.4
 celery-progress==0.5
 flower==2.0.1
+redis==5.0.1  # Celery 需要 redis 包连接 Redis broker
 
 # --- 监控与指标（Prometheus） ---
 prometheus-client>=0.19.0
