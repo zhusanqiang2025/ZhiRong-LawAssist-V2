@@ -366,7 +366,7 @@ async def proxy_onlyoffice(full_path: str, request: Request):
         async with httpx.AsyncClient(timeout=30.0) as client:
             # 转发请求
             if request.method == "GET":
-                response = client.get(
+                response = await client.get(
                     target_url,
                     params=query_params,
                     headers={"Accept": "application/javascript, text/html, */*"}
@@ -374,7 +374,7 @@ async def proxy_onlyoffice(full_path: str, request: Request):
             else:
                 # 其他方法（POST 等）
                 content = await request.body()
-                response = client.request(
+                response = await client.request(
                     request.method,
                     target_url,
                     params=query_params,
