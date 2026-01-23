@@ -373,11 +373,15 @@ else:
         raise HTTPException(status_code=404, detail="Frontend not built")
 
 # =================================================================
-# 6. 🚀 启动
+# 6. 🚀 启动（Celery Worker 与 Uvicorn 并行运行）
 # =================================================================
 if __name__ == "__main__":
     import subprocess
     import os
+    import threading
+    import signal
+    import sys
+    from pathlib import Path
 
     # 硬编码 K8s Redis 配置（带密码）
     k8s_redis_url = "redis://:123myredissecret@redis7.gms.svc.cluster.local:6379/1"
@@ -389,50 +393,86 @@ if __name__ == "__main__":
     os.environ["CELERY_ENABLED"] = "true"
 
     print("=" * 60)
-    print("🚀 启动模式: Uvicorn + Celery Worker (后台)")
+    print("🚀 启动模式: Uvicorn + Celery Worker (并行)")
     print(f"   Celery Broker: {k8s_redis_url}")
     print("=" * 60)
 
-    # 在后台启动 Celery Worker
-    celery_cmd = [
-        "celery",
-        "-A", "app.tasks.celery_app",
-        "worker",
-        "--loglevel=info",
-        "--concurrency=2",
-        "--queues=high_priority,medium_priority,low_priority,default",
-        "--max-tasks-per-child=100",
-        "--detach",  # 后台运行
-        "--pidfile=/tmp/celery-worker.pid",
-        "--logfile=/tmp/celery-worker.log"
-    ]
+    # 用于追踪子进程
+    celery_worker_process = None
 
-    try:
-        # 先尝试停止旧的 worker（如果存在）
-        subprocess.run(
-            ["celery", "-A", "app.tasks.celery_app", "multi", "stop", "wait", "--pidfile=/tmp/celery-worker.pid"],
-            stderr=subprocess.DEVNULL,
-            timeout=5
-        )
-    except:
-        pass
+    def run_celery_worker():
+        """在单独的线程中运行 Celery Worker"""
+        global celery_worker_process
 
-    # 启动新的 Celery Worker
-    result = subprocess.run(
-        celery_cmd,
-        capture_output=True,
-        text=True,
-        timeout=30
-    )
+        # Celery Worker 命令（不使用 --detach，直接运行）
+        celery_cmd = [
+            "celery",
+            "-A", "app.tasks.celery_app",
+            "worker",
+            "--loglevel=info",
+            "--concurrency=2",
+            "--queues=high_priority,medium_priority,low_priority,default",
+            "--max-tasks-per-child=100",
+        ]
 
-    if result.returncode == 0:
-        print("✅ Celery Worker 已启动（后台运行）")
-        if result.stdout:
-            print(f"   {result.stdout.strip()}")
+        print("[Celery Worker] 启动命令:", " ".join(celery_cmd))
+
+        try:
+            # 使用 Popen 运行，不等待完成
+            celery_worker_process = subprocess.Popen(
+                celery_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                universal_newlines=True
+            )
+
+            print(f"[Celery Worker] PID: {celery_worker_process.pid}")
+
+            # 实时输出日志
+            for line in celery_worker_process.stdout:
+                print(f"[Celery Worker] {line}", end='')
+
+            # Worker 进程退出
+            return_code = celery_worker_process.wait()
+            print(f"[Celery Worker] 进程退出，返回码: {return_code}")
+
+        except Exception as e:
+            print(f"[Celery Worker] 启动失败: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def signal_handler(signum, frame):
+        """处理终止信号，清理子进程"""
+        print(f"\n[主进程] 收到信号 {signum}，正在关闭...")
+        if celery_worker_process:
+            print(f"[主进程] 终止 Celery Worker (PID: {celery_worker_process.pid})...")
+            celery_worker_process.terminate()
+            try:
+                celery_worker_process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                celery_worker_process.kill()
+        sys.exit(0)
+
+    # 注册信号处理器
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+
+    # 在后台线程中启动 Celery Worker
+    celery_thread = threading.Thread(target=run_celery_worker, daemon=True)
+    celery_thread.start()
+
+    # 等待一下，确保 Worker 启动成功
+    import time
+    time.sleep(3)
+
+    # 检查 Worker 是否还在运行
+    if celery_worker_process and celery_worker_process.poll() is None:
+        print("✅ Celery Worker 启动成功")
     else:
-        print("⚠️  Celery Worker 启动可能失败:")
-        print(f"   {result.stderr}")
+        print("⚠️  警告: Celery Worker 可能启动失败，但 Uvicorn 将继续运行")
 
-    # 启动 Uvicorn（主进程）
+    # 启动 Uvicorn（主线程，阻塞运行）
     print("🚀 正在启动 Uvicorn...")
     uvicorn.run(app, host="0.0.0.0", port=8000)
