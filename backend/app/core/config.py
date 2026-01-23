@@ -50,11 +50,11 @@ class Settings(BaseSettings):
     # ==================== 线上 API 服务配置（硬编码）====================
     # 统一 API 基础配置
     API_BASE_URL: str = "https://newapi.dev.azshentong.com/v1"
-    API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
 
     # --- DeepSeek/Qwen 配置（用于智能对话）---
     DEEPSEEK_API_URL: str = "https://newapi.dev.azshentong.com/v1"
-    DEEPSEEK_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    DEEPSEEK_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
     DEEPSEEK_MODEL: str = "Qwen3-235B-A22B-Thinking-2507"
     DEEPSEEK_TEMPERATURE: float = 0.7
     DEEPSEEK_MAX_TOKENS: int = 2000
@@ -62,18 +62,18 @@ class Settings(BaseSettings):
 
     # --- Qwen3-Thinking 专用配置（用于合同审查等核心功能）---
     QWEN3_THINKING_API_URL: str = "https://newapi.dev.azshentong.com/v1"
-    QWEN3_THINKING_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    QWEN3_THINKING_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
     QWEN3_THINKING_MODEL: str = "Qwen3-235B-A22B-Thinking-2507"
     QWEN3_THINKING_TIMEOUT: int = 120
     QWEN3_THINKING_ENABLED: bool = True
 
     # --- LangChain 配置（用于风险评估工作流）---
-    LANGCHAIN_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    LANGCHAIN_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
     LANGCHAIN_API_BASE_URL: str = "https://newapi.dev.azshentong.com/v1"
     MODEL_NAME: str = "Qwen3-235B-A22B-Thinking-2507"
 
     # --- OpenAI 兼容 API 配置（用于合同生成）---
-    OPENAI_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    OPENAI_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
     OPENAI_API_BASE: str = "https://newapi.dev.azshentong.com/v1"
     OPENAI_MODEL_NAME: str = "Qwen3-235B-A22B-Thinking-2507"
 
@@ -82,7 +82,7 @@ class Settings(BaseSettings):
     AI_POSTPROCESS_ENABLED: bool = True
     AI_POSTPROCESS_MODEL: str = "qwen3-vl:32b-thinking-q8_0"
     AI_POSTPROCESS_API_URL: str = "https://newapi.dev.azshentong.com/v1"
-    AI_POSTPROCESS_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    AI_POSTPROCESS_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
     AI_POSTPROCESS_TIMEOUT: int = 30
     AI_POSTPROCESS_BATCH_SIZE: int = 5
 
@@ -90,7 +90,7 @@ class Settings(BaseSettings):
     AI_TEXT_CLASSIFICATION_ENABLED: bool = True
     AI_TEXT_CLASSIFICATION_MODEL: str = "Qwen3-235B-A22B-Thinking-2507"
     AI_TEXT_CLASSIFICATION_API_URL: str = "https://newapi.dev.azshentong.com/v1"
-    AI_TEXT_CLASSIFICATION_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    AI_TEXT_CLASSIFICATION_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
     AI_TEXT_CLASSIFICATION_TIMEOUT: int = 30
 
     # AI 后处理策略配置
