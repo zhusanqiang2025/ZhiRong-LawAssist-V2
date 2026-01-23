@@ -465,19 +465,23 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
 
-    # 在后台线程中启动 Celery Worker
-    celery_thread = threading.Thread(target=run_celery_worker, daemon=True)
+    # 🔑 关键修复：使用非 daemon 线程，确保 Worker 不会被回收
+    # daemon=False 线程会阻止程序退出，这正是我们需要的
+    celery_thread = threading.Thread(target=run_celery_worker, daemon=False)
     celery_thread.start()
 
     # 等待一下，确保 Worker 启动成功
     import time
-    time.sleep(3)
+    time.sleep(5)  # 增加等待时间到 5 秒
 
     # 检查 Worker 是否还在运行
     if celery_worker_process and celery_worker_process.poll() is None:
         print("✅ Celery Worker 启动成功")
     else:
         print("⚠️  警告: Celery Worker 可能启动失败，但 Uvicorn 将继续运行")
+        if celery_worker_process:
+            poll_result = celery_worker_process.poll()
+            print(f"⚠️  Worker 进程状态: {poll_result}")
 
     # 启动 Uvicorn（主线程，阻塞运行）
     print("🚀 正在启动 Uvicorn...")
