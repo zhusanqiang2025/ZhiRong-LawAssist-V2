@@ -61,8 +61,9 @@ class Settings(BaseSettings):
     DEEPSEEK_TIMEOUT: int = 60
 
     # --- Qwen3-Thinking 专用配置（用于合同审查等核心功能）---
-    QWEN3_THINKING_API_URL: str = "https://newapi.dev.azshentong.com/v1"
-    QWEN3_THINKING_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ"
+    # 【修复】使用有效的 API Key
+    QWEN3_THINKING_API_URL: str = "https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1"
+    QWEN3_THINKING_API_KEY: str = "7adb34bf-3cb3-4dea-af41-b79de8c08ca3"
     QWEN3_THINKING_MODEL: str = "Qwen3-235B-A22B-Thinking-2507"
     QWEN3_THINKING_TIMEOUT: int = 120
     QWEN3_THINKING_ENABLED: bool = True

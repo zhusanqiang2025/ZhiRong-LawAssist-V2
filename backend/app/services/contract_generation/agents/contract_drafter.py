@@ -853,6 +853,9 @@ class ContractDrafterAgent:
             Markdown 格式的合同内容
         """
         try:
+            # 【调试】记录输入参数
+            logger.info(f"[ContractDrafter] draft_from_scratch 开始，key_info: {analysis_result.get('key_info', {})}")
+
             # 构建 requirement 字典（兼容旧接口）
             requirement = {
                 "key_info": analysis_result.get("key_info", {}),
@@ -861,6 +864,7 @@ class ContractDrafterAgent:
 
             # 构建基础提示词
             base_prompt = self._build_drafting_prompt(requirement)
+            logger.info(f"[ContractDrafter] 基础提示词长度: {len(base_prompt)} 字符")
 
             # 添加参考资料和知识图谱特征
             enhanced_prompt = base_prompt

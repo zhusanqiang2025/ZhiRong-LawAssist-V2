@@ -51,7 +51,9 @@ def _get_llm():
 
     llm = get_qwen_llm()
     if not llm:
-        logger.warning("[_get_llm] LLM 初始化失败")
+        logger.error("[_get_llm] LLM 初始化失败！请检查 API Key 配置")
+        # 【修复】抛出异常而不是返回 None，以便快速发现问题
+        raise ValueError("LLM 初始化失败：API Key 未配置或无效。请检查 QWEN3_THINKING_API_KEY 环境变量。")
 
     return llm
 
