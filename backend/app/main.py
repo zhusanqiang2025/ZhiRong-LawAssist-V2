@@ -571,6 +571,107 @@ async def test_celery_task():
         }
 
 
+@app.get("/health/diagnostics")
+async def system_diagnostics():
+    """
+    系统综合诊断
+
+    检查所有可能导致异步任务失败的原因：
+    - Redis 连接
+    - Celery 配置
+    - 环境变量
+    - Worker 进程状态
+    """
+    diagnostics = {
+        "timestamp": time.time(),
+        "checks": {}
+    }
+
+    # 1. 检查环境变量
+    diagnostics["checks"]["environment"] = {
+        "CELERY_BROKER_URL": os.getenv("CELERY_BROKER_URL", "NOT_SET"),
+        "CELERY_RESULT_BACKEND": os.getenv("CELERY_RESULT_BACKEND", "NOT_SET"),
+        "REDIS_URL": os.getenv("REDIS_URL", "NOT_SET"),
+        "CELERY_ENABLED": os.getenv("CELERY_ENABLED", "NOT_SET"),
+        "status": "configured" if os.getenv("CELERY_BROKER_URL") else "missing"
+    }
+
+    # 2. 检查 Redis 连接
+    redis_status = {"status": "unknown", "error": None}
+    try:
+        import redis
+        redis_url = os.getenv("CELERY_BROKER_URL", "")
+        if redis_url:
+            if redis_url.startswith("redis://"):
+                r = redis.from_url(redis_url, socket_timeout=5)
+                r.ping()
+                redis_status["status"] = "connected"
+                redis_status["url"] = redis_url[:50] + "..." if len(redis_url) > 50 else redis_url
+            else:
+                redis_status["status"] = "invalid_url"
+                redis_status["error"] = "Invalid Redis URL format"
+        else:
+            redis_status["status"] = "not_configured"
+            redis_status["error"] = "CELERY_BROKER_URL not set"
+    except Exception as e:
+        redis_status["status"] = "failed"
+        redis_status["error"] = str(e)
+    diagnostics["checks"]["redis"] = redis_status
+
+    # 3. 检查 Celery 配置
+    celery_status = {"status": "unknown", "error": None}
+    try:
+        from app.tasks.celery_app import celery_app
+        celery_status["broker_url"] = str(celery_app.conf.broker_url)[:80] + "..."
+        celery_status["result_backend"] = str(celery_app.conf.result_backend)[:80] + "..."
+        celery_status["task_routes"] = list(celery_app.conf.task_routes.keys()) if celery_app.conf.task_routes else []
+        celery_status["status"] = "configured"
+    except Exception as e:
+        celery_status["status"] = "error"
+        celery_status["error"] = str(e)
+    diagnostics["checks"]["celery_config"] = celery_status
+
+    # 4. 检查 Celery Worker 状态
+    worker_status = {"status": "unknown", "error": None}
+    try:
+        from app.tasks.celery_app import celery_app
+        inspector = celery_app.control.inspect(timeout=3.0)
+        active = inspector.active()
+        registered = inspector.registered()
+
+        if active:
+            worker_status["status"] = "running"
+            worker_status["workers"] = list(active.keys())
+            worker_status["active_tasks"] = {k: len(v) for k, v in active.items()}
+        else:
+            worker_status["status"] = "no_workers"
+            worker_status["message"] = "未检测到活跃的 Celery Worker"
+
+        if registered:
+            worker_status["registered_tasks"] = {k: len(v) for k, v in registered.items()}
+    except Exception as e:
+        worker_status["status"] = "error"
+        worker_status["error"] = str(e)
+    diagnostics["checks"]["celery_worker"] = worker_status
+
+    # 5. 综合评估
+    issues = []
+    if diagnostics["checks"]["redis"]["status"] != "connected":
+        issues.append(f"Redis 连接失败: {diagnostics['checks']['redis'].get('error', 'Unknown')}")
+    if diagnostics["checks"]["celery_worker"]["status"] in ["no_workers", "error"]:
+        issues.append(f"Celery Worker 未运行: {diagnostics['checks']['celery_worker'].get('error', 'Unknown')}")
+    if not os.getenv("CELERY_BROKER_URL"):
+        issues.append("CELERY_BROKER_URL 环境变量未设置")
+
+    diagnostics["summary"] = {
+        "overall_status": "healthy" if not issues else "unhealthy",
+        "issues": issues,
+        "recommendation": "所有检查通过" if not issues else "请检查上述问题"
+    }
+
+    return diagnostics
+
+
 # ==================== SPA 前端路由处理（放在最后作为 catch-all） ====================
 # 排除的路径前缀（WebSocket 已移至 /api/v1/tasks/ws，无需 /ws 排除）
 _EXCLUDED_PREFIXES = ("/api", "/storage", "/health", "/docs", "/redoc", "/assets", "/public", "/openapi.json", "/onlyoffice")
