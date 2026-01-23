@@ -476,6 +476,101 @@ async def check_onlyoffice_health():
             "message": "无法连接到 OnlyOffice 服务"
         }
 
+
+@app.get("/health/celery")
+async def check_celery_health():
+    """
+    Celery Worker 健康检查
+
+    检查 Celery Worker 是否正在运行
+    """
+    try:
+        from app.tasks.celery_app import celery_app
+
+        # 使用 Celery 的 inspect API 检查活跃的 workers
+        inspector = celery_app.control.inspect(timeout=5.0)
+
+        # 获取活跃的 workers
+        active_workers = inspector.active()
+
+        if active_workers:
+            # Worker 正在运行
+            worker_count = len(active_workers)
+            worker_stats = {}
+            for worker_name, tasks in active_workers.items():
+                worker_stats[worker_name] = {
+                    "active_tasks": len(tasks) if tasks else 0,
+                    "tasks": [t.get("id", "unknown") for t in tasks[:5]] if tasks else []
+                }
+
+            return {
+                "success": True,
+                "status": "healthy",
+                "worker_count": worker_count,
+                "workers": list(active_workers.keys()),
+                "worker_stats": worker_stats,
+                "message": f"Celery Worker 运行中 ({worker_count} 个 worker)"
+            }
+        else:
+            # 没有活跃的 workers
+            return {
+                "success": False,
+                "status": "unhealthy",
+                "workers": [],
+                "message": "未检测到活跃的 Celery Worker",
+                "troubleshooting": "检查后端日志，确认 Celery Worker 是否成功启动"
+            }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "status": "error",
+            "error": str(e),
+            "message": f"Celery 健康检查失败: {str(e)}"
+        }
+
+
+@app.get("/health/celery/test")
+async def test_celery_task():
+    """
+    测试 Celery 任务执行
+
+    提交一个简单的测试任务，验证整个流程是否正常
+    """
+    try:
+        from app.tasks.celery_app import health_check
+
+        # 提交测试任务
+        result = health_check.apply_async(expires=30)
+
+        # 等待结果（最多等待 10 秒）
+        try:
+            task_result = result.get(timeout=10)
+            return {
+                "success": True,
+                "status": "passed",
+                "task_id": result.id,
+                "result": task_result,
+                "message": "Celery 任务执行成功"
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "status": "failed",
+                "task_id": result.id,
+                "error": str(e),
+                "message": "Celery 任务执行失败或超时"
+            }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "status": "error",
+            "error": str(e),
+            "message": f"无法提交测试任务: {str(e)}"
+        }
+
+
 # ==================== SPA 前端路由处理（放在最后作为 catch-all） ====================
 # 排除的路径前缀（WebSocket 已移至 /api/v1/tasks/ws，无需 /ws 排除）
 _EXCLUDED_PREFIXES = ("/api", "/storage", "/health", "/docs", "/redoc", "/assets", "/public", "/openapi.json", "/onlyoffice")
