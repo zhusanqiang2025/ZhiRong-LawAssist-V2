@@ -672,6 +672,100 @@ async def system_diagnostics():
     return diagnostics
 
 
+@app.get("/health/debug/celery-command")
+async def debug_celery_command():
+    """
+    调试 Celery 命令是否可用
+
+    测试 celery 命令是否能找到并执行
+    """
+    import subprocess
+    import sys
+
+    result = {
+        "python_executable": sys.executable,
+        "python_version": sys.version,
+        "working_directory": os.getcwd(),
+        "tests": {}
+    }
+
+    # 测试 1: celery 命令是否在 PATH 中
+    try:
+        which_result = subprocess.run(
+            ["which", "celery"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        result["tests"]["which_celery"] = {
+            "found": which_result.returncode == 0,
+            "path": which_result.stdout.strip() if which_result.returncode == 0 else None
+        }
+    except Exception as e:
+        result["tests"]["which_celery"] = {"error": str(e)}
+
+    # 测试 2: python -m celery 是否可用
+    try:
+        test_result = subprocess.run(
+            [sys.executable, "-m", "celery", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        result["tests"]["celery_version"] = {
+            "success": test_result.returncode == 0,
+            "output": test_result.stdout.strip(),
+            "error": test_result.stderr.strip()
+        }
+    except Exception as e:
+        result["tests"]["celery_version"] = {"error": str(e)}
+
+    # 测试 3: 检查是否能导入 celery 模块
+    try:
+        import celery
+        result["tests"]["import_celery"] = {
+            "success": True,
+            "version": celery.__version__
+        }
+    except ImportError as e:
+        result["tests"]["import_celery"] = {
+            "success": False,
+            "error": str(e)
+        }
+
+    # 测试 4: 检查是否能导入 redis 模块
+    try:
+        import redis
+        result["tests"]["import_redis"] = {
+            "success": True,
+            "version": redis.__version__
+        }
+    except ImportError as e:
+        result["tests"]["import_redis"] = {
+            "success": False,
+            "error": str(e)
+        }
+
+    # 测试 5: 尝试运行 celery inspect（测试基本功能）
+    try:
+        inspect_result = subprocess.run(
+            [sys.executable, "-m", "celery", "inspect", "ping"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            env={**os.environ, "CELERY_BROKER_URL": os.getenv("CELERY_BROKER_URL")}
+        )
+        result["tests"]["celery_inspect"] = {
+            "success": inspect_result.returncode == 0,
+            "output": inspect_result.stdout.strip()[:200],
+            "error": inspect_result.stderr.strip()[:200]
+        }
+    except Exception as e:
+        result["tests"]["celery_inspect"] = {"error": str(e)}
+
+    return result
+
+
 # ==================== SPA 前端路由处理（放在最后作为 catch-all） ====================
 # 排除的路径前缀（WebSocket 已移至 /api/v1/tasks/ws，无需 /ws 排除）
 _EXCLUDED_PREFIXES = ("/api", "/storage", "/health", "/docs", "/redoc", "/assets", "/public", "/openapi.json", "/onlyoffice")
