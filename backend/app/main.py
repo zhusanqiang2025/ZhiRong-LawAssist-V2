@@ -4,7 +4,7 @@
 路由架构标准化：所有业务 API 统一收归到 /api/v1 命名空间
 """
 from fastapi import FastAPI, Request, HTTPException, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 from fastapi.encoders import jsonable_encoder
@@ -19,6 +19,7 @@ import os
 import asyncio
 import json
 from typing import Dict
+import httpx
 
 from app.database import Base, engine
 from app.models.user import User
@@ -321,6 +322,72 @@ app.include_router(api_router, prefix="/api/v1")
 setup_exception_handlers(app)
 
 # ==================== 根路径与健康检查 ====================
+
+# ==================== OnlyOffice 代理 ====================
+# 在 K8s 环境中，OnlyOffice 静态资源通过后端代理
+ONLYOFFICE_URL = os.getenv(
+    "ONLYOFFICE_URL",
+    "http://legal_assistant_v3_onlyoffice:80"  # K8s 内部地址
+)
+
+
+@app.get("/onlyoffice/{full_path:path}")
+async def proxy_onlyoffice(full_path: str, request: Request):
+    """
+    OnlyOffice 静态资源代理
+
+    当 K8s 中 OnlyOffice 服务运行时，后端转发请求
+    解决 MIME type 和 CORS 问题
+    """
+    # 构建目标 URL
+    target_url = f"{ONLYOFFICE_URL}/{full_path}"
+    if request.url.query:
+        target_url += f"?{request.url.query}"
+
+    # 转发查询参数
+    query_params = dict(request.query_params)
+
+    logger.info(f"[OnlyOffice Proxy] {request.method} {full_path} -> {target_url}")
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        try:
+            # 转发请求
+            if request.method == "GET":
+                response = client.get(
+                    target_url,
+                    params=query_params,
+                    headers={"Accept": "application/javascript, text/html, */*"}
+                )
+            else:
+                # 其他方法（POST 等）
+                content = await request.body()
+                response = client.request(
+                    request.method,
+                    target_url,
+                    params=query_params,
+                    content=content,
+                    headers=dict(request.headers)
+                )
+
+            # 返回响应
+            return Response(
+                content=response.content,
+                status_code=response.status_code,
+                headers=dict(response.headers),
+                media_type=response.headers.get("content-type", "application/octet-stream")
+            )
+
+        except httpx.RequestError as e:
+            logger.error(f"[OnlyOffice Proxy] 连接失败: {e}")
+            raise HTTPException(
+                status_code=503,
+                detail=f"OnlyOffice 服务不可用: {str(e)}。请联系管理员检查 OnlyOffice 服务状态。"
+            )
+        except Exception as e:
+            logger.error(f"[OnlyOffice Proxy] 代理失败: {e}")
+            raise HTTPException(status_code=500, detail=f"代理请求失败: {str(e)}")
+
+
 @app.get("/")
 def read_root(request: Request):
     """
@@ -362,7 +429,7 @@ def health_check(request: Request):
 
 # ==================== SPA 前端路由处理（放在最后作为 catch-all） ====================
 # 排除的路径前缀（WebSocket 已移至 /api/v1/tasks/ws，无需 /ws 排除）
-_EXCLUDED_PREFIXES = ("/api", "/storage", "/health", "/docs", "/redoc", "/assets", "/public", "/openapi.json")
+_EXCLUDED_PREFIXES = ("/api", "/storage", "/health", "/docs", "/redoc", "/assets", "/public", "/openapi.json", "/onlyoffice")
 
 
 @app.get("/{full_path:path}", include_in_schema=False)
