@@ -16,7 +16,7 @@ RUN cd /app/frontend && \
     npm ci --verbose && \
     npx vite build && \
     mkdir -p /app/backend/static/frontend && \
-    cp -r dist/* /app/backend/static/frontend/ && \
+    cp -r dist/* /app/backend/static/frontend/ 
 
 
 # 9. 暴露端口（与 K8s Service 端口匹配）

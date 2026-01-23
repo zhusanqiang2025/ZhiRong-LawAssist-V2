@@ -5,7 +5,7 @@ variables:
   PROJECT_NAME: $CI_PROJECT_TITLE
   GIT_SSL_NO_VERIFY: 'true'
   BUILDKIT_PROGRESS: plain
-  DEPLOY_SERVER_NAME: azgpu01/$CI_PROJECT_TITLE
+  DEPLOY_SERVER_NAME: azgpu02/$CI_PROJECT_TITLE
   # ⚠️ 注意：这里虽然写了8000，但容器实际监听7860。如果K8s Service配置了8000->7860转发则没问题。
   # 如果有问题，需确认 K8s 的 Service 配置。
   DEPLOY_HTTP_PORT: 8000 
