@@ -1,93 +1,53 @@
 # backend/app/services/cache_service.py
 """
-Redis 缓存服务
+内存缓存服务（替代 Redis）
 """
 import json
-import pickle
+import time
+import threading
 from typing import Any, Optional, Union, List, Dict
 from datetime import timedelta
-import redis
-from redis.connection import ConnectionPool
 import logging
 from functools import wraps
-import os
-
-from ..core.config import settings
 
 logger = logging.getLogger(__name__)
 
+
+class _CacheItem:
+    """缓存项，存储值和过期时间"""
+    def __init__(self, value: Any, expire_at: Optional[float] = None):
+        self.value = value
+        self.expire_at = expire_at  # Unix 时间戳
+
+    def is_expired(self) -> bool:
+        """检查是否已过期"""
+        if self.expire_at is None:
+            return False
+        return time.time() > self.expire_at
+
+
 class CacheService:
-    """Redis 缓存服务类"""
+    """内存缓存服务类（线程安全）"""
 
     def __init__(self):
-        """初始化 Redis 连接池"""
-        self._redis_client = None
-        self._connection_pool = None
-        self._connect()
-
-    def _connect(self):
-        """使用连接池连接到 Redis"""
-        try:
-            # 从环境变量读取连接池配置
-            redis_max_connections = int(os.getenv("REDIS_MAX_CONNECTIONS", "50"))
-            redis_socket_timeout = int(os.getenv("REDIS_SOCKET_TIMEOUT", "5"))
-            redis_socket_connect_timeout = int(os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT", "5"))
-
-            # 创建连接池
-            self._connection_pool = ConnectionPool(
-                host=settings.REDIS_HOST,
-                port=settings.REDIS_PORT,
-                db=settings.REDIS_DB,
-                max_connections=redis_max_connections,  # 最大连接数
-                decode_responses=False,  # 使用 bytes 以支持 pickle
-                socket_connect_timeout=redis_socket_connect_timeout,
-                socket_timeout=redis_socket_timeout,
-                retry_on_timeout=True,
-                health_check_interval=30,
-            )
-
-            # 使用连接池创建 Redis 客户端
-            self._redis_client = redis.Redis(
-                connection_pool=self._connection_pool
-            )
-
-            # 测试连接
-            self._redis_client.ping()
-            logger.info(f"Redis connection pool established successfully (max_connections={redis_max_connections})")
-
-        except Exception as e:
-            logger.error(f"Failed to connect to Redis: {e}")
-            self._redis_client = None
-            self._connection_pool = None
-
-    def _serialize_value(self, value: Any) -> bytes:
-        """序列化值"""
-        try:
-            return pickle.dumps(value)
-        except Exception as e:
-            logger.error(f"Failed to serialize value: {e}")
-            # 如果序列化失败，尝试转为字符串
-            return str(value).encode('utf-8')
-
-    def _deserialize_value(self, value: bytes) -> Any:
-        """反序列化值"""
-        try:
-            return pickle.loads(value)
-        except Exception as e:
-            logger.error(f"Failed to deserialize value: {e}")
-            # 如果反序列化失败，尝试解码为字符串
-            return value.decode('utf-8')
+        """初始化内存缓存"""
+        self._cache: Dict[str, _CacheItem] = {}
+        self._lock = threading.RLock()
+        logger.info("Memory cache service initialized")
 
     def is_available(self) -> bool:
-        """检查 Redis 是否可用"""
-        if not self._redis_client:
-            return False
+        """检查缓存是否可用（内存缓存始终可用）"""
+        return True
 
-        try:
-            self._redis_client.ping()
-            return True
-        except Exception:
-            return False
+    def _cleanup_expired(self):
+        """清理过期的缓存项"""
+        current_time = time.time()
+        expired_keys = [
+            key for key, item in self._cache.items()
+            if item.expire_at is not None and current_time > item.expire_at
+        ]
+        for key in expired_keys:
+            del self._cache[key]
 
     def set(self, key: str, value: Any, expire: Optional[Union[int, timedelta]] = None) -> bool:
         """
@@ -101,19 +61,19 @@ class CacheService:
         Returns:
             是否设置成功
         """
-        if not self.is_available():
-            return False
-
         try:
-            serialized_value = self._serialize_value(value)
-
             if isinstance(expire, timedelta):
                 expire = int(expire.total_seconds())
 
-            if expire:
-                return self._redis_client.setex(key, expire, serialized_value)
-            else:
-                return self._redis_client.set(key, serialized_value)
+            expire_at = time.time() + expire if expire else None
+
+            with self._lock:
+                self._cache[key] = _CacheItem(value, expire_at)
+                # 定期清理过期项
+                if len(self._cache) > 1000:
+                    self._cleanup_expired()
+
+            return True
 
         except Exception as e:
             logger.error(f"Failed to set cache key '{key}': {e}")
@@ -130,15 +90,18 @@ class CacheService:
         Returns:
             缓存值或默认值
         """
-        if not self.is_available():
-            return default
-
         try:
-            value = self._redis_client.get(key)
-            if value is None:
-                return default
+            with self._lock:
+                item = self._cache.get(key)
 
-            return self._deserialize_value(value)
+                if item is None:
+                    return default
+
+                if item.is_expired():
+                    del self._cache[key]
+                    return default
+
+                return item.value
 
         except Exception as e:
             logger.error(f"Failed to get cache key '{key}': {e}")
@@ -154,18 +117,20 @@ class CacheService:
         Returns:
             是否删除成功
         """
-        if not self.is_available():
-            return False
-
         try:
-            return bool(self._redis_client.delete(key))
+            with self._lock:
+                if key in self._cache:
+                    del self._cache[key]
+                    return True
+                return False
+
         except Exception as e:
             logger.error(f"Failed to delete cache key '{key}': {e}")
             return False
 
     def delete_pattern(self, pattern: str) -> int:
         """
-        批量删除缓存
+        批量删除缓存（支持通配符 *）
 
         Args:
             pattern: 匹配模式（支持通配符 *）
@@ -173,14 +138,17 @@ class CacheService:
         Returns:
             删除的键数量
         """
-        if not self.is_available():
-            return 0
-
         try:
-            keys = self._redis_client.keys(pattern)
-            if keys:
-                return self._redis_client.delete(*keys)
-            return 0
+            import fnmatch
+            with self._lock:
+                keys_to_delete = [
+                    key for key in self._cache.keys()
+                    if fnmatch.fnmatch(key, pattern)
+                ]
+                for key in keys_to_delete:
+                    del self._cache[key]
+                return len(keys_to_delete)
+
         except Exception as e:
             logger.error(f"Failed to delete cache pattern '{pattern}': {e}")
             return 0
@@ -195,11 +163,16 @@ class CacheService:
         Returns:
             是否存在
         """
-        if not self.is_available():
-            return False
-
         try:
-            return bool(self._redis_client.exists(key))
+            with self._lock:
+                item = self._cache.get(key)
+                if item is None:
+                    return False
+                if item.is_expired():
+                    del self._cache[key]
+                    return False
+                return True
+
         except Exception as e:
             logger.error(f"Failed to check cache key '{key}': {e}")
             return False
@@ -215,11 +188,14 @@ class CacheService:
         Returns:
             是否设置成功
         """
-        if not self.is_available():
-            return False
-
         try:
-            return bool(self._redis_client.expire(key, seconds))
+            with self._lock:
+                item = self._cache.get(key)
+                if item is None:
+                    return False
+                item.expire_at = time.time() + seconds
+                return True
+
         except Exception as e:
             logger.error(f"Failed to set expire for cache key '{key}': {e}")
             return False
@@ -235,11 +211,19 @@ class CacheService:
         Returns:
             递增后的值
         """
-        if not self.is_available():
-            return None
-
         try:
-            return self._redis_client.incrby(key, amount)
+            with self._lock:
+                item = self._cache.get(key)
+                if item is None or item.is_expired():
+                    new_value = amount
+                    self._cache[key] = _CacheItem(new_value)
+                else:
+                    if not isinstance(item.value, int):
+                        return None
+                    item.value += amount
+                    new_value = item.value
+                return new_value
+
         except Exception as e:
             logger.error(f"Failed to increment cache key '{key}': {e}")
             return None
@@ -254,12 +238,17 @@ class CacheService:
         Returns:
             键列表
         """
-        if not self.is_available():
-            return []
-
         try:
-            keys = self._redis_client.keys(pattern)
-            return [key.decode('utf-8') if isinstance(key, bytes) else key for key in keys]
+            import fnmatch
+            with self._lock:
+                # 先清理过期项
+                self._cleanup_expired()
+                # 返回匹配的键
+                return [
+                    key for key in self._cache.keys()
+                    if fnmatch.fnmatch(key, pattern)
+                ]
+
         except Exception as e:
             logger.error(f"Failed to get cache keys with pattern '{pattern}': {e}")
             return []
@@ -271,18 +260,34 @@ class CacheService:
         Returns:
             是否清空成功
         """
-        if not self.is_available():
-            return False
-
         try:
-            return self._redis_client.flushdb()
+            with self._lock:
+                self._cache.clear()
+            return True
+
         except Exception as e:
             logger.error(f"Failed to clear all cache: {e}")
             return False
 
+    def get_stats(self) -> Dict[str, Any]:
+        """
+        获取缓存统计信息
+
+        Returns:
+            统计信息
+        """
+        with self._lock:
+            self._cleanup_expired()
+            return {
+                "type": "memory",
+                "total_keys": len(self._cache),
+                "keys": list(self._cache.keys())
+            }
+
 
 # 全局缓存服务实例
 cache_service = CacheService()
+
 
 def cache(expire: Union[int, timedelta] = 3600, key_prefix: str = ""):
     """
@@ -315,6 +320,7 @@ def cache(expire: Union[int, timedelta] = 3600, key_prefix: str = ""):
 
         return wrapper
     return decorator
+
 
 def clear_cache_pattern(pattern: str):
     """

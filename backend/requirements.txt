@@ -6,7 +6,6 @@ uvicorn[standard]==0.24.0
 
 # 安全与限流
 slowapi>=0.1.9
-redis
 
 # 配置与数据模型
 pydantic==2.8.2

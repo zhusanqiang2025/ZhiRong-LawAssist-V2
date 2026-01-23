@@ -1,4 +1,4 @@
-# docker-compose.yml (v4.8 - Celery服务已注释，使用旧系统)
+# docker-compose.yml (v4.9 - 移除 Redis，使用内存缓存)
 services:
   db:
     image: pgvector/pgvector:pg15
@@ -20,30 +20,19 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7-alpine
-    container_name: legal_assistant_v3_redis
-    command: redis-server --appendonly yes
-    restart: always
-    volumes:
-      - redis_data:/data
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+  # ==================== Redis 已移除，使用内存缓存 ====================
+  # 原 Redis 服务已移除，缓存功能现在使用内存实现
 
-  # ==================== Celery Worker 服务 (已注释) ====================
-  # 注意：以下 Celery 服务需要先构建镜像安装依赖后才能启动
+  # ==================== Celery Worker 服务 (已注释，需要 Redis broker) ====================
+  # 注意：以下 Celery 服务需要 Redis 作为 broker，当前已禁用
   # 当前 CELERY_ENABLED=false，使用旧系统，不需要启动这些服务
   #
   # 启用 Celery 的步骤：
-  # 1. 运行：docker-compose build backend
-  # 2. 取消下面所有 celery-* 服务的注释
-  # 3. 修改 .env 中的 CELERY_ENABLED=true
-  # 4. 运行：docker-compose up -d
+  # 1. 重新启用 Redis 服务
+  # 2. 运行：docker-compose build backend
+  # 3. 取消下面所有 celery-* 服务的注释
+  # 4. 修改 .env 中的 CELERY_ENABLED=true
+  # 5. 运行：docker-compose up -d
 
   # celery-worker-high:
   #   container_name: legal_assistant_v3_celery_worker_high
@@ -79,29 +68,31 @@ services:
   #   networks:
   #     - app-network
 
-  celery-worker-medium:
-    container_name: legal_assistant_v3_celery_worker_medium
-    image: legal_document_assistantv3-backend:latest
-    # 不再使用 env_file，直接使用 Dockerfile 中的 ENV 配置
-    # env_file: .env
-    volumes:
-      - ./backend:/app:rw
-      - ./storage:/app/storage:rw
-    depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-    command: >
-      celery -A app.tasks.celery_app worker
-      --loglevel=info
-      --concurrency=2
-      --queues=high_priority,medium_priority,low_priority,default
-      -n worker-medium@%h
-      --max-tasks-per-child=100
-    restart: always
-    networks:
-      - app-network
+  # celery-worker-medium:
+  #   container_name: legal_assistant_v3_celery_worker_medium
+  #   image: legal_document_assistantv3-backend:latest
+  #   env_file: .env
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #   volumes:
+  #     - ./backend:/app:rw
+  #     - ./storage:/app/storage:rw
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #     db:
+  #       condition: service_healthy
+  #   command: >
+  #     celery -A app.tasks.celery_app worker
+  #     --loglevel=info
+  #     --concurrency=2
+  #     --queues=high_priority,medium_priority,low_priority,default
+  #     -n worker-medium@%h
+  #     --max-tasks-per-child=100
+  #   restart: always
+  #   networks:
+  #     - app-network
 
   # celery-worker-low:
   #   container_name: legal_assistant_v3_celery_worker_low
@@ -156,20 +147,19 @@ services:
   #   networks:
   #     - app-network
 
-  celery-flower:
-    container_name: legal_assistant_v3_celery_flower
-    image: legal_document_assistantv3-backend:latest
-    # 不再使用 env_file，直接使用 Dockerfile 中的 ENV 配置
-    # env_file: .env
-    ports:
-      - "${FLOWER_PORT:-5556}:5555"
-    depends_on:
-      redis:
-        condition: service_healthy
-    command: celery -A app.tasks.celery_app flower --port=5555 --broker=redis://redis:6379/0
-    restart: always
-    networks:
-      - app-network
+  # celery-flower:
+  #   container_name: legal_assistant_v3_celery_flower
+  #   image: legal_document_assistantv3-backend:latest
+  #   env_file: .env
+  #   ports:
+  #     - "${FLOWER_PORT:-5556}:5555"
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   command: celery -A app.tasks.celery_app flower --port=5555 --broker=redis://redis:6379/0
+  #   restart: always
+  #   networks:
+  #     - app-network
 
   # =========================================
   # 新增服务: ONLYOFFICE 文档服务器
@@ -220,8 +210,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_started
       onlyoffice:
         condition: service_started
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--ws-ping-interval", "20", "--ws-ping-timeout", "300"]
@@ -250,7 +238,7 @@ services:
 
 volumes:
   pgdata:
-  redis_data:
+  # redis_data:  # Redis 已移除
   # 新增 ONLYOFFICE 卷
   onlyoffice_data:
   onlyoffice_log:

@@ -17,7 +17,6 @@ import sys
 import time
 import os
 import asyncio
-import redis
 import json
 from typing import Dict
 
@@ -169,75 +168,8 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# ==================== Redis Pub/Sub 监听器（用于任务进度） ====================
-redis_pubsub_client = redis.from_url(os.getenv("REDIS_URL", "redis://redis:6379/0"), decode_responses=True)
-redis_subscriber = None
-pubsub_task = None
-
-PROGRESS_CHANNEL_PREFIX = "task_progress:"
-
-
-async def redis_progress_listener():
-    """监听 Redis Pub/Sub 进度消息并转发到 WebSocket"""
-    global redis_subscriber
-    redis_subscriber = redis_pubsub_client.pubsub()
-
-    # 订阅所有任务进度频道
-    pattern = f"{PROGRESS_CHANNEL_PREFIX}*"
-    redis_subscriber.psubscribe(pattern)
-    logger.info(f"[Redis Pub/Sub] 开始监听频道模式: {pattern}")
-
-    try:
-        while True:
-            # 使用异步方式获取消息
-            message = redis_subscriber.get_message(timeout=1.0)
-            if message and message['type'] == 'pmessage':
-                try:
-                    # 解析频道名获取 task_id
-                    channel = message['channel']
-                    task_id = channel.replace(PROGRESS_CHANNEL_PREFIX, '')
-
-                    # 解析消息数据
-                    data = json.loads(message['data'])
-
-                    # 转发到 WebSocket
-                    await manager.send_progress(task_id, data)
-                    logger.info(f"[Redis Pub/Sub] 转发进度到 WebSocket: {task_id}, type={data.get('type')}")
-                except Exception as e:
-                    logger.error(f"[Redis Pub/Sub] 处理消息失败: {e}", exc_info=True)
-
-            # 避免阻塞
-            await asyncio.sleep(0.01)
-    except Exception as e:
-        logger.error(f"[Redis Pub/Sub] 监听器错误: {e}", exc_info=True)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """应用启动时初始化"""
-    global pubsub_task
-
-    # 启动 Redis 监听器
-    pubsub_task = asyncio.create_task(redis_progress_listener())
-    logger.info("[Redis Pub/Sub] 监听器任务已启动")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """应用关闭时清理"""
-    global pubsub_task, redis_subscriber
-
-    if pubsub_task:
-        pubsub_task.cancel()
-        try:
-            await pubsub_task
-        except asyncio.CancelledError:
-            pass
-
-    if redis_subscriber:
-        redis_subscriber.close()
-
-    logger.info("[Redis Pub/Sub] 监听器已停止")
+# ==================== Redis Pub/Sub 监听器（已移除，使用内存缓存）====================
+# 任务进度现在使用内存缓存或 WebSocket 直接推送，不再需要 Redis
 
 # ==================== 静态文件挂载 ====================
 # 确保 storage/uploads 目录存在

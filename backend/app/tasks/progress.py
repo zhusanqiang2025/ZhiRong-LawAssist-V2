@@ -3,7 +3,7 @@
 任务进度追踪工具
 
 提供任务进度更新到数据库和WebSocket的功能
-使用 Redis Pub/Sub 实现跨进程通信
+使用 Redis Pub/Sub 实现跨进程通信（已禁用，使用内存缓存）
 """
 
 from app.database import SessionLocal
@@ -12,16 +12,32 @@ from datetime import datetime, timezone
 import logging
 import json
 import os
-import redis
 
 logger = logging.getLogger(__name__)
 
-# 创建 Redis 连接用于 Pub/Sub
-REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
-redis_client = redis.from_url(REDIS_URL, decode_responses=True)
+# ==================== Redis Pub/Sub (已禁用) ====================
+# 由于 Redis 已移除，进度通知现在仅使用数据库存储
+# WebSocket 推送可以改为使用内存缓存或直接连接
 
 # WebSocket 进度频道前缀
 PROGRESS_CHANNEL_PREFIX = "task_progress:"
+
+# Redis 客户端（已禁用）
+redis_client = None
+_redis_available = False
+
+try:
+    import redis
+    REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
+    redis_client = redis.from_url(REDIS_URL, decode_responses=True)
+    # 尝试 ping Redis 检查是否可用
+    redis_client.ping()
+    _redis_available = True
+    logger.info("[Progress] Redis 已启用，支持 Pub/Sub 进度推送")
+except Exception as e:
+    logger.warning(f"[Progress] Redis 不可用，仅使用数据库存储进度: {e}")
+    redis_client = None
+    _redis_available = False
 
 
 async def update_progress(
@@ -68,20 +84,24 @@ async def update_progress(
             db.commit()
 
         # 发布到 Redis Pub/Sub（Backend 会监听并转发到 WebSocket）
-        channel_name = f"{PROGRESS_CHANNEL_PREFIX}{task_id}"
-        progress_data = {
-            "type": "task_progress",
-            "data": {
-                "task_id": task_id,
-                "progress": progress,
-                "current_node": current_node,
-                "message": message,
-                "node_progress": node_progress,
-                "timestamp": datetime.now(timezone.utc).isoformat()
+        # 注意：Redis 已禁用，使用内存缓存或数据库轮询替代
+        if _redis_available and redis_client:
+            channel_name = f"{PROGRESS_CHANNEL_PREFIX}{task_id}"
+            progress_data = {
+                "type": "task_progress",
+                "data": {
+                    "task_id": task_id,
+                    "progress": progress,
+                    "current_node": current_node,
+                    "message": message,
+                    "node_progress": node_progress,
+                    "timestamp": datetime.now(timezone.utc).isoformat()
+                }
             }
-        }
-        redis_client.publish(channel_name, json.dumps(progress_data))
-        logger.info(f"[Redis Pub] 进度已发布到频道 {channel_name}: {progress}% - {message}")
+            redis_client.publish(channel_name, json.dumps(progress_data))
+            logger.info(f"[Redis Pub] 进度已发布到频道 {channel_name}: {progress}% - {message}")
+        else:
+            logger.debug(f"[Progress] 进度已更新到数据库（Redis 不可用）: {progress}% - {message}")
 
     except Exception as e:
         logger.error(f"Failed to update progress: {e}", exc_info=True)
@@ -117,19 +137,22 @@ async def send_task_notification(
         msg_type = message_type_map.get(notification_type, "task_progress")
 
         # 发布到 Redis Pub/Sub
-        channel_name = f"{PROGRESS_CHANNEL_PREFIX}{task_id}"
-        notification_data = {
-            "type": msg_type,
-            "data": {
-                "task_id": task_id,
-                "notification_type": notification_type,
-                "message": message,
-                "result": data or {},
-                "timestamp": datetime.now(timezone.utc).isoformat()
+        if _redis_available and redis_client:
+            channel_name = f"{PROGRESS_CHANNEL_PREFIX}{task_id}"
+            notification_data = {
+                "type": msg_type,
+                "data": {
+                    "task_id": task_id,
+                    "notification_type": notification_type,
+                    "message": message,
+                    "result": data or {},
+                    "timestamp": datetime.now(timezone.utc).isoformat()
+                }
             }
-        }
-        redis_client.publish(channel_name, json.dumps(notification_data))
-        logger.info(f"[Redis Pub] 通知已发布到频道 {channel_name}: {notification_type}")
+            redis_client.publish(channel_name, json.dumps(notification_data))
+            logger.info(f"[Redis Pub] 通知已发布到频道 {channel_name}: {notification_type}")
+        else:
+            logger.info(f"[Progress] 通知已记录到数据库（Redis 不可用）: {notification_type} - {message}")
 
     except Exception as e:
         logger.error(f"Failed to send notification: {e}", exc_info=True)

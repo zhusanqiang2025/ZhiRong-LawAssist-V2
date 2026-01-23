@@ -1,4 +1,4 @@
-# backend/app/core/config.py (Pydantic V2 兼容版)
+# backend/app/core/config.py (生产环境硬编码配置版)
 import secrets
 from typing import Any, Dict, List, Optional, Union
 
@@ -9,20 +9,21 @@ from pydantic import AnyHttpUrl, PostgresDsn, validator
 
 class Settings(BaseSettings):
     """
-    应用配置类，使用 Pydantic 的 BaseSettings 来自动从环境变量读取配置。
+    应用配置类 - 生产环境硬编码配置
+    所有线上服务配置已硬编码，部署后可直接使用
     """
 
     # --- 应用基本配置 ---
-    ENVIRONMENT: str = "development"
+    ENVIRONMENT: str = "production"
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str = "default-secret-key-change-in-production-min-32-chars"  # 默认值，生产环境必须覆盖
+    SECRET_KEY: str = "legal-assistant-production-secret-key-2025-min-32-chars-change-if-needed"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    SERVER_NAME: str = "localhost"
-    SERVER_HOST: str = "http://localhost:8000"
+    SERVER_NAME: str = "legal-assistant-v3.azgpu02.azshentong.com"
+    SERVER_HOST: str = "https://legal-assistant-v3.azgpu02.azshentong.com"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
     # --- 文件上传配置 ---
-    UPLOAD_DIR: str = "./storage/uploads"  # 文件上传目录
+    UPLOAD_DIR: str = "./storage/uploads"
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
@@ -32,106 +33,110 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
 
-    # --- 数据库配置 ---
-    PROJECT_NAME: str = "zhirong_fazhu_v2"
-    POSTGRES_SERVER: str = "localhost"  # 默认值
-    POSTGRES_USER: str = "postgres"  # 默认值
-    POSTGRES_PASSWORD: str = "postgres"  # 默认值
-    POSTGRES_DB: str = "legal_assistant"  # 默认值
-    DATABASE_URL: str = "sqlite:///./storage/app.db"  # 默认使用 SQLite
+    # ==================== 数据库配置（硬编码生产环境）====================
+    PROJECT_NAME: str = "legal_assistant_v3"
+    POSTGRES_SERVER: str = "postgres18-0.postgres18.gms.svc.cluster.local"
+    POSTGRES_PORT: int = 5432
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_DB: str = "legal_assistant_db"
+    DATABASE_URL: str = "postgresql://postgres:postgres@postgres18-0.postgres18.gms.svc.cluster.local:5432/legal_assistant_db"
 
-    @validator("DATABASE_URL", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
-        if isinstance(v, str):
-            return v
-        return PostgresDsn.build(
-            scheme="postgresql",
-            username=values.get("POSTGRES_USER"),
-            password=values.get("POSTGRES_PASSWORD"),
-            host=values.get("POSTGRES_SERVER"),
-            path=f"/{values.get('POSTGRES_DB') or ''}",
-        )
+    # ==================== Redis 配置（已移除，使用内存缓存）====================
+    # REDIS_HOST: str = "localhost"
+    # REDIS_PORT: int = 6379
+    # REDIS_DB: int = 0
 
-    # --- Redis 配置 ---
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    REDIS_DB: int = 0
+    # ==================== 线上 API 服务配置（硬编码）====================
+    # 统一 API 基础配置
+    API_BASE_URL: str = "https://newapi.dev.azshentong.com/v1"
+    API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
 
-    # --- DeepSeek 配置 ---
-    # DeepSeek API 配置（用于智能对话功能）
-    # 注意：API_URL 已配置为火山引擎 Qwen 模型端点
-    DEEPSEEK_API_URL: str = ""  # 可选
-    DEEPSEEK_API_KEY: str = "default-api-key-change-in-production"  # 默认值
-    DEEPSEEK_MODEL: str = "Qwen3-235B-A22B-Thinking-2507"  # 使用 Qwen3 Thinking 模型
+    # --- DeepSeek/Qwen 配置（用于智能对话）---
+    DEEPSEEK_API_URL: str = "https://newapi.dev.azshentong.com/v1"
+    DEEPSEEK_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    DEEPSEEK_MODEL: str = "Qwen3-235B-A22B-Thinking-2507"
     DEEPSEEK_TEMPERATURE: float = 0.7
     DEEPSEEK_MAX_TOKENS: int = 2000
     DEEPSEEK_TIMEOUT: int = 60
 
-    # --- MinerU PDF 解析服务配置 ---
-    MINERU_API_URL: str = ""  # MinerU 服务地址，例如: http://mineru-server:8001
-    MINERU_API_TIMEOUT: int = 120  # MinerU 请求超时时间（秒）
-    MINERU_ENABLED: bool = False  # 是否启用 MinerU 服务
+    # --- Qwen3-Thinking 专用配置（用于合同审查等核心功能）---
+    QWEN3_THINKING_API_URL: str = "https://newapi.dev.azshentong.com/v1"
+    QWEN3_THINKING_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    QWEN3_THINKING_MODEL: str = "Qwen3-235B-A22B-Thinking-2507"
+    QWEN3_THINKING_TIMEOUT: int = 120
+    QWEN3_THINKING_ENABLED: bool = True
 
-    # --- OCR 服务配置 ---
-    OCR_API_URL: str = ""  # OCR 服务地址
-    OCR_API_TIMEOUT: int = 60  # OCR 请求超时时间（秒）
-    OCR_ENABLED: bool = False  # 是否启用 OCR 服务
+    # --- LangChain 配置（用于风险评估工作流）---
+    LANGCHAIN_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    LANGCHAIN_API_BASE_URL: str = "https://newapi.dev.azshentong.com/v1"
+    MODEL_NAME: str = "Qwen3-235B-A22B-Thinking-2507"
 
-    # --- AI 文档预处理配置 ---
-    # AI 辅助文档后处理（使用 Qwen3-VL 等视觉语言模型）
-    AI_POSTPROCESS_ENABLED: bool = False  # 是否启用 AI 辅助后处理
-    AI_POSTPROCESS_MODEL: str = ""  # 视觉分析模型（用于文档页面图像分析）
-    AI_POSTPROCESS_API_URL: str = ""  # AI 模型 API 地址
-    AI_POSTPROCESS_API_KEY: str = ""  # AI 模型 API 密钥
-    AI_POSTPROCESS_TIMEOUT: int = 30  # AI 请求超时时间（秒）
-    AI_POSTPROCESS_BATCH_SIZE: int = 5  # 批量处理时每次发送的段落数
+    # --- OpenAI 兼容 API 配置（用于合同生成）---
+    OPENAI_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    OPENAI_API_BASE: str = "https://newapi.dev.azshentong.com/v1"
+    OPENAI_MODEL_NAME: str = "Qwen3-235B-A22B-Thinking-2507"
 
-    # ⭐ 新增：AI 文本分类模型配置（用于段落分类等纯文本任务）
-    AI_TEXT_CLASSIFICATION_ENABLED: bool = False  # 是否启用 AI 文本分类
-    AI_TEXT_CLASSIFICATION_MODEL: str = ""  # 文本分类模型（使用更强的文本模型）
-    AI_TEXT_CLASSIFICATION_API_URL: str = ""  # 文本分类 API 地址
-    AI_TEXT_CLASSIFICATION_API_KEY: str = ""  # 文本分类 API 密钥
-    AI_TEXT_CLASSIFICATION_TIMEOUT: int = 30  # 文本分类超时时间（秒）
+    # ==================== AI 文档预处理配置（硬编码）====================
+    # 视觉模型配置（用于文档页面图像分析）
+    AI_POSTPROCESS_ENABLED: bool = True
+    AI_POSTPROCESS_MODEL: str = "qwen3-vl:32b-thinking-q8_0"
+    AI_POSTPROCESS_API_URL: str = "https://newapi.dev.azshentong.com/v1"
+    AI_POSTPROCESS_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    AI_POSTPROCESS_TIMEOUT: int = 30
+    AI_POSTPROCESS_BATCH_SIZE: int = 5
+
+    # 文本分类模型配置（用于段落分类等纯文本任务）
+    AI_TEXT_CLASSIFICATION_ENABLED: bool = True
+    AI_TEXT_CLASSIFICATION_MODEL: str = "Qwen3-235B-A22B-Thinking-2507"
+    AI_TEXT_CLASSIFICATION_API_URL: str = "https://newapi.dev.azshentong.com/v1"
+    AI_TEXT_CLASSIFICATION_API_KEY: str = "sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ"
+    AI_TEXT_CLASSIFICATION_TIMEOUT: int = 30
 
     # AI 后处理策略配置
-    AI_POSTPROCESS_CONFIDENCE_THRESHOLD: float = 0.7  # 规则置信度阈值，低于此值使用 AI
-    AI_POSTPROCESS_ONLY_AMBIGUOUS: bool = True  # 仅对不确定的内容使用 AI
+    AI_POSTPROCESS_CONFIDENCE_THRESHOLD: float = 0.7
+    AI_POSTPROCESS_ONLY_AMBIGUOUS: bool = True
 
-    # --- OpenAI 兼容 API 配置 ---
-    # 用于合同生成和 V2 特征自动提取
-    OPENAI_API_KEY: str = ""
-    OPENAI_API_BASE: str = ""
-    OPENAI_MODEL_NAME: str = "gpt-4o-mini"  # 默认模型名称
+    # ==================== 外部服务配置（公网地址硬编码）====================
+    # --- MinerU PDF 解析服务配置 ---
+    MINERU_API_URL: str = "https://newapi.dev.azshentong.com/v1"
+    MINERU_API_KEY: str = "sk-qu85R6PvJu89AAnVdUph5qW1zisvrydVHBAopLluM650TTlE"
+    MINERU_API_TIMEOUT: int = 120
+    MINERU_ENABLED: bool = True
 
-    # --- LangChain 配置 ---
-    # 用于风险评估工作流、文档预整理等
-    LANGCHAIN_API_KEY: str = ""
-    LANGCHAIN_API_BASE_URL: str = ""
-    MODEL_NAME: str = "Qwen3-235B-A22B-Thinking-2507"  # 默认模型名称
+    # --- DeepSeek OCR 服务配置 ---
+    OCR_API_URL: str = "https://newapi.dev.azshentong.com/v1"
+    OCR_API_KEY: str = "sk-EQOScNCvMG5SHHmfiwVOI1IdnS47bF6lPrtvQEZTFxsTyH2S"
+    OCR_API_TIMEOUT: int = 60
+    OCR_ENABLED: bool = True
 
-    # --- RAG 服务配置 ---
+    # ==================== 向量检索配置（公网地址硬编码）====================
     # 向量数据库配置
-    VECTOR_DB_TYPE: str = "chroma"  # 向量数据库类型: chroma, qdrant, pgvector
-    CHROMA_PERSIST_DIR: str = "./storage/chroma_db"  # Chroma 持久化目录
+    VECTOR_DB_TYPE: str = "pgvector"
+    CHROMA_PERSIST_DIR: str = "./storage/chroma_db"
 
-    # 公司 BGE 服务配置
-    BGE_EMBEDDING_API_URL: str = "http://115.190.43.141:11434/api/embed"
-    BGE_RERANKER_API_URL: str = "http://115.190.43.141:9997/v1/rerank"
+    # BGE Embedding 模型配置
+    BGE_EMBEDDING_API_URL: str = "https://newapi.dev.azshentong.com/v1"
+    BGE_EMBEDDING_API_KEY: str = "sk-ZLvhvOzb6KriMr961O8AGo73wG9nRblmDiECFybokz6r3iM8"
     BGE_MODEL_NAME: str = "bge-m3"
-    BGE_EMBEDDING_DIM: int = 1024  # BGE-M3 输出维度
-    BGE_TIMEOUT: int = 30  # API 请求超时时间（秒）
+    BGE_EMBEDDING_DIM: int = 1024
+    BGE_TIMEOUT: int = 30
+
+    # BGE Reranker 模型配置
+    BGE_RERANKER_API_URL: str = "https://newapi.dev.azshentong.com/v1"
+    BGE_RERANKER_API_KEY: str = "sk-moDTih3CzjnCB8YP9RB829O1ckRPFXbzZC4VAi1Juf5gt2Nw"
+    BGE_RERANKER_MODEL_NAME: str = "bge-reranker-v2-m3"
 
     # ==================== Celery 任务队列配置 ====================
-    # 功能开关：是否启用 Celery 任务队列系统
-    CELERY_ENABLED: bool = False  # 默认关闭，通过环境变量启用
-    # 任务追踪启用
+    CELERY_ENABLED: bool = False  # 已禁用（需要 Redis）
     CELERY_TASK_TRACK_STARTED: bool = True
-    # 任务硬超时（秒）
     CELERY_TASK_TIME_LIMIT: int = 3600
-    # 任务软超时（秒）
     CELERY_TASK_SOFT_TIME_LIMIT: int = 3300
 
-    @validator("MINERU_ENABLED", "OCR_ENABLED", "AI_POSTPROCESS_ENABLED", "CELERY_ENABLED", pre=True)
+    # ==================== ONLYOFFICE 配置 ====================
+    ONLYOFFICE_JWT_SECRET: str = "legal_doc_secret_2025"
+
+    @validator("MINERU_ENABLED", "OCR_ENABLED", "AI_POSTPROCESS_ENABLED", "AI_TEXT_CLASSIFICATION_ENABLED", "CELERY_ENABLED", "QWEN3_THINKING_ENABLED", pre=True)
     def parse_bool_fields(cls, v):
         """解析布尔值，处理可能的空格问题"""
         if isinstance(v, bool):
@@ -153,9 +158,9 @@ class Settings(BaseSettings):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # 只在非生产环境警告，生产环境必须配置完整
-        if self.ENVIRONMENT != "production":
-            self._warn_default_config()
+        # 生产环境不警告默认配置
+        # if self.ENVIRONMENT != "production":
+        #     self._warn_default_config()
 
     def _warn_default_config(self):
         """开发环境警告默认配置"""
@@ -167,6 +172,7 @@ class Settings(BaseSettings):
             UserWarning,
             stacklevel=2
         )
+
 
 # 创建配置实例
 settings = Settings()

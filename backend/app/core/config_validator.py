@@ -139,9 +139,10 @@ def validate_contract_generation_config() -> ConfigValidationResult:
     else:
         result.add_info("数据库配置正常，支持任务历史记录")
 
-    # 2. 验证 Redis 配置（用于 Celery）
-    if not settings.REDIS_HOST:
-        result.add_warning("Redis 未配置，Celery 任务队列可能无法使用")
+    # 2. Redis 已移除，Celery 已禁用
+    # Redis 不再使用，系统使用内存缓存替代
+    if not settings.CELERY_ENABLED:
+        result.add_info("Redis 已移除，使用内存缓存替代，Celery 任务队列已禁用")
 
     # 3. 验证必需的 API 配置
     required_apis = {
@@ -202,7 +203,7 @@ def get_config_summary() -> Dict[str, Any]:
             "available_models": _extract_available_models(multi_model_result.info),
             "async_enabled": settings.CELERY_ENABLED,
             "database_enabled": bool(settings.DATABASE_URL),
-            "redis_enabled": bool(settings.REDIS_HOST),
+            "redis_enabled": False,  # Redis 已移除，使用内存缓存
         }
     }
 
