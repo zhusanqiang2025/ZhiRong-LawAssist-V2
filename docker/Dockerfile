@@ -17,24 +17,24 @@ ENV PYTHONUNBUFFERED=1
 
 # ==================== API 密钥配置 ====================
 # DeepSeek / LangChain / OpenAI API Key
-ENV DEEPSEEK_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ
+ENV DEEPSEEK_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ
 ENV DEEPSEEK_API_URL=https://newapi.dev.azshentong.com/v1
-ENV DEEPSEEK_MODEL=deepseek-chat
+ENV DEEPSEEK_MODEL=Qwen3-235B-A22B-Thinking-2507
 ENV DEEPSEEK_TEMPERATURE=0.7
 ENV DEEPSEEK_MAX_TOKENS=2000
 ENV DEEPSEEK_TIMEOUT=60
 
 # LangChain API (用于风险评估等核心功能)
-ENV LANGCHAIN_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ
+ENV LANGCHAIN_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ
 ENV LANGCHAIN_API_BASE_URL=https://newapi.dev.azshentong.com/v1
 ENV MODEL_NAME=Qwen3-235B-A22B-Thinking-2507
 
 # OpenAI API (用于合同生成模块)
-ENV OPENAI_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ
+ENV OPENAI_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ
 ENV OPENAI_API_BASE=https://newapi.dev.azshentong.com/v1
 
 # Qwen3-235B-Thinking 模型配置
-ENV QWEN3_THINKING_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuQuLAvJ
+ENV QWEN3_THINKING_API_KEY=sk-KTBuFAEubEOFBpGeVEVisvORtTkvny6OHAiPPGaHQuLAvJ
 ENV QWEN3_THINKING_API_URL=https://newapi.dev.azshentong.com/v1
 ENV QWEN3_THINKING_MODEL=Qwen3-235B-A22B-Thinking-2507
 ENV QWEN3_THINKING_TIMEOUT=120
@@ -48,13 +48,13 @@ ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=postgres
 ENV DATABASE_URL=postgresql://postgres:postgres@postgres18-0.postgres18.gms.svc.cluster.local:5432/legal_assistant_db
 
-# ==================== Redis 配置 ====================
-ENV REDIS_HOST=redis7.gms.svc.cluster.local
-ENV REDIS_PORT=6379
-ENV REDIS_DB=0
-ENV REDIS_URL=redis://redis7.gms.svc.cluster.local:6379/0
-ENV CELERY_BROKER_URL=redis://redis:6379/0
-ENV CELERY_RESULT_BACKEND=redis://redis:6379/0
+# ==================== Redis 配置（已移除，使用内存缓存）====================
+# ENV REDIS_HOST=redis7.gms.svc.cluster.local
+# ENV REDIS_PORT=6379
+# ENV REDIS_DB=0
+# ENV REDIS_URL=redis://redis7.gms.svc.cluster.local:6379/0
+# ENV CELERY_BROKER_URL=redis://redis:6379/0
+# ENV CELERY_RESULT_BACKEND=redis://redis:6379/0
 
 # ==================== 其他服务配置 ====================
 ENV SECRET_KEY=a_very_long_and_super_secret_random_string_that_is_hard_to_guess
@@ -67,13 +67,15 @@ ENV DIFY_ENABLED=false
 ENV DIFY_GUIDANCE_ANALYSIS_ENABLED=false
 ENV DIFY_EXPERT_CONSULTATION_ENABLED=false
 
-# MinerU PDF 解析服务
-ENV MINERU_API_URL=http://115.190.40.198:7231/v2/parse/file
+# MinerU PDF 解析服务（公网地址）
+ENV MINERU_API_URL=https://newapi.dev.azshentong.com/v1
+ENV MINERU_API_KEY=sk-qu85R6PvJu89AAnVdUph5qW1zisvrydVHBAopLluM650TTlE
 ENV MINERU_API_TIMEOUT=120
 ENV MINERU_ENABLED=true
 
-# OCR 服务
-ENV OCR_API_URL=http://115.190.43.141:8002/ocr/v1/recognize-text
+# OCR 服务（公网地址）
+ENV OCR_API_URL=https://newapi.dev.azshentong.com/v1
+ENV OCR_API_KEY=sk-EQOScNCvMG5SHHmfiwVOI1IdnS47bF6lPrtvQEZTFxsTyH2S
 ENV OCR_API_TIMEOUT=60
 ENV OCR_ENABLED=true
 
@@ -92,15 +94,17 @@ ENV AI_POSTPROCESS_ONLY_AMBIGUOUS=true
 ENV GPT_OSS_120B_API_URL=http://101.126.134.56:11434/v1
 ENV GPT_OSS_120B_MODEL=gpt-oss:120b
 
-# BGE 嵌入模型
-ENV BGE_EMBEDDING_API_URL=http://115.190.43.141:11434/api/embed
-ENV BGE_RERANKER_API_URL=http://115.190.43.141:9997/v1/rerank
+# BGE 嵌入模型（公网地址）
+ENV BGE_EMBEDDING_API_URL=https://newapi.dev.azshentong.com/v1
+ENV BGE_EMBEDDING_API_KEY=sk-ZLvhvOzb6KriMr961O8AGo73wG9nRblmDiECFybokz6r3iM8
+ENV BGE_RERANKER_API_URL=https://newapi.dev.azshentong.com/v1
+ENV BGE_RERANKER_API_KEY=sk-moDTih3CzjnCB8YP9RB829O1ckRPFXbzZC4VAi1Juf5gt2Nw
 ENV BGE_MODEL_NAME=bge-m3
 ENV BGE_EMBEDDING_DIM=1024
 ENV BGE_TIMEOUT=30
 
-# Celery 任务队列
-ENV CELERY_ENABLED=true
+# Celery 任务队列（已禁用，需要 Redis）
+ENV CELERY_ENABLED=false
 ENV CELERY_TASK_TRACK_STARTED=true
 ENV CELERY_TASK_TIME_LIMIT=3600
 ENV CELERY_TASK_SOFT_TIME_LIMIT=3300
