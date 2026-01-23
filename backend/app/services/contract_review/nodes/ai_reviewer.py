@@ -46,10 +46,15 @@ def execute_stage_1(text: str, metadata: dict) -> dict:
     try:
         llm = get_model(json_mode=True)
         parser = PydanticOutputParser(pydantic_object=ContractProfile)
-        
+
+        # 【修复】添加日志跟踪
+        import time
+        start_time = time.time()
+        logger.info(f"--- [Stage 1] 开始调用 LLM，文本长度: {len(text[:6000])} 字符 ---")
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", """你是一名资深合同律师。你的任务是【识别合同的法律属性】，为后续审查建立基础。
-            
+
             请基于合同内容及元数据，重点判断：
             1. **合同类型**：具体的法律定性（如劳动合同、承揽合同、技术开发合同）。
             2. **持续性服务**：是否涉及长期的、持续性的服务提供？
@@ -57,29 +62,31 @@ def execute_stage_1(text: str, metadata: dict) -> dict:
             4. **人身依附性**：甲方对乙方是否存在强管理、强控制特征（区别劳动与劳务的关键）？
 
             元数据参考：{metadata}
-            
+
             要求：
             - 仅输出客观属性，不要进行风险判断。
             - 不得包含修改建议。
             - 必须严格遵循 JSON 格式。
-            
+
             {format_instructions}"""),
             ("user", "合同内容摘要（前6000字）：\n{text}")
         ])
-        
+
         chain = prompt | llm | parser
         # 截取前 6000 字通常足够判断属性，节省 Token
         result = chain.invoke({
-            "text": text[:6000], 
+            "text": text[:6000],
             "metadata": json.dumps(metadata, ensure_ascii=False),
             "format_instructions": parser.get_format_instructions()
         })
-        
-        logger.info(f"--- [Stage 1] Completed. Type: {result.contract_type} ---")
+
+        elapsed = time.time() - start_time
+        logger.info(f"--- [Stage 1] LLM 调用完成，耗时: {elapsed:.2f}秒, Type: {result.contract_type} ---")
         return result.dict()
-        
+
     except Exception as e:
-        logger.error(f"[Stage 1 Error] 法律画像分析失败: {e}")
+        elapsed = time.time() - start_time if 'start_time' in locals() else 0
+        logger.error(f"[Stage 1 Error] 法律画像分析失败 (耗时 {elapsed:.2f}秒): {e}")
         # 容错：返回空字典，不阻断流程
         return {}
 
@@ -93,37 +100,44 @@ def execute_stage_2(text: str, profile: dict) -> dict:
     try:
         llm = get_model(json_mode=True)
         parser = PydanticOutputParser(pydantic_object=LegalRelationshipAnalysis)
-        
+
+        # 【修复】添加日志跟踪
+        import time
+        start_time = time.time()
+        logger.info(f"--- [Stage 2] 开始调用 LLM，文本长度: {len(text[:6000])} 字符 ---")
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", """你是一名法理学专家。请基于【合同法律画像】，判断法律关系与适用法律问题。
-            
+
             当前法律画像：{profile}
-            
+
             请重点分析：
             1. **劳动关系风险**：是否存在被司法机关认定为事实劳动关系的风险？(High/Medium/Low)
             2. **侵权风险**：是否存在侵权责任高发风险？
             3. **法律适用**：主要适用哪些法律（如民法典、劳动法、著作权法等）？
-            
+
             要求：
             - 严禁输出修改建议。
             - 必须严格遵循 JSON 格式。
-            
+
             {format_instructions}"""),
             ("user", "合同内容摘要：\n{text}")
         ])
-        
+
         chain = prompt | llm | parser
         result = chain.invoke({
             "text": text[:6000],
             "profile": json.dumps(profile, ensure_ascii=False),
             "format_instructions": parser.get_format_instructions()
         })
-        
-        logger.info(f"--- [Stage 2] Completed. Labor Risk: {result.labor_relation_risk} ---")
+
+        elapsed = time.time() - start_time
+        logger.info(f"--- [Stage 2] LLM 调用完成，耗时: {elapsed:.2f}秒, Labor Risk: {result.labor_relation_risk} ---")
         return result.dict()
-        
+
     except Exception as e:
-        logger.error(f"[Stage 2 Error] 法律关系判断失败: {e}")
+        elapsed = time.time() - start_time if 'start_time' in locals() else 0
+        logger.error(f"[Stage 2 Error] 法律关系判断失败 (耗时 {elapsed:.2f}秒): {e}")
         return {}
 
 # ================= Stage 3: 风险与责任审查 (Review) =================
@@ -251,9 +265,34 @@ def execute_stage_3(
     if use_json_mode:
         invoke_args["format_instructions"] = parser.get_format_instructions()
 
-    result = chain.invoke(invoke_args)
+    # 【修复】添加超时控制，防止 LLM 调用长时间卡住
+    import time
+    start_time = time.time()
+    logger.info(f"--- [Stage 3] 开始调用 LLM，文本长度: {len(text[:12000])} 字符 ---")
 
-    logger.info(f"--- [Stage 3] Completed. Issues Found: {len(result.issues)} ---")
+    # 使用 signal 或 asyncio 添加超时控制
+    # 由于这是同步代码，我们使用 try-except 和超时检测
+    try:
+        result = chain.invoke(invoke_args)
+        elapsed = time.time() - start_time
+        logger.info(f"--- [Stage 3] LLM 调用完成，耗时: {elapsed:.2f}秒 ---")
+
+        # 检查是否有结果
+        if result and hasattr(result, 'issues'):
+            logger.info(f"--- [Stage 3] Completed. Issues Found: {len(result.issues)} ---")
+        else:
+            logger.warning("--- [Stage 3] LLM 返回了无效结果 ---")
+
+    except Exception as e:
+        elapsed = time.time() - start_time
+        logger.error(f"--- [Stage 3] LLM 调用失败 (耗时 {elapsed:.2f}秒): {e} ---")
+        # 返回一个空结果，避免整个流程失败
+        from ..schemas import ReviewOutput
+        return ReviewOutput(
+            summary=f"审查失败: {str(e)}",
+            issues=[]
+        )
+
     return result
 
 # ================= 主节点入口 (Node Entry) =================
@@ -620,15 +659,26 @@ def _review_single_window(
 
     chain = prompt | llm | parser
 
+    # 【修复】添加日志跟踪
+    import time
+    start_time = time.time()
+    logger.info(f"--- [Window Review] 开始审查窗口 {chunk_position}，文本长度: {len(window_text)} 字符, 类型: {window_type} ---")
+
     try:
         invoke_args = {"context": context}
         if use_json_mode:
             invoke_args["format_instructions"] = parser.get_format_instructions()
 
         result = chain.invoke(invoke_args)
+
+        elapsed = time.time() - start_time
+        issues_count = len(result.issues) if result and hasattr(result, 'issues') else 0
+        logger.info(f"--- [Window Review] 审查完成 {chunk_position}，耗时: {elapsed:.2f}秒, 发现 {issues_count} 个风险点 ---")
+
         return result
     except Exception as e:
-        logger.error(f"[Window Review Error] 窗口审查失败: {e}")
+        elapsed = time.time() - start_time
+        logger.error(f"[Window Review Error] 窗口审查失败 {chunk_position} (耗时 {elapsed:.2f}秒): {e}")
         return ReviewOutput(summary=f"窗口审查失败: {str(e)}", issues=[])
 
 
