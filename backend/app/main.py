@@ -363,7 +363,7 @@ async def proxy_onlyoffice(full_path: str, request: Request):
     logger.info(f"[OnlyOffice Proxy] 预设 MIME type: {content_type}")
 
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
             # 转发请求
             if request.method == "GET":
                 response = await client.get(
