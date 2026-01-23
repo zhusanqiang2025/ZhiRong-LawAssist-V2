@@ -347,10 +347,23 @@ async def proxy_onlyoffice(full_path: str, request: Request):
     # 转发查询参数
     query_params = dict(request.query_params)
 
-    logger.info(f"[OnlyOffice Proxy] {request.method} {full_path} -> {target_url}")
+    # 🔍 根据文件扩展名确定 MIME type（在请求前就确定，避免 500 错误）
+    content_type = "application/octet-stream"  # 默认
+    path_without_query = full_path.split("?")[0]  # 移除查询参数
+    if path_without_query.endswith(".js"):
+        content_type = "application/javascript; charset=utf-8"
+    elif path_without_query.endswith(".css"):
+        content_type = "text/css; charset=utf-8"
+    elif path_without_query.endswith(".html"):
+        content_type = "text/html; charset=utf-8"
+    elif path_without_query.endswith(".json"):
+        content_type = "application/json; charset=utf-8"
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        try:
+    logger.info(f"[OnlyOffice Proxy] {request.method} {full_path} -> {target_url}")
+    logger.info(f"[OnlyOffice Proxy] 预设 MIME type: {content_type}")
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             # 转发请求
             if request.method == "GET":
                 response = client.get(
@@ -369,35 +382,26 @@ async def proxy_onlyoffice(full_path: str, request: Request):
                     headers=dict(request.headers)
                 )
 
-            # 获取 content-type
-            content_type = response.headers.get("content-type", "application/octet-stream")
+            logger.info(f"[OnlyOffice Proxy] 响应: status={response.status_code}, original-content-type={response.headers.get('content-type', 'N/A')}")
 
-            # 对于静态文件，确保返回正确的 MIME type
-            if full_path.endswith(".js"):
-                content_type = "application/javascript; charset=utf-8"
-            elif full_path.endswith(".css"):
-                content_type = "text/css; charset=utf-8"
-            elif full_path.endswith(".html"):
-                content_type = "text/html; charset=utf-8"
-
-            logger.info(f"[OnlyOffice Proxy] 响应: status={response.status_code}, content-type={content_type}")
-
-            # 返回响应
+            # 返回响应（强制使用预设的 MIME type）
             return Response(
                 content=response.content,
                 status_code=response.status_code,
                 media_type=content_type
             )
 
-        except httpx.RequestError as e:
-            logger.error(f"[OnlyOffice Proxy] 连接失败: {e}")
-            raise HTTPException(
-                status_code=503,
-                detail=f"OnlyOffice 服务不可用: {str(e)}。请联系管理员检查 OnlyOffice 服务状态。"
-            )
-        except Exception as e:
-            logger.error(f"[OnlyOffice Proxy] 代理失败: {e}")
-            raise HTTPException(status_code=500, detail=f"代理请求失败: {str(e)}")
+    except httpx.RequestError as e:
+        logger.error(f"[OnlyOffice Proxy] 连接失败: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail=f"OnlyOffice 服务不可用: {str(e)}。请联系管理员检查 OnlyOffice 服务状态。"
+        )
+    except Exception as e:
+        logger.error(f"[OnlyOffice Proxy] 代理失败: {e}")
+        import traceback
+        logger.error(f"[OnlyOffice Proxy] 错误堆栈: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"代理请求失败: {str(e)}")
 
 
 @app.get("/")
