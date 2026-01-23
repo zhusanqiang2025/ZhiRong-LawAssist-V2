@@ -52,12 +52,13 @@ def get_qwen3_thinking_llm() -> ChatOpenAI:
 
     logger.info(f"[LLMConfig] 初始化 Qwen3-235B-Thinking 模型: {model_name}")
 
+    # 235B 模型推理需要更长时间，增加超时
     return ChatOpenAI(
         model=model_name,
         api_key=api_key,
         base_url=api_url,
         temperature=0.3,
-        request_timeout=timeout,
+        request_timeout=(30, 300),  # 连接30秒，读取5分钟
         max_tokens=16000,
         max_retries=2
     )
@@ -94,7 +95,7 @@ def get_qwen_llm() -> ChatOpenAI:
         api_key=api_key,
         base_url=api_url,
         temperature=0,
-        request_timeout=120,
+        request_timeout=(30, 300),  # 连接30秒，读取5分钟
         max_tokens=16000,
         max_retries=2
     )
