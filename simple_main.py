@@ -382,19 +382,35 @@ if __name__ == "__main__":
     import signal
     import sys
     from pathlib import Path
+    import socket
 
-    # 硬编码 K8s Redis 配置（带密码）
+    # 🔧 智能选择 Redis 配置：K8s 环境用 K8s Redis，本地开发用本地 Redis
     k8s_redis_url = "redis://:123myredissecret@redis7.gms.svc.cluster.local:6379/1"
+    local_redis_url = "redis://localhost:6379/0"
+
+    # 检测是否能连接到 K8s Redis
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(('redis7.gms.svc.cluster.local', 6379))
+        sock.close()
+        use_k8s_redis = (result == 0)
+    except Exception:
+        use_k8s_redis = False
+
+    # 根据环境选择 Redis URL
+    redis_url = k8s_redis_url if use_k8s_redis else local_redis_url
 
     # 设置环境变量
-    os.environ["CELERY_BROKER_URL"] = k8s_redis_url
-    os.environ["CELERY_RESULT_BACKEND"] = k8s_redis_url
-    os.environ["REDIS_URL"] = k8s_redis_url
+    os.environ["CELERY_BROKER_URL"] = redis_url
+    os.environ["CELERY_RESULT_BACKEND"] = redis_url
+    os.environ["REDIS_URL"] = redis_url
     os.environ["CELERY_ENABLED"] = "true"
 
     print("=" * 60)
     print("🚀 启动模式: Uvicorn + Celery Worker (并行)")
-    print(f"   Celery Broker: {k8s_redis_url}")
+    print(f"   环境: {'K8s 集群' if use_k8s_redis else '本地开发'}")
+    print(f"   Celery Broker: {redis_url}")
     print("=" * 60)
 
     # 用于追踪子进程
@@ -418,6 +434,11 @@ if __name__ == "__main__":
         print("[Celery Worker] 工作目录:", os.getcwd())
 
         try:
+            # 🔑 关键修复：设置 PYTHONPATH 确保子进程能找到 app 模块
+            worker_env = os.environ.copy()
+            backend_path = os.path.join(current_dir, "backend")
+            worker_env["PYTHONPATH"] = backend_path + ":" + worker_env.get("PYTHONPATH", "")
+
             # 使用 Popen 运行，不等待完成
             celery_worker_process = subprocess.Popen(
                 celery_cmd,
@@ -426,7 +447,7 @@ if __name__ == "__main__":
                 text=True,
                 bufsize=1,
                 universal_newlines=True,
-                env=os.environ.copy()  # 传递环境变量
+                env=worker_env  # 传递环境变量（包含 PYTHONPATH）
             )
 
             print(f"[Celery Worker] PID: {celery_worker_process.pid}")
