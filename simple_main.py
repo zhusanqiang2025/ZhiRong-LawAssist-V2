@@ -14,9 +14,12 @@ from fastapi.exceptions import HTTPException
 def _load_env_from_dockerfile():
     """
     从 backend/Dockerfile 读取环境变量配置
-    这样就不需要 .env 文件了，配置统一在 Dockerfile 管理
+
+    【修复】优先使用已存在的环境变量（Dockerfile ENV 配置）
+    只有在环境变量未设置时，才使用这里的默认值
     """
-    env_config = {
+    # 默认配置（仅在环境变量未设置时使用）
+    default_config = {
         # ==================== 环境配置 ====================
         "ENVIRONMENT": "development",
         "DEFAULT_ADMIN_PASSWORD": "admin123",
@@ -49,7 +52,7 @@ def _load_env_from_dockerfile():
         "DIFY_EXPERT_CONSULTATION_ENABLED": "false",
 
         # ==================== DeepSeek API 配置 ====================
-        "DEEPSEEK_API_KEY": "7adb34bf-3cb3-4dea-af41-b79de8c08ca3",
+        "DEEPSEEK_API_KEY": "7adb34bf-3cb3-4dea-af41-b79de8c08ca3",  # 本地开发默认值，生产环境会被 Dockerfile ENV 覆盖
         "DEEPSEEK_API_URL": "https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1",
         "DEEPSEEK_MODEL": "deepseek-chat",
         "DEEPSEEK_TEMPERATURE": "0.7",
@@ -121,10 +124,15 @@ def _load_env_from_dockerfile():
     }
 
     # 设置环境变量到 os.environ
-    for key, value in env_config.items():
-        os.environ[key] = value
+    # 【修复】优先使用已存在的环境变量（Dockerfile ENV 配置）
+    # 只有在环境变量未设置时，才使用这里的默认值
+    set_count = 0
+    for key, value in default_config.items():
+        if key not in os.environ or os.environ[key] == "":
+            os.environ[key] = value
+            set_count += 1
 
-    print(f"✅ 已从 Dockerfile 配置加载 {len(env_config)} 个环境变量")
+    print(f"✅ 环境变量加载完成: {set_count} 个使用默认值, {len(default_config) - set_count} 个使用 Dockerfile ENV 配置")
 
 # 执行环境变量加载
 _load_env_from_dockerfile()
