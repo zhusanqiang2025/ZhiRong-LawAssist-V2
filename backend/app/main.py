@@ -369,12 +369,24 @@ async def proxy_onlyoffice(full_path: str, request: Request):
                     headers=dict(request.headers)
                 )
 
+            # 获取 content-type
+            content_type = response.headers.get("content-type", "application/octet-stream")
+
+            # 对于静态文件，确保返回正确的 MIME type
+            if full_path.endswith(".js"):
+                content_type = "application/javascript; charset=utf-8"
+            elif full_path.endswith(".css"):
+                content_type = "text/css; charset=utf-8"
+            elif full_path.endswith(".html"):
+                content_type = "text/html; charset=utf-8"
+
+            logger.info(f"[OnlyOffice Proxy] 响应: status={response.status_code}, content-type={content_type}")
+
             # 返回响应
             return Response(
                 content=response.content,
                 status_code=response.status_code,
-                headers=dict(response.headers),
-                media_type=response.headers.get("content-type", "application/octet-stream")
+                media_type=content_type
             )
 
         except httpx.RequestError as e:
@@ -424,8 +436,41 @@ def health_check(request: Request):
         "status": "healthy",
         "timestamp": time.time(),
         "version": "4.0.0",
-        "architecture": "Standardized v1 Router"
+        "architecture": "Standardized v1 Router",
+        "services": {
+            "onlyoffice_url": ONLYOFFICE_URL,
+            "celery_enabled": os.getenv("CELERY_ENABLED", "false")
+        }
     }
+
+
+@app.get("/health/onlyoffice")
+async def check_onlyoffice_health():
+    """
+    OnlyOffice 服务健康检查
+    用于调试 OnlyOffice 连接问题
+    """
+    import httpx
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            # 尝试连接 OnlyOffice
+            response = client.get(
+                f"{ONLYOFFICE_URL}/",
+                headers={"User-Agent": "HealthCheck/1.0"}
+            )
+            return {
+                "success": response.status_code == 200,
+                "status_code": response.status_code,
+                "service_url": ONLYOFFICE_URL,
+                "message": "OnlyOffice 服务可访问" if response.status_code == 200 else f"OnlyOffice 返回状态码: {response.status_code}"
+            }
+    except Exception as e:
+        return {
+            "success": False,
+            "service_url": ONLYOFFICE_URL,
+            "error": str(e),
+            "message": "无法连接到 OnlyOffice 服务"
+        }
 
 # ==================== SPA 前端路由处理（放在最后作为 catch-all） ====================
 # 排除的路径前缀（WebSocket 已移至 /api/v1/tasks/ws，无需 /ws 排除）
