@@ -132,7 +132,7 @@ class Settings(BaseSettings):
     BGE_RERANKER_MODEL_NAME: str = "bge-reranker-v2-m3"
 
     # ==================== Celery 任务队列配置 ====================
-    CELERY_ENABLED: bool = False  # 已禁用（需要 Redis）
+    CELERY_ENABLED: bool = True   # ✅ 已启用（使用 K8s Redis）
     CELERY_TASK_TRACK_STARTED: bool = True
     CELERY_TASK_TIME_LIMIT: int = 3600
     CELERY_TASK_SOFT_TIME_LIMIT: int = 3300

@@ -38,14 +38,14 @@ celery_app = Celery(
 celery_app.conf.update(
     # ==================== 任务路由 ====================
     task_routes={
-        # 高优先级队列：合同生成、文书起草
-        "tasks.generate": {"queue": "high_priority"},  # 合同生成任务
+        # 高优先级队列：合同生成
+        "app.tasks.contract_generation.generate": {"queue": "high_priority"},  # 合同生成任务
 
         # 高优先级队列：文书起草
         "app.tasks.document_drafting_tasks.*": {"queue": "high_priority"},
 
         # 中优先级队列：案件分析、风险评估
-        "tasks.litigation_analysis": {"queue": "medium_priority"},  # 案件分析任务
+        "app.tasks.litigation_analysis_tasks.*": {"queue": "medium_priority"},  # 案件分析任务
         "app.tasks.risk_analysis_tasks.*": {"queue": "medium_priority"},
 
         # 低优先级队列：合同审查、批量处理

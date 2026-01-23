@@ -376,4 +376,63 @@ else:
 # 6. 🚀 启动
 # =================================================================
 if __name__ == "__main__":
+    import subprocess
+    import os
+
+    # 硬编码 K8s Redis 配置（带密码）
+    k8s_redis_url = "redis://:123myredissecret@redis7.gms.svc.cluster.local:6379/1"
+
+    # 设置环境变量
+    os.environ["CELERY_BROKER_URL"] = k8s_redis_url
+    os.environ["CELERY_RESULT_BACKEND"] = k8s_redis_url
+    os.environ["REDIS_URL"] = k8s_redis_url
+    os.environ["CELERY_ENABLED"] = "true"
+
+    print("=" * 60)
+    print("🚀 启动模式: Uvicorn + Celery Worker (后台)")
+    print(f"   Celery Broker: {k8s_redis_url}")
+    print("=" * 60)
+
+    # 在后台启动 Celery Worker
+    celery_cmd = [
+        "celery",
+        "-A", "app.tasks.celery_app",
+        "worker",
+        "--loglevel=info",
+        "--concurrency=2",
+        "--queues=high_priority,medium_priority,low_priority,default",
+        "--max-tasks-per-child=100",
+        "--detach",  # 后台运行
+        "--pidfile=/tmp/celery-worker.pid",
+        "--logfile=/tmp/celery-worker.log"
+    ]
+
+    try:
+        # 先尝试停止旧的 worker（如果存在）
+        subprocess.run(
+            ["celery", "-A", "app.tasks.celery_app", "multi", "stop", "wait", "--pidfile=/tmp/celery-worker.pid"],
+            stderr=subprocess.DEVNULL,
+            timeout=5
+        )
+    except:
+        pass
+
+    # 启动新的 Celery Worker
+    result = subprocess.run(
+        celery_cmd,
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+
+    if result.returncode == 0:
+        print("✅ Celery Worker 已启动（后台运行）")
+        if result.stdout:
+            print(f"   {result.stdout.strip()}")
+    else:
+        print("⚠️  Celery Worker 启动可能失败:")
+        print(f"   {result.stderr}")
+
+    # 启动 Uvicorn（主进程）
+    print("🚀 正在启动 Uvicorn...")
     uvicorn.run(app, host="0.0.0.0", port=8000)
