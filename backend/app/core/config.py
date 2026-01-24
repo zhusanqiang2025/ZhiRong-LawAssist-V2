@@ -81,6 +81,13 @@ class Settings(BaseSettings):
     OPENAI_API_BASE: str = "https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1"
     OPENAI_MODEL_NAME: str = "Qwen3-235B-A22B-Thinking-2507"
 
+    # --- GPT-OSS-120B 配置（用于多模型合同规划）---
+    # 【新增】用于复杂推理和合同规划的第3个模型
+    GPT_OSS_120B_API_URL: str = "https://newapi.dev.azshentong.com/v1"
+    GPT_OSS_120B_API_KEY: str = "sk-CLE0Tjm4TnsQOs4eNxmbRdF9gYsRrpw2eCHYF1A1vpzoDynU"
+    GPT_OSS_120B_MODEL: str = "gpt-oss-120b"
+    GPT_OSS_120B_TIMEOUT: int = 90
+
     # ==================== AI 文档预处理配置（硬编码）====================
     # 视觉模型配置（用于文档页面图像分析）
     AI_POSTPROCESS_ENABLED: bool = True

@@ -804,7 +804,7 @@ const ContractReview: React.FC = () => {
             duration: 5
           });
           return; // ✅ 结束轮询
-        } else if (status === 'processing' || status === 'pending') {
+        } else if (status === 'processing' || status === 'pending' || status === 'reviewing') {
           // 继续轮询
           if (pollCount < maxPolls) {
             setTimeout(poll, 3000);
@@ -813,8 +813,9 @@ const ContractReview: React.FC = () => {
             messageApi.error('审查超时，请稍后刷新查看结果');
           }
         } else {
-          // 继续轮询
-          setTimeout(poll, 3000);
+          // 未知状态，停止轮询
+          setReviewProgress('');
+          messageApi.warning(`未知状态: ${status}，请刷新页面重试`);
         }
       } catch (error) {
         console.error("获取结果失败", error);

@@ -215,23 +215,33 @@ def get_gpt_oss_llm() -> ChatOpenAI:
     """
     获取 GPT-OSS-120B 模型（用于复杂推理和合同规划）
 
-    配置：GPT_OSS_* 环境变量
-    - 注意: 该模型不需要 API Key
+    配置：使用 Settings 中的 GPT_OSS_120B_* 配置
 
     Returns:
         ChatOpenAI: GPT-OSS-120B 模型实例
     """
-    api_url = os.getenv("GPT_OSS_120B_API_URL", "http://101.126.134.56:11434/v1/completions")
-    model_name = os.getenv("GPT_OSS_120B_MODEL", "GPT-OSS-120B")
+    settings = _get_settings()
+    api_url = settings.GPT_OSS_120B_API_URL
+    api_key = settings.GPT_OSS_120B_API_KEY
+    model_name = settings.GPT_OSS_120B_MODEL
+    timeout = settings.GPT_OSS_120B_TIMEOUT
+
+    # 如果 Settings 中没有配置，尝试环境变量（兼容性）
+    if not api_url:
+        api_url = os.getenv("GPT_OSS_120B_API_URL", "http://101.126.134.56:11434/v1")
+    if not api_key:
+        api_key = os.getenv("GPT_OSS_120B_API_KEY", "dummy-key")
+    if not model_name:
+        model_name = os.getenv("GPT_OSS_120B_MODEL", "gpt-oss-120b")
 
     logger.info(f"[LLMConfig] 初始化 GPT-OSS-120B 模型: {model_name}")
 
     return ChatOpenAI(
         model=model_name,
-        api_key="dummy-key",  # Ollama 不需要真实的 API Key
+        api_key=api_key,
         base_url=api_url,
         temperature=0.4,
-        request_timeout=90,
+        request_timeout=timeout,
         max_tokens=16000,
         max_retries=2
     )
@@ -256,7 +266,7 @@ def validate_llm_config() -> dict:
         "default": is_configured(settings.OPENAI_API_KEY) or is_configured(settings.DEEPSEEK_API_KEY),
         "ai_postprocess": is_configured(settings.AI_POSTPROCESS_API_KEY) and is_configured(settings.AI_POSTPROCESS_API_URL),
         "ai_text_classification": is_configured(settings.AI_TEXT_CLASSIFICATION_API_KEY) and is_configured(settings.AI_TEXT_CLASSIFICATION_API_URL),
-        "gpt_oss": bool(os.getenv("GPT_OSS_120B_API_URL")),  # GPT-OSS 只需要 URL
+        "gpt_oss": is_configured(settings.GPT_OSS_120B_API_KEY) and is_configured(settings.GPT_OSS_120B_API_URL),  # GPT-OSS 使用 Settings 配置
         "langchain": is_configured(settings.LANGCHAIN_API_KEY) and is_configured(settings.LANGCHAIN_API_BASE_URL),
     }
 
