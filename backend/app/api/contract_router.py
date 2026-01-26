@@ -523,6 +523,13 @@ async def start_deep_review(
 
         # 更新Celery任务ID
         task.celery_task_id = celery_task.id
+
+        # ⭐ 立即更新合同状态为 REVIEWING，避免前端轮询时收到 draft 状态
+        contract = db.query(ContractDoc).filter(ContractDoc.id == contract_id).first()
+        if contract:
+            contract.status = ContractStatus.REVIEWING.value
+            logger.info(f"[API] 合同 {contract_id} 状态已更新为 REVIEWING")
+
         db.commit()
 
         # 立即返回任务信息

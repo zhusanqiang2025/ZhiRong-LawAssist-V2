@@ -804,7 +804,7 @@ const ContractReview: React.FC = () => {
             duration: 5
           });
           return; // ✅ 结束轮询
-        } else if (status === 'processing' || status === 'pending' || status === 'reviewing') {
+        } else if (status === 'processing' || status === 'pending' || status === 'reviewing' || status === 'draft') {
           // 继续轮询
           if (pollCount < maxPolls) {
             setTimeout(poll, 3000);
