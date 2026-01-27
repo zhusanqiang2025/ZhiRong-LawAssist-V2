@@ -509,23 +509,32 @@ def handle_feishu_event(event_str: str):
     except Exception:
         pass
 
-# 启动长连接
-lark_ws_client = WSClient(
-    app_id=FEISHU_APP_ID,
-    app_secret=FEISHU_APP_SECRET,
-    log_level=LogLevel.WARNING,
-    auto_reconnect=True
-)
-if hasattr(lark_ws_client, 'set_event_handler'):
-    lark_ws_client.set_event_handler(handle_feishu_event)
-else:
-    lark_ws_client.event_handler = handle_feishu_event
+# ==================== 长连接客户端（延迟初始化）====================
+# 不在模块导入时创建 WSClient，避免初始化问题
+lark_ws_client = None
+
+def _get_or_create_ws_client():
+    """获取或创建飞书长连接客户端（延迟初始化）"""
+    global lark_ws_client
+    if lark_ws_client is None:
+        lark_ws_client = WSClient(
+            app_id=FEISHU_APP_ID,
+            app_secret=FEISHU_APP_SECRET,
+            log_level=LogLevel.WARNING,
+            auto_reconnect=True
+        )
+        if hasattr(lark_ws_client, 'set_event_handler'):
+            lark_ws_client.set_event_handler(handle_feishu_event)
+        else:
+            lark_ws_client.event_handler = handle_feishu_event
+    return lark_ws_client
 
 def start_feishu_ws():
     logger.info("📡 飞书长连接启动")
     while True:
         try:
-            lark_ws_client.start()
+            client = _get_or_create_ws_client()
+            client.start()
         except Exception as e:
             err_msg = str(e)
             if any(skip in err_msg for skip in ["this event loop is already running", "Lock is not acquired"]):
