@@ -34,9 +34,9 @@ FEISHU_APP_SECRET = os.getenv("FEISHU_APP_SECRET", "")
 FEISHU_ENCRYPT_KEY = os.getenv("FEISHU_ENCRYPT_KEY", "")
 FEISHU_VERIFICATION_TOKEN = os.getenv("FEISHU_VERIFICATION_TOKEN", "")
 
-# 启动前强制校验凭证，避免空凭证建联失败
-if not FEISHU_APP_ID or not FEISHU_APP_SECRET:
-    raise ValueError("【飞书长连接】请在.env文件配置FEISHU_APP_ID和FEISHU_APP_SECRET！")
+# ⚠️ 移除强制校验：不在模块导入时校验环境变量
+# 原因：模块导入时环境变量可能尚未加载，导致抛出 ValueError
+# 改为在使用时检查（start_feishu_ws 函数中）
 
 # ========== 日志配置（极简+屏蔽冗余，只看关键信息） ==========
 logger = logging.getLogger("feishu_integration")
