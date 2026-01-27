@@ -297,6 +297,37 @@ async def limit_request_size(request: Request, call_next):
     response = await call_next(request)
     return response
 
+# ==================== 应用启动事件 ====================
+@app.on_event("startup")
+async def startup_event():
+    """
+    应用启动时执行的初始化操作
+
+    包括：
+    1. 启动飞书长连接（如果配置了飞书集成）
+    """
+    logger.info("=" * 60)
+    logger.info("🚀 应用启动中...")
+    logger.info("=" * 60)
+
+    # 启动飞书长连接（仅在生产环境或明确启用时）
+    feishu_enabled = os.getenv("FEISHU_ENABLED", "false").lower() == "true"
+    if feishu_enabled:
+        try:
+            # 导入并启动飞书长连接
+            from app.api.v1.endpoints.feishu_callback import start_feishu_long_connection
+            start_feishu_long_connection()
+            logger.info("✅ 飞书长连接已启动")
+        except Exception as e:
+            logger.warning(f"⚠️ 飞书长连接启动失败: {e}")
+            logger.warning("飞书集成功能将不可用，但不影响其他功能")
+    else:
+        logger.info("ℹ️ 飞书集成未启用（FEISHU_ENABLED=false）")
+
+    logger.info("=" * 60)
+    logger.info("✅ 应用启动完成")
+    logger.info("=" * 60)
+
 # 安全头中间件
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):

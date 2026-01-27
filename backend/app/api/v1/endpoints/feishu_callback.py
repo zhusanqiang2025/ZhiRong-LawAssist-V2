@@ -534,6 +534,38 @@ def start_feishu_ws():
             logger.error(f"❌ 长连接异常: {err_msg[:60]}")
             time.sleep(3)
 
-if not any(t.name == "FeishuLongConnDaemon" for t in threading.enumerate()):
-    t = threading.Thread(target=start_feishu_ws, name="FeishuLongConnDaemon", daemon=True)
-    t.start()        
+# ==================== 长连接手动启动函数 ====================
+# 不再在模块导入时自动启动，改为通过 FastAPI 启动事件手动触发
+_feishu_ws_thread = None
+
+def start_feishu_long_connection():
+    """
+    手动启动飞书长连接（由 FastAPI 启动事件调用）
+    使用全局变量确保只启动一次
+    """
+    global _feishu_ws_thread
+
+    # 检查是否已启动
+    if _feishu_ws_thread is not None and _feishu_ws_thread.is_alive():
+        logger.info("✅ 飞书长连接已在运行中")
+        return
+
+    # 检查线程是否已存在
+    if any(t.name == "FeishuLongConnDaemon" for t in threading.enumerate()):
+        logger.info("✅ 飞书长连接线程已存在")
+        return
+
+    # 启动长连接线程
+    logger.info("🚀 正在启动飞书长连接...")
+    _feishu_ws_thread = threading.Thread(
+        target=start_feishu_ws,
+        name="FeishuLongConnDaemon",
+        daemon=True
+    )
+    _feishu_ws_thread.start()
+    logger.info("✅ 飞书长连接已启动")
+
+# ⚠️ 已禁用自动启动：现在由 FastAPI 启动事件手动触发
+# if not any(t.name == "FeishuLongConnDaemon" for t in threading.enumerate()):
+#     t = threading.Thread(target=start_feishu_ws, name="FeishuLongConnDaemon", daemon=True)
+#     t.start()        

@@ -10,7 +10,7 @@ from app.api.v1.endpoints import auth, contract_templates, admin, categories, ta
 from app.api.v1.endpoints import contract_knowledge_graph_db, risk_analysis
 from app.api.v1.endpoints import litigation_analysis, document_drafting, search
 from app.api.v1.endpoints import knowledge_base, consultation_history, health
-# from app.api.v1.endpoints import feishu_callback  # ⚠️ 暂时禁用：导入时会自动启动长连接导致路由加载失败
+from app.api.v1.endpoints import feishu_callback  # ✅ 已修复：不再在导入时自动启动长连接
 
 # ==================== 游离路由模块（位于 app/api/ 或 app/api/v1/） ====================
 # 合同审查模块
@@ -74,8 +74,8 @@ api_router.include_router(consultation_history.router, tags=["Consultation Histo
 # 健康检查 API
 api_router.include_router(health.router, prefix="/health", tags=["Health"])
 
-# # 飞书集成本地开发：飞书回调接口  # ⚠️ 暂时禁用：导入时会自动启动长连接导致路由加载失败
-# api_router.include_router(feishu_callback.router, prefix="/feishu", tags=["Feishu Integration (Local)"])
+# 飞书集成回调 API（长连接已改为启动事件手动触发）
+api_router.include_router(feishu_callback.router, prefix="/feishu", tags=["Feishu Integration"])
 
 # ==================== 注册游离路由（收归到 v1 命名空间） ====================
 # 合同审查模块 (原 /api/contract -> /api/v1/contract-review)
