@@ -736,6 +736,172 @@ async def system_diagnostics():
     return diagnostics
 
 
+@app.get("/health/diagnostics/onlyoffice")
+async def onlyoffice_diagnostics():
+    """
+    OnlyOffice 诊断端点（K8s 生产环境专用）
+
+    检查 OnlyOffice 文档预览功能的完整配置链路：
+    1. OnlyOffice 服务连通性
+    2. JWT Secret 配置
+    3. Token 生成验证
+    4. 文件存储访问
+    5. 配置生成测试
+    """
+    diagnostics = {
+        "timestamp": time.time(),
+        "checks": {}
+    }
+
+    # ========== 1. 检查 OnlyOffice 服务连通性 ==========
+    service_check = {"status": "unknown", "error": None}
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                f"{ONLYOFFICE_URL}/",
+                headers={"User-Agent": "HealthCheck/1.0"}
+            )
+            service_check["status"] = "connected" if response.status_code == 200 else "unexpected_response"
+            service_check["status_code"] = response.status_code
+            service_check["response_headers"] = dict(response.headers)
+    except Exception as e:
+        service_check["status"] = "failed"
+        service_check["error"] = str(e)
+    diagnostics["checks"]["service_connectivity"] = service_check
+
+    # ========== 2. 检查 JWT Secret 配置 ==========
+    jwt_check = {
+        "secret_configured": bool(os.getenv("ONLYOFFICE_JWT_SECRET")),
+        "secret_value": os.getenv("ONLYOFFICE_JWT_SECRET", "legal_doc_secret_2025"),
+        "secret_length": len(os.getenv("ONLYOFFICE_JWT_SECRET", "legal_doc_secret_2025")),
+        "status": "configured"
+    }
+    diagnostics["checks"]["jwt_secret"] = jwt_check
+
+    # ========== 3. 检查 Token 生成功能 ==========
+    token_check = {"status": "unknown", "error": None}
+    try:
+        from app.utils.office_utils import OfficeTokenManager
+        test_config = {
+            "document": {
+                "fileType": "docx",
+                "key": "test_key",
+                "title": "Test Document",
+                "url": "http://backend:8000/storage/test.docx"
+            },
+            "editorConfig": {
+                "mode": "edit",
+                "user": {"id": "1", "name": "Test User"}
+            }
+        }
+        token = OfficeTokenManager.create_token(test_config)
+        token_check["status"] = "success"
+        token_check["token_length"] = len(token)
+        token_check["token_preview"] = token[:50] + "..."
+    except Exception as e:
+        token_check["status"] = "failed"
+        token_check["error"] = str(e)
+        import traceback
+        token_check["traceback"] = traceback.format_exc()
+    diagnostics["checks"]["token_generation"] = token_check
+
+    # ========== 4. 检查文件存储访问 ==========
+    storage_check = {"status": "unknown", "error": None}
+    try:
+        upload_dir = "storage/uploads"
+        if os.path.exists(upload_dir):
+            files = os.listdir(upload_dir)
+            storage_check["status"] = "accessible"
+            storage_check["upload_dir_exists"] = True
+            storage_check["file_count"] = len(files)
+            storage_check["sample_files"] = files[:5] if files else []
+        else:
+            storage_check["status"] = "not_found"
+            storage_check["upload_dir_exists"] = False
+            storage_check["error"] = f"Directory not found: {upload_dir}"
+    except Exception as e:
+        storage_check["status"] = "error"
+        storage_check["error"] = str(e)
+    diagnostics["checks"]["file_storage"] = storage_check
+
+    # ========== 5. 检查配置生成（模拟） ==========
+    config_check = {"status": "unknown", "error": None}
+    try:
+        from app.utils.office_utils import OfficeTokenManager
+
+        # 模拟配置生成
+        backend_url = "http://backend:8000"
+        file_url = f"{backend_url}/storage/uploads/test.docx"
+        callback_url = f"{backend_url}/api/v1/contract-review/1/callback"
+
+        test_config = {
+            "document": {
+                "fileType": "docx",
+                "key": "1_" + str(int(time.time())),
+                "title": "Test Contract.docx",
+                "url": file_url,
+            },
+            "editorConfig": {
+                "mode": "edit",
+                "user": {"id": "1", "name": "法务管理员"},
+                "callbackUrl": callback_url,
+            }
+        }
+
+        token = OfficeTokenManager.create_token(test_config)
+
+        config_check["status"] = "success"
+        config_check["generated_config"] = test_config
+        config_check["token_preview"] = token[:50] + "..."
+        config_check["file_url"] = file_url
+        config_check["callback_url"] = callback_url
+    except Exception as e:
+        config_check["status"] = "failed"
+        config_check["error"] = str(e)
+        import traceback
+        config_check["traceback"] = traceback.format_exc()
+    diagnostics["checks"]["config_generation"] = config_check
+
+    # ========== 6. 检查环境变量配置 ==========
+    env_check = {
+        "ONLYOFFICE_URL": ONLYOFFICE_URL,
+        "ONLYOFFICE_JWT_SECRET": os.getenv("ONLYOFFICE_JWT_SECRET", "legal_doc_secret_2025"),
+        "BACKEND_PUBLIC_URL": os.getenv("BACKEND_PUBLIC_URL", "NOT_SET"),
+        "FRONTEND_PUBLIC_URL": os.getenv("FRONTEND_PUBLIC_URL", "NOT_SET")
+    }
+    diagnostics["checks"]["environment"] = env_check
+
+    # ========== 7. 综合评估 ==========
+    issues = []
+    recommendations = []
+
+    if service_check["status"] != "connected":
+        issues.append(f"OnlyOffice 服务不可达: {service_check.get('error', 'Unknown')}")
+        recommendations.append("检查 K8s OnlyOffice Pod 状态: kubectl get pods | grep onlyoffice")
+
+    if token_check["status"] != "success":
+        issues.append(f"Token 生成失败: {token_check.get('error', 'Unknown')}")
+        recommendations.append("检查 ONLYOFFICE_JWT_SECRET 环境变量配置")
+
+    if storage_check["status"] != "accessible":
+        issues.append(f"文件存储不可访问: {storage_check.get('error', 'Unknown')}")
+        recommendations.append("检查 storage/uploads 目录权限和挂载")
+
+    diagnostics["summary"] = {
+        "overall_status": "healthy" if not issues else "unhealthy",
+        "issues": issues,
+        "recommendations": recommendations,
+        "next_steps": [
+            "1. 检查 OnlyOffice Pod 日志: kubectl logs <onlyoffice-pod>",
+            "2. 测试 OnlyOffice 服务连通性: kubectl exec -it <backend-pod> -- wget -qO- " + ONLYOFFICE_URL,
+            "3. 检查前端 OnlyOffice 配置: VITE_ONLYOFFICE_URL 环境变量",
+            "4. 检查浏览器控制台错误（CORS、JWT 验证失败等）"
+        ] if not issues else ["请先解决上述问题，然后参考 recommendations 进行修复"]
+    }
+
+    return diagnostics
+
+
 @app.get("/health/debug/celery-command")
 async def debug_celery_command():
     """
