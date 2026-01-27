@@ -119,3 +119,7 @@ redis==5.0.1  # Celery 需要 redis 包连接 Redis broker
 
 # --- 监控与指标（Prometheus） ---
 prometheus-client>=0.19.0
+
+# 飞书SDK依赖（飞书集成本地开发）
+pycryptodome>=3.19.0
+lark-oapi>=1.0.0  # 飞书开放平台 SDK（长连接事件接收）

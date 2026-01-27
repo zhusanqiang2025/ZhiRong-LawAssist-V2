@@ -36,7 +36,11 @@ def process_uploaded_file_background(
     contract_id: int,
     original_file_path: str,
     file_ext: str,
-    auto_extract_metadata: bool = True
+    auto_extract_metadata: bool = True,
+    callback_url: Optional[str] = None,
+    feishu_record_id: Optional[str] = None,
+    feishu_file_key: Optional[str] = None,
+    reviewer_open_id: Optional[str] = None
 ):
     """
     后台任务：处理上传的文件
@@ -45,12 +49,17 @@ def process_uploaded_file_background(
     1. 格式转换 (.doc → .docx)
     2. PDF 预览生成
     3. 元数据提取（如果启用）
+    4. 飞书回调（如果提供 callback_url）
 
     Args:
         contract_id: 合同ID
         original_file_path: 原始文件路径
         file_ext: 文件扩展名
         auto_extract_metadata: 是否自动提取元数据
+        callback_url: 飞书回调URL（可选）
+        feishu_record_id: 飞书多维表记录ID（可选）
+        feishu_file_key: 飞书文件标识（可选）
+        reviewer_open_id: 审查人 OPEN_ID（可选，用于发送立场选择卡片）
     """
     from app.database import SessionLocal
     import logging
@@ -154,6 +163,46 @@ def process_uploaded_file_background(
                 logger.error(f"[后台处理] 元数据提取出错: {str(e)}")
                 logger.error(f"[后台处理] 错误堆栈: {traceback.format_exc()}")
 
+        # ========== 步骤4: 飞书回调（如果提供 callback_url）==========
+        if callback_url and feishu_record_id:
+            logger.info(f"[后台处理] 步骤4: 执行飞书回调...")
+            step4_start = time.time()
+
+            try:
+                # 准备回调数据
+                callback_data = {
+                    "contract_id": contract_id,
+                    "feishu_record_id": feishu_record_id,
+                    "feishu_file_key": feishu_file_key,
+                    "metadata": contract.metadata_info if contract and contract.metadata_info else {},
+                    "reviewer_open_id": reviewer_open_id or ""  # 添加审查人 OPEN_ID
+                }
+
+                # 发送回调请求（使用 requests，非阻塞模式）
+                import requests
+                response = requests.post(
+                    callback_url,
+                    json=callback_data,
+                    timeout=10
+                )
+
+                if response.status_code == 200:
+                    logger.info(f"[后台处理] ✅ 飞书回调成功 | URL: {callback_url}")
+                else:
+                    logger.warning(f"[后台处理] ⚠️  飞书回调失败 | 状态码: {response.status_code} | 响应: {response.text[:200]}")
+
+                step4_elapsed = time.time() - step4_start
+                logger.info(f"[后台处理] 飞书回调完成 (耗时 {step4_elapsed:.2f}s)")
+
+            except Exception as e:
+                # 回调失败不影响主流程
+                logger.error(f"[后台处理] ⚠️  飞书回调异常: {str(e)}")
+                logger.error(f"[后台处理] ⚠️  回调URL: {callback_url}")
+        elif callback_url:
+            logger.warning(f"[后台处理] ⚠️  提供了 callback_url 但缺少 feishu_record_id，跳过回调")
+        else:
+            logger.debug(f"[后台处理] 无 callback_url，跳过飞书回调")
+
         # 总耗时
         total_elapsed = time.time() - start_time
         logger.info(f"[后台处理] 合同 {contract_id} 处理完成 (总耗时 {total_elapsed:.2f}s)")
@@ -181,6 +230,10 @@ async def upload_contract(
     file: UploadFile = File(...),
     background_tasks: BackgroundTasks = BackgroundTasks(),
     auto_extract_metadata: bool = True,
+    callback_url: Optional[str] = Form(None),
+    feishu_record_id: Optional[str] = Form(None),
+    feishu_file_key: Optional[str] = Form(None),
+    reviewer_open_id: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -193,6 +246,12 @@ async def upload_contract(
     - 格式转换 (.doc → .docx): 后台处理
     - PDF 预览生成: 后台处理
     - 元数据提取: 后台处理
+
+    ⭐ 飞书集成：支持元数据提取完成后的回调
+    - callback_url: 飞书回调URL（可选）
+    - feishu_record_id: 飞书多维表记录ID（可选）
+    - feishu_file_key: 飞书文件标识（可选）
+    - reviewer_open_id: 审查人 OPEN_ID（可选，用于发送立场选择卡片）
 
     响应时间：1-2秒（原20-45秒）
     """
@@ -241,12 +300,21 @@ async def upload_contract(
 
     # ========== 步骤4: 提交后台任务处理 ==========
     logger.info(f"[快速上传] 提交后台处理任务: contract_id={db_contract.id}")
+
+    # 记录飞书集成参数（如果有）
+    if callback_url:
+        logger.info(f"[快速上传] 📌 飞书集成模式 | callback_url: {callback_url} | feishu_record_id: {feishu_record_id} | reviewer_open_id: {reviewer_open_id[:20] if reviewer_open_id else '(空)'}...")
+
     background_tasks.add_task(
         process_uploaded_file_background,
         db_contract.id,
         original_file_path,
         file_ext,
-        auto_extract_metadata
+        auto_extract_metadata,
+        callback_url,
+        feishu_record_id,
+        feishu_file_key,
+        reviewer_open_id  # 添加审查人 OPEN_ID
     )
 
     # ========== 步骤5: 立即返回基本信息 ==========

@@ -6,7 +6,7 @@
 
 ## 📋 功能模块总览
 
-应用共包含 **10 个主功能模块** + **管理后台**，分为 3 大类：
+应用共包含 **10 个主功能模块** + **管理后台** + **辅助功能页面**，分为 3 大类：
 
 ### 🎯 咨询类 (3个模块)
 - 智能咨询
@@ -404,6 +404,134 @@ API路由文件:
 
 ---
 
+## 1️⃣1️⃣ 场景选择
+
+### 基本信息
+| 项目 | 值 |
+|------|------|
+| **路由** | `/scene-selection` |
+| **分类** | 辅助功能 |
+| **功能描述** | 选择法律场景后跳转到对应功能模块 |
+
+### 前端文件
+```
+frontend/src/pages/SceneSelectionPage.tsx
+```
+
+---
+
+## 1️⃣2️⃣ 智能对话
+
+### 基本信息
+| 项目 | 值 |
+|------|------|
+| **路由** | `/smart-chat` |
+| **分类** | 辅助功能 |
+| **功能描述** | 通用智能对话界面 |
+
+### 前端文件
+```
+frontend/src/pages/SmartChatPage.tsx
+```
+
+### 后端API
+```
+API路由文件:
+└── backend/app/api/v1/endpoints/smart_chat.py
+
+主要端点:
+├── POST /api/v1/smart-chat/guidance       - 智能引导
+├── POST /api/v1/smart-chat/expert-consultation - 专家咨询
+└── POST /api/v1/smart-chat/general        - 通用对话
+```
+
+---
+
+## 1️⃣3️⃣ 合同规划
+
+### 基本信息
+| 项目 | 值 |
+|------|------|
+| **路由** | `/contract/planning` |
+| **分类** | 合同类辅助功能 |
+| **功能描述** | 合同规划与策略生成 |
+
+### 前端文件
+```
+frontend/src/pages/ContractPlanningPage.tsx
+```
+
+---
+
+## 1️⃣4️⃣ 合同审查历史
+
+### 基本信息
+| 项目 | 值 |
+|------|------|
+| **路由** | `/contract/review-history` |
+| **分类** | 合同类辅助功能 |
+| **功能描述** | 查看历史合同审查记录 |
+
+### 前端文件
+```
+frontend/src/pages/ContractReviewHistory.tsx
+```
+
+---
+
+## 1️⃣5️⃣ 知识库管理
+
+### 基本信息
+| 项目 | 值 |
+|------|------|
+| **路由** | `/knowledge-base/*` |
+| **分类** | 辅助功能 |
+| **功能描述** | 知识库配置、测试、用户知识库管理 |
+
+### 前端文件
+```
+frontend/src/pages/KnowledgeBaseConfigPage.tsx      # 知识库配置
+frontend/src/pages/KnowledgeBaseTestPage.tsx        # 知识库测试
+frontend/src/pages/UserKnowledgeBasePage.tsx        # 用户知识库
+```
+
+### 后端API
+```
+API路由文件:
+├── backend/app/api/v1/endpoints/knowledge_base.py
+└── backend/app/api/v1/endpoints/rag_management.py
+
+主要端点:
+├── POST /api/v1/knowledge-base/create              - 创建知识库
+├── GET  /api/v1/knowledge-base/list                - 获取知识库列表
+├── POST /api/v1/knowledge-base/upload              - 上传文档
+├── POST /api/v1/rag/query                          - RAG查询
+└── DELETE /api/v1/knowledge-base/{kb_id}           - 删除知识库
+```
+
+### 数据模型
+```
+backend/app/models/knowledge_base.py
+```
+
+---
+
+## 1️⃣6️⃣ 模板编辑
+
+### 基本信息
+| 项目 | 值 |
+|------|------|
+| **路由** | `/template/edit` |
+| **分类** | 辅助功能 |
+| **功能描述** | 编辑合同模板 |
+
+### 前端文件
+```
+frontend/src/pages/TemplateEditPage.tsx
+```
+
+---
+
 ## 🔧 管理后台
 
 ### 基本信息
@@ -417,15 +545,15 @@ API路由文件:
 ```
 frontend/src/pages/AdminPage.tsx
 
-子模块组件:
-├── frontend/src/pages/admin/DashboardView.tsx (或内联)
-├── frontend/src/pages/admin/CategoryManager.tsx
-├── frontend/src/pages/admin/KnowledgeGraphManager.tsx
-├── frontend/src/pages/admin/TemplateManager.tsx
-├── frontend/src/pages/admin/ReviewRulesManager.tsx
-├── frontend/src/pages/admin/RiskRulePackagesManager.tsx
-├── frontend/src/pages/admin/LitigationRulePackagesManager.tsx
-└── frontend/src/pages/admin/CeleryMonitor.tsx
+子模块组件 (位于 views/ 目录):
+├── frontend/src/pages/admin/views/DashboardView.tsx
+├── frontend/src/pages/admin/views/CategoryManager.tsx
+├── frontend/src/pages/admin/views/KnowledgeGraphManager.tsx
+├── frontend/src/pages/admin/views/TemplateManager.tsx
+├── frontend/src/pages/admin/views/ReviewRulesManager.tsx
+├── frontend/src/pages/admin/views/RiskRulePackagesManager.tsx
+├── frontend/src/pages/admin/views/LitigationRulePackagesManager.tsx
+└── frontend/src/pages/admin/views/CeleryMonitor.tsx
 ```
 
 ### 后端API
@@ -465,6 +593,28 @@ backend/app/
 └── core/config.py                       # 配置管理
 ```
 
+### 后端 API 端点文件
+```
+backend/app/api/v1/endpoints/
+├── admin.py                             # 管理后台
+├── auth.py                              # 用户认证
+├── categories.py                        # 分类管理
+├── celery_monitor.py                    # Celery监控
+├── consultation_history.py              # 咨询历史
+├── contract_knowledge_graph_db.py       # 合同知识图谱
+├── contract_templates.py                # 合同模板
+├── document_drafting.py                 # 文档起草
+├── health.py                            # 健康检查
+├── knowledge_base.py                    # 知识库管理
+├── legal_features_management.py         # 法律功能管理
+├── litigation_analysis.py               # 案件分析
+├── rag_management.py                    # RAG管理
+├── risk_analysis.py                     # 风险评估
+├── search.py                            # 全局搜索
+├── smart_chat.py                        # 智能对话
+└── tasks.py                             # 任务管理
+```
+
 ### 通用服务
 ```
 backend/app/services/
@@ -483,8 +633,16 @@ backend/app/models/
 ├── user.py                              # 用户模型
 ├── contract.py                          # 合同模型
 ├── contract_template.py                 # 合同模板
+├── contract_knowledge.py                # 合同知识
+├── contract_review_task.py              # 合同审查任务
 ├── risk_analysis.py                     # 风险分析
+├── risk_analysis_preorganization.py     # 风险分析预组织
 ├── litigation_analysis.py               # 诉讼分析
+├── consultation_history.py              # 咨询历史
+├── knowledge_base.py                    # 知识库模型
+├── rule.py                              # 规则模型
+├── task.py                              # 任务模型
+├── task_view.py                         # 任务视图
 └── category.py                          # 分类模型
 ```
 
@@ -527,6 +685,10 @@ backend/app/models/
 | "文书起草" | `/document-drafting` → DocumentDraftingPage.tsx |
 | "费用测算" | `/cost-calculation` → CostCalculationPage.tsx |
 | "智能引导" | `/guidance` → IntelligentGuidancePage.tsx |
+| "场景选择" | `/scene-selection` → SceneSelectionPage.tsx |
+| "智能对话" | `/smart-chat` → SmartChatPage.tsx |
+| "合同规划" | `/contract/planning` → ContractPlanningPage.tsx |
+| "知识库" | `/knowledge-base/*` → KnowledgeBaseConfigPage.tsx |
 | "管理后台" | `/admin` → AdminPage.tsx |
 
 ---
@@ -598,9 +760,12 @@ backend/app/models/
 | `docker-compose.yml` | 生产环境部署配置 |
 | `docker-compose.local.yml` | 本地开发轻量配置 (SQLite) |
 | `docker-compose.dev.yml` | 开发环境配置 |
+| `docker-compose.build.yml` | 构建环境配置 |
 | `backend/Dockerfile` | 后端容器构建文件 |
 | `backend/Dockerfile.local` | 后端本地开发构建文件 |
 | `backend/Dockerfile.alpine` | 后端 Alpine 轻量版本 |
+| `docker/Dockerfile` | Docker 通用构建文件 |
+| `docker/Dockerfile.vendor` | Vendor 构建文件 |
 | `frontend/Dockerfile` | 前端容器构建文件 |
 
 ### 环境变量配置
@@ -886,4 +1051,4 @@ graph LR
 
 ---
 
-*最后更新: 2026-01-14*
+*最后更新: 2026-01-26*

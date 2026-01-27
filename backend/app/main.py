@@ -160,6 +160,20 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize default user: {e}")
 
+# ==================== 生产环境数据初始化 ====================
+# 启动时检查并导入必要的数据（管理员、规则、知识图谱）
+# 设计原则：
+# 1. 幂等性：可以安全地重复执行
+# 2. 降级处理：环境变量未配置时跳过，不中断应用启动
+# 3. 复用现有：调用所有现有的初始化函数
+logger.info("Checking if production data seeding is needed...")
+try:
+    from scripts.seed_production_data import seed_production_data
+    seed_production_data()
+except Exception as e:
+    logger.error(f"Production data seeding encountered an error (application will continue): {e}")
+    # 不中断应用启动
+
 # ==================== FastAPI 应用创建 ====================
 app = FastAPI(
     title="法律文书生成助手 API",
@@ -247,10 +261,16 @@ allowed_origins = [
     "http://180.184.47.218:8083",  # 生产服务器 OnlyOffice
 ]
 
-# 从环境变量读取生产环境域名
+# 从环境变量读取生产环境域名（支持逗号分隔的多个域名）
 production_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
 if production_origins and production_origins[0]:
     allowed_origins.extend([origin.strip() for origin in production_origins if origin.strip()])
+
+# ⭐ 自动将 FRONTEND_PUBLIC_URL 添加到允许列表（用于飞书通知跳转）
+frontend_public_url = os.getenv("FRONTEND_PUBLIC_URL", "")
+if frontend_public_url and frontend_public_url not in allowed_origins:
+    allowed_origins.append(frontend_public_url)
+    logger.info(f"[CORS] 自动添加 FRONTEND_PUBLIC_URL 到允许列表: {frontend_public_url}")
 
 # 安全中间件配置
 if os.getenv("ENVIRONMENT") == "production":

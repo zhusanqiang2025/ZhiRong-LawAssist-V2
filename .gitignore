@@ -36,12 +36,10 @@ coverage.xml
 
 # 环境
 .env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+backend/.env
+.env.local
+.env.production
+.env.local
 
 # IDE
 .vscode/
@@ -125,3 +123,19 @@ __pycache__/
 .cursor/
 .superdesign/
 .xibao_backup/
+
+# ==================== 数据库和上传文件（部署适配）====================
+# SQLite 数据库文件（生产环境每个实例独立）
+*.db
+*.sqlite
+*.sqlite3
+backend/app.db
+
+# 用户上传的合同文件（不应提交到代码仓库）
+storage/uploads/*
+backend/storage/uploads/*
+!storage/uploads/.gitkeep
+!backend/storage/uploads/.gitkeep
+
+# 根目录的审查规则导出文件（重复文件，已存在于 backend/config/）
+exported_review_rules.json

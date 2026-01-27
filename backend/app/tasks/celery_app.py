@@ -28,6 +28,8 @@ celery_app = Celery(
         "app.tasks.litigation_analysis_tasks",
         "app.tasks.contract_generation_tasks", # ✨ 新增：合同生成任务模块
         "app.tasks.contract_review_tasks", # ✨ 新增：合同审查任务模块
+        "app.tasks.feishu_integration_tasks", # ✨ 飞书集成本地开发：飞书集成任务模块
+        "app.tasks.feishu_review_tasks", # ✨ 飞书集成本地开发：飞书审查集成任务模块
         # 后续添加其他任务模块
         # "app.tasks.risk_analysis_tasks",
         # "app.tasks.document_drafting_tasks",
@@ -47,6 +49,12 @@ celery_app.conf.update(
         # 中优先级队列：案件分析、风险评估
         "app.tasks.litigation_analysis_tasks.*": {"queue": "medium_priority"},  # 案件分析任务
         "app.tasks.risk_analysis_tasks.*": {"queue": "medium_priority"},
+
+        # 中优先级队列：飞书审查集成
+        "app.tasks.feishu_review_tasks.process_feishu_contract_review": {"queue": "medium_priority"},  # 飞书合同审查
+        "app.tasks.feishu_review_tasks.process_metadata_extracted": {"queue": "medium_priority"},  # 元数据提取完成处理
+        "app.tasks.feishu_review_tasks.process_stance_selected": {"queue": "medium_priority"},  # 立场选择处理
+        "app.tasks.feishu_review_tasks.monitor_review_status": {"queue": "medium_priority"},  # 审查状态监控
 
         # 低优先级队列：合同审查、批量处理
         "tasks.perform_contract_review": {"queue": "low_priority"},  # 合同审查任务

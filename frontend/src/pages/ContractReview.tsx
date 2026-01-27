@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 import { DocumentEditor } from "@onlyoffice/document-editor-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api';
 import { logger } from '../utils/logger';
 import { Button, Spin, Select, Input, Tag, Alert, Card, Modal, Checkbox, Dropdown, Space, Form, Table, Popconfirm, Collapse, Badge, Tabs, Progress, Row, Col, Statistic, App } from 'antd';
@@ -106,6 +106,7 @@ const parsePartiesString = (parties: string | string[] | undefined): string[] =>
 
 const ContractReview: React.FC = () => {
   const navigate = useNavigate();
+  const { contractId: urlContractId } = useParams<{ contractId?: string }>();
   const { message: messageApi } = App.useApp(); // 【修复】使用 App.useApp() 替代静态 message
   const [editorConfig, setEditorConfig] = useState<any>(null);
   const [contractId, setContractId] = useState<number | null>(null);
@@ -303,6 +304,88 @@ const ContractReview: React.FC = () => {
       localStorage.setItem('contractReview_contractId', contractId.toString());
     }
   }, [contractId]);
+
+  // ⭐ 新增：处理 URL 参数中的 contractId（用于飞书通知跳转）
+  useEffect(() => {
+    const loadContractFromUrl = async () => {
+      if (!urlContractId) return;
+
+      const parsedContractId = parseInt(urlContractId);
+      if (isNaN(parsedContractId)) {
+        messageApi.error('无效的合同 ID');
+        navigate('/contract/review');
+        return;
+      }
+
+      console.log('📌 从 URL 加载合同:', parsedContractId);
+      setLoading(true);
+
+      try {
+        // 设置合同 ID
+        setContractId(parsedContractId);
+
+        // 获取处理状态
+        const statusRes = await api.get(`/contract-review/${parsedContractId}/processing-status`);
+        const { processing_status, can_load_editor, has_metadata, metadata } = statusRes.data;
+
+        console.log('📌 URL 加载合同状态:', processing_status, 'can_load_editor:', can_load_editor);
+
+        // 获取编辑器配置（如果可用）
+        if (can_load_editor) {
+          const cfgRes = await api.get(`/contract-review/${parsedContractId}/onlyoffice-config`);
+          const cfg = cfgRes.data.config;
+          const tkn = cfgRes.data.token;
+          setEditorConfig({ ...cfg, token: tkn });
+        }
+
+        // 设置元数据（如果有）
+        if (has_metadata && metadata) {
+          setEditedMetadata(prev => ({
+            ...prev,
+            contract_name: metadata.contract_name || prev.contract_name || '',
+            parties: parsePartiesString(metadata.parties),
+            amount: metadata.amount || prev.amount || '',
+            contract_type: metadata.contract_type || prev.contract_type || '',
+            core_terms: metadata.core_terms || prev.core_terms || '',
+            legal_features: metadata.legal_features || prev.legal_features,
+          }));
+          setMetadataExtracting(false);
+          setMetadataExtracted(true);
+        }
+
+        // 检查审查状态
+        const reviewRes = await api.get(`/contract-review/${parsedContractId}/review-results`);
+        const { status, review_items } = reviewRes.data;
+
+        if (status === 'waiting_human' || status === 'approved') {
+          // 审查完成，显示结果
+          setReviews(review_items || []);
+          setStance(reviewRes.data.stance || '甲方');
+          setStep('results');
+          messageApi.success(`审查已完成，发现 ${review_items?.length || 0} 个风险点`);
+        } else if (status === 'reviewing' || status === 'processing') {
+          // 审查中
+          setStep('reviewing');
+          setReviewProgress('正在审查中...');
+          // 开始轮询结果
+          pollReviewResults();
+        } else {
+          // 未开始审查，显示元数据确认步骤
+          setStep('metadata');
+        }
+
+      } catch (error: any) {
+        console.error('加载合同失败', error);
+        messageApi.error(error.response?.data?.detail || '加载合同失败');
+        // 失败后跳转到普通上传页面
+        navigate('/contract/review');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadContractFromUrl();
+  }, [urlContractId]);
 
   useEffect(() => {
     localStorage.setItem('contractReview_step', step);

@@ -287,7 +287,6 @@ def execute_stage_3(
         elapsed = time.time() - start_time
         logger.error(f"--- [Stage 3] LLM 调用失败 (耗时 {elapsed:.2f}秒): {e} ---")
         # 返回一个空结果，避免整个流程失败
-        from ..schemas import ReviewOutput
         return ReviewOutput(
             summary=f"审查失败: {str(e)}",
             issues=[]

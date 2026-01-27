@@ -138,6 +138,30 @@ def perform_contract_review(
                     "by_severity": severity_counts
                 }
 
+                # ========== 新增：飞书集成处理 ==========
+                # 检查是否为飞书触发的审查任务
+                metadata_info = contract.metadata_info or {}
+                feishu_record_id = metadata_info.get("feishu_record_id")
+
+                if feishu_record_id:
+                    logger.info(f"[Feishu 集成] 检测到飞书记录ID，准备回写和通知: {feishu_record_id}")
+                    try:
+                        # 导入飞书处理函数（延迟导入避免循环依赖）
+                        from app.tasks.feishu_review_tasks import _handle_review_completion
+
+                        # 调用审查完成处理（更新多维表 + 发送通知）
+                        _handle_review_completion(
+                            record_id=feishu_record_id,
+                            file_path=None,  # 不再使用文件路径
+                            contract_id=str(contract_id)
+                        )
+                        logger.info(f"[Feishu 集成] 回写和通知完成: {feishu_record_id}")
+                    except Exception as feishu_error:
+                        # 飞书集成失败不影响审查任务成功状态
+                        logger.error(f"[Feishu 集成] 处理失败（不影响审查结果）: {feishu_error}", exc_info=True)
+                else:
+                    logger.info(f"[Feishu 集成] 非飞书触发的审查任务，跳过飞书回写")
+
             logger.info(f"审查任务完成: task_id={task_id}, 发现 {review_items_count} 个风险点")
         else:
             task.status = "failed"

@@ -201,6 +201,15 @@ const App: React.FC = () => {
                 </PrivateRoute>
               }
             />
+            {/* 智能合同审查 - 带合同ID参数（用于飞书通知跳转） */}
+            <Route
+              path="/contract/review/:contractId"
+              element={
+                <PrivateRoute>
+                  <ContractReview />
+                </PrivateRoute>
+              }
+            />
 
             {/* 合同审查任务历史 */}
             <Route

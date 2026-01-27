@@ -58,16 +58,53 @@ ENV DATABASE_URL=postgresql://postgres:postgres@postgres18-0.postgres18.gms.svc.
 # ENV CELERY_BROKER_URL=redis://redis:6379/0
 # ENV CELERY_RESULT_BACKEND=redis://redis:6379/0
 
+# ==================== 管理员账户配置 ====================
+# 首次部署时自动创建管理员账户（如果数据库为空）
+# 此账户既是应用系统管理员，也是飞书集成的应用访问账户
+ENV DEFAULT_ADMIN_EMAIL=zhusanqiang@az028.cn
+ENV DEFAULT_ADMIN_PASSWORD=01689101abc
+# 数据种子脚本也使用的管理员配置（与上面保持一致）
+ENV SEED_ADMIN_EMAIL=zhusanqiang@az028.cn
+ENV SEED_ADMIN_PASSWORD=01689101abc
+
 # ==================== 其他服务配置 ====================
 ENV SECRET_KEY=a_very_long_and_super_secret_random_string_that_is_hard_to_guess
 ENV ACCESS_TOKEN_EXPIRE_MINUTES=1440
 ENV ONLYOFFICE_JWT_SECRET=legal_doc_secret_2025
-ENV BACKEND_PUBLIC_URL=http://localhost:8000
+# 后端公网访问地址（与前端共用域名，用于飞书回调等外部访问）
+ENV BACKEND_PUBLIC_URL=https://legal-assistant-v3.azgpu02.azshentong.com
+# 前端访问地址（用于飞书通知跳转到前端审查结果页面）
+# ⚠️ 生产环境实际地址
+ENV FRONTEND_PUBLIC_URL=https://legal-assistant-v3.azgpu02.azshentong.com
+# 额外的允许跨域访问地址（可选，逗号分隔）
+ENV ALLOWED_ORIGINS=
 
 # Dify 配置 (暂时禁用)
 ENV DIFY_ENABLED=false
 ENV DIFY_GUIDANCE_ANALYSIS_ENABLED=false
 ENV DIFY_EXPERT_CONSULTATION_ENABLED=false
+
+# ==================== 飞书集成配置 ====================
+# 飞书应用凭证（实际配置值）
+ENV FEISHU_APP_ID=cli_a764e1e9d1f9500c
+ENV FEISHU_APP_SECRET=WElXdiIIoX2pOQUKiivhdf8MENQb28iR
+# 飞书 API 基础地址
+ENV FEISHU_BASE_API_URL=https://open.feishu.cn/open-apis
+# 飞书回调验证密钥
+ENV FEISHU_ENCRYPT_KEY=wzC6b0QXee1aKMcuAMGzvg5RZoT2j0Sd
+ENV FEISHU_VERIFICATION_TOKEN=sWMXUy2DRkuvthwTlQg4z58O7kgbwmeT
+# 飞书多维表配置（实际配置值）
+ENV FEISHU_BITABLE_APP_TOKEN=ZChtbTe0YaAnIss6EVpcStLcnbc
+ENV FEISHU_BITABLE_TABLE_ID=tbliwRvXwY2wCBnn
+# 飞书卡片回调地址（自动基于 BACKEND_PUBLIC_URL 生成）
+ENV FEISHU_CARD_CALLBACK_URL=
+# 系统服务账户（用于飞书集成调用审查模块 - 实际配置值）
+ENV SYSTEM_SERVICE_EMAIL=zhusanqiang@az028.cn
+ENV SYSTEM_SERVICE_PASSWORD=01689101abc
+# 默认审查人 OPEN_ID（可选）
+ENV DEFAULT_REVIEWER_OPEN_ID=
+# 审查模块 API 地址（Docker 网络内使用）
+ENV REVIEW_API_BASE=http://backend:8000
 
 # MinerU PDF 解析服务（公网地址）
 ENV MINERU_API_URL=https://newapi.dev.azshentong.com/v1
@@ -145,3 +182,24 @@ COPY requirements.txt .
 # 安装Python依赖（运行时环境）
 RUN pip config set global.index-url https://mirrors.cloud.tencent.com/pypi/simple \
     && pip install --no-cache-dir -r requirements.txt
+
+# 6. 复制后端代码（复制 backend 目录内容到 /app）
+COPY backend /app
+
+# 7. 复制前端代码并构建
+COPY frontend /app/frontend
+WORKDIR /app/frontend
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm ci --verbose && \
+    npx vite build
+
+# 8. 将前端构建产物复制到后端静态目录
+WORKDIR /app
+RUN mkdir -p static/frontend && \
+    cp -r frontend/dist/* static/frontend/
+
+# 9. 暴露端口
+EXPOSE 8000
+
+# 10. 启动应用
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--ws-ping-interval", "20", "--ws-ping-timeout", "300"]
