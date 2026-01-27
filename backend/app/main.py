@@ -331,17 +331,63 @@ async def startup_event():
         logger.warning(f"⚠️ 自动确保管理员权限失败: {e}")
         logger.warning("管理员权限可能不正确，请手动检查")
 
-    # 启动飞书长连接（仅在生产环境或明确启用时）
+    # ========== 飞书集成启动（带完整的前置检查） ==========
     feishu_enabled = os.getenv("FEISHU_ENABLED", "false").lower() == "true"
+
     if feishu_enabled:
+        logger.info("🔍 飞书集成已启用，开始前置检查...")
+
+        # ========== 检查1: Redis 可用性检查 ==========
+        redis_available = False
         try:
-            # 导入并启动飞书长连接
-            from app.api.v1.endpoints.feishu_callback import start_feishu_long_connection
-            start_feishu_long_connection()
-            logger.info("✅ 飞书长连接已启动")
+            import redis
+            redis_host = os.getenv("REDIS_HOST", "redis")
+            redis_port = int(os.getenv("REDIS_PORT", "6379"))
+            redis_password = os.getenv("REDIS_PASSWORD", "")
+
+            # 尝试连接 Redis（带超时）
+            redis_client = redis.Redis(
+                host=redis_host,
+                port=redis_port,
+                password=redis_password if redis_password else None,
+                socket_connect_timeout=3,
+                socket_timeout=3
+            )
+            redis_client.ping()
+            redis_available = True
+            logger.info(f"✅ Redis 连接成功: {redis_host}:{redis_port}")
+        except ImportError:
+            logger.warning("⚠️ Redis 模块未安装")
         except Exception as e:
-            logger.warning(f"⚠️ 飞书长连接启动失败: {e}")
-            logger.warning("飞书集成功能将不可用，但不影响其他功能")
+            logger.warning(f"⚠️ Redis 连接失败: {e}")
+            logger.warning("   飞书集成需要 Redis 服务，但当前无法连接")
+
+        # ========== 检查2: Celery 配置检查 ==========
+        celery_enabled = os.getenv("CELERY_ENABLED", "false").lower() == "true"
+        if celery_enabled and not redis_available:
+            logger.warning("⚠️ CELERY_ENABLED=true 但 Redis 不可用")
+            logger.warning("   飞书任务队列将无法正常工作")
+
+        # ========== 检查3: 尝试启动飞书长连接 ==========
+        # 只有当 Redis 可用时才尝试导入飞书模块
+        if redis_available:
+            try:
+                logger.info("🔄 正在导入飞书集成模块...")
+                # 导入并启动飞书长连接
+                from app.api.v1.endpoints.feishu_callback import start_feishu_long_connection
+                logger.info("🔄 正在启动飞书长连接...")
+                start_feishu_long_connection()
+                logger.info("✅ 飞书长连接已启动")
+            except ImportError as e:
+                logger.warning(f"⚠️ 飞书模块导入失败: {e}")
+                logger.warning("   可能是 lark_oapi 依赖问题或事件循环冲突")
+                logger.warning("   飞书集成功能将不可用，但不影响其他功能")
+            except Exception as e:
+                logger.warning(f"⚠️ 飞书长连接启动失败: {e}")
+                logger.warning("飞书集成功能将不可用，但不影响其他功能")
+        else:
+            logger.warning("⚠️ Redis 不可用，跳过飞书长连接启动")
+            logger.warning("   如需使用飞书集成，请确保 Redis 服务正常运行")
     else:
         logger.info("ℹ️ 飞书集成未启用（FEISHU_ENABLED=false）")
 

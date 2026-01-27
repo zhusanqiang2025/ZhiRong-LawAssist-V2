@@ -4,14 +4,65 @@
 所有业务逻辑 API 统一收归到 /api/v1 命名空间下
 """
 from fastapi import APIRouter
+import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ==================== V1 端点模块（位于 app/api/v1/endpoints/） ====================
 from app.api.v1.endpoints import auth, contract_templates, admin, categories, tasks, smart_chat, rag_management
 from app.api.v1.endpoints import contract_knowledge_graph_db, risk_analysis
 from app.api.v1.endpoints import litigation_analysis, document_drafting, search
 from app.api.v1.endpoints import knowledge_base, consultation_history, health, system
-# ⚠️⚠️⚠️ 紧急禁用：feishu_callback 模块导入导致路由注册失败 ⚠️⚠️⚠️
-# from app.api.v1.endpoints import feishu_callback
+
+# ==================== 飞书集成条件导入 ====================
+# 飞书集成模块导入可能导致事件循环冲突，需要特殊处理
+def _try_import_feishu_callback():
+    """
+    尝试导入飞书集成模块，带完整的前置检查
+
+    返回: (success, feishu_router_or_None)
+    """
+    feishu_enabled = os.getenv("FEISHU_ENABLED", "false").lower() == "true"
+    if not feishu_enabled:
+        logger.info("ℹ️ 飞书集成未启用（FEISHU_ENABLED=false），跳过路由注册")
+        return False, None
+
+    # 检查 Redis 可用性
+    try:
+        import redis
+        redis_host = os.getenv("REDIS_HOST", "redis")
+        redis_port = int(os.getenv("REDIS_PORT", "6379"))
+        redis_password = os.getenv("REDIS_PASSWORD", "")
+
+        redis_client = redis.Redis(
+            host=redis_host,
+            port=redis_port,
+            password=redis_password if redis_password else None,
+            socket_connect_timeout=2,
+            socket_timeout=2
+        )
+        redis_client.ping()
+        logger.info(f"✅ Redis 可用，准备导入飞书集成模块: {redis_host}:{redis_port}")
+    except ImportError:
+        logger.warning("⚠️ Redis 模块未安装，跳过飞书集成路由注册")
+        return False, None
+    except Exception as e:
+        logger.warning(f"⚠️ Redis 不可用（{e}），跳过飞书集成路由注册")
+        return False, None
+
+    # 尝试导入飞书模块
+    try:
+        from app.api.v1.endpoints import feishu_callback
+        logger.info("✅ 飞书集成模块导入成功")
+        return True, feishu_callback.router
+    except ImportError as e:
+        logger.warning(f"⚠️ 飞书集成模块导入失败: {e}")
+        logger.warning("   可能是 lark_oapi 依赖问题或事件循环冲突")
+        return False, None
+    except Exception as e:
+        logger.warning(f"⚠️ 飞书集成模块导入异常: {e}")
+        return False, None
 
 # ==================== 游离路由模块（位于 app/api/ 或 app/api/v1/） ====================
 # 合同审查模块
@@ -78,8 +129,17 @@ api_router.include_router(health.router, prefix="/health", tags=["Health"])
 # 系统管理 API（管理员权限管理）
 api_router.include_router(system.router, prefix="/system", tags=["System Management"])
 
-# ⚠️⚠️⚠️ 飞书集成回调 API 已禁用（导入导致路由注册失败）⚠️⚠️⚠️
-# api_router.include_router(feishu_callback.router, prefix="/feishu", tags=["Feishu Integration"])
+# ==================== 飞书集成回调 API（条件注册） ====================
+# 只有在 Redis 可用且模块导入成功时才注册飞书路由
+# 这样可以避免 lark_oapi 事件循环冲突导致所有路由注册失败
+feishu_import_success, feishu_router = _try_import_feishu_callback()
+if feishu_import_success and feishu_router is not None:
+    api_router.include_router(feishu_router, prefix="/feishu", tags=["Feishu Integration"])
+    logger.info("✅ 飞书集成路由已注册: /feishu/*")
+else:
+    logger.info("ℹ️ 飞书集成路由未注册（Redis 不可用或模块导入失败）")
+    logger.info("   不影响其他功能的正常运行")
+
 
 # ==================== 注册游离路由（收归到 v1 命名空间） ====================
 # 合同审查模块 (原 /api/contract -> /api/v1/contract-review)
