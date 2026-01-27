@@ -33,8 +33,22 @@ from datetime import datetime, timedelta
 import requests
 from dotenv import load_dotenv
 
-# 加载环境变量
-load_dotenv()
+# ==================== 环境变量加载 ====================
+# ⚠️ 移除模块级别的 load_dotenv()，避免在生产环境中产生副作用
+# 原因：生产环境没有 .env 文件，load_dotenv() 在导入时调用会导致路由注册失败
+# 本地开发环境：环境变量通过 docker-compose 的 env_file 加载
+# 生产环境：环境变量通过 Dockerfile 的 ENV 指令设置
+#
+# 如果需要在本地开发时加载 .env，请在应用入口处调用 load_dotenv()
+
+# def _ensure_env_loaded():
+#     """确保环境变量已加载（仅在需要时）"""
+#     try:
+#         env_file = os.path.join(os.path.dirname(__file__), '../../.env')
+#         if os.path.exists(env_file):
+#             load_dotenv(env_file, override=False)
+#     except Exception:
+#         pass
 
 # ==================== 配置读取 ====================
 # 飞书开放平台配置
