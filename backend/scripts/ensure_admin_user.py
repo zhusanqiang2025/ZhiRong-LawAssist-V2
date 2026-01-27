@@ -35,7 +35,7 @@ sys.path.insert(0, project_root)
 
 from sqlalchemy.orm import Session
 from app.models.user import User
-from app.core.database import SessionLocal
+from app.database import SessionLocal
 
 # 配置日志
 logging.basicConfig(

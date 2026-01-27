@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.api import deps
 from app.models.user import User
-from app.core.database import SessionLocal
+from app.database import SessionLocal
 
 logger = logging.getLogger(__name__)
 
