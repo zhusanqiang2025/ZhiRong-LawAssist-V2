@@ -20,14 +20,10 @@ from typing import Dict, Any
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
-# ========== 适配超旧版本lark-oapi（完全延迟导入） ==========
-# ⚠️ 完全延迟导入：不在模块顶部导入 lark_oapi，避免事件循环冲突
-# 原因：import lark_oapi 会触发 lark_oapi/ws/client.py 第 25-29 行的事件循环创建
-# 这导致与 FastAPI 的路由注册机制冲突，使大部分路由无法注册
-# 解决方案：移到函数内部导入，只在需要时才导入
-# import lark_oapi
-# from lark_oapi.ws import Client as WSClient
-# from lark_oapi.core.enum import LogLevel
+# ========== 适配超旧版本lark-oapi（无任何多余导入） ==========
+import lark_oapi
+from lark_oapi.ws import Client as WSClient
+from lark_oapi.core.enum import LogLevel
 
 # 仅定义路由，绝不创建FastAPI实例（和项目主服务完全兼容）
 router = APIRouter()
@@ -518,16 +514,9 @@ def handle_feishu_event(event_str: str):
 lark_ws_client = None
 
 def _get_or_create_ws_client():
-    """获取或创建飞书长连接客户端（完全延迟导入）"""
+    """获取或创建飞书长连接客户端（延迟初始化）"""
     global lark_ws_client
     if lark_ws_client is None:
-        # ⚠️ 延迟导入：在这里才导入 lark_oapi，避免模块导入时的事件循环冲突
-        # 这样 lark_oapi/ws/client.py 第 25-29 行的事件循环创建会在应用启动后执行
-        # 而不是在模块导入时执行，避免与 FastAPI 的路由注册机制冲突
-        import lark_oapi
-        from lark_oapi.ws import Client as WSClient
-        from lark_oapi.core.enum import LogLevel
-
         lark_ws_client = WSClient(
             app_id=FEISHU_APP_ID,
             app_secret=FEISHU_APP_SECRET,
