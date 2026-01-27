@@ -97,14 +97,6 @@ except Exception as e:
 
 def init_default_user():
     """初始化默认用户 - 仅在开发环境创建"""
-    # 只在开发环境创建默认用户
-    if os.getenv("ENVIRONMENT") == "production":
-        logger.info("Production environment detected. Skipping default user creation.")
-        return
-
-    from sqlalchemy.orm import Session
-    from app.database import SessionLocal
-
     db: Session = SessionLocal()
     try:
         # 检查是否已存在用户

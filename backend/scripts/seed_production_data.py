@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 def create_admin_user_if_needed():
     """
     创建管理员用户（如果数据库中没有用户）
+    如果指定的管理员用户已存在但不是管理员，则提升为管理员
 
     环境变量:
     - SEED_ADMIN_EMAIL: 管理员邮箱（必需）
@@ -44,12 +45,6 @@ def create_admin_user_if_needed():
     """
     db = SessionLocal()
     try:
-        # 检查是否已有用户
-        user_count = db.query(User).count()
-        if user_count > 0:
-            logger.info(f"[Seed] Database already has {user_count} user(s), skipping admin creation")
-            return
-
         # 检查环境变量
         admin_email = os.getenv("SEED_ADMIN_EMAIL")
         admin_password = os.getenv("SEED_ADMIN_PASSWORD")
@@ -66,19 +61,40 @@ def create_admin_user_if_needed():
             logger.warning("[Seed] Admin password is too short (min 8 characters), skipping admin creation")
             return
 
-        # 创建管理员用户
-        admin_user = User(
-            email=admin_email,
-            hashed_password=get_password_hash(admin_password),
-            is_admin=True,
-            is_active=True,
-            is_superuser=True
-        )
-        db.add(admin_user)
-        db.commit()
+        # 检查用户是否已存在
+        existing_user = db.query(User).filter(User.email == admin_email).first()
 
-        logger.info(f"[Seed] ✓ Admin user created: {admin_email}")
-        logger.warning("[Seed] SECURITY: Please change the default password after first login!")
+        if existing_user:
+            # 用户已存在，检查是否是管理员
+            if existing_user.is_admin and existing_user.is_superuser:
+                logger.info(f"[Seed] Admin user already exists: {admin_email}")
+            else:
+                # 提升为管理员
+                existing_user.is_admin = True
+                existing_user.is_superuser = True
+                db.commit()
+                logger.info(f"[Seed] ✓ Promoted existing user to admin: {admin_email}")
+        else:
+            # 检查是否已有其他用户
+            user_count = db.query(User).count()
+            if user_count > 0:
+                logger.info(f"[Seed] Database already has {user_count} user(s), creating admin user anyway")
+            else:
+                logger.info("[Seed] Creating first admin user")
+
+            # 创建管理员用户
+            admin_user = User(
+                email=admin_email,
+                hashed_password=get_password_hash(admin_password),
+                is_admin=True,
+                is_active=True,
+                is_superuser=True
+            )
+            db.add(admin_user)
+            db.commit()
+
+            logger.info(f"[Seed] ✓ Admin user created: {admin_email}")
+            logger.warning("[Seed] SECURITY: Please change the default password after first login!")
 
     except Exception as e:
         logger.error(f"[Seed] ✗ Failed to create admin user: {e}")
