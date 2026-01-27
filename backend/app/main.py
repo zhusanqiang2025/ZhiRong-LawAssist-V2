@@ -96,49 +96,57 @@ except Exception as e:
 
 
 def init_default_user():
-    """初始化默认用户 - 仅在开发环境创建"""
+    """
+    初始化默认管理员用户
+
+    支持两种场景：
+    1. 数据库为空时创建管理员
+    2. 管理员用户已存在但不是管理员时，提升为管理员
+    """
     db: Session = SessionLocal()
     try:
-        # 检查是否已存在用户
-        user_count = db.query(User).count()
-        if user_count == 0:
-            # 从环境变量读取默认管理员账户信息
-            # ⚠️  安全警告: 生产环境必须使用环境变量设置强密码
-            default_email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@example.com")
-            default_password = os.getenv("DEFAULT_ADMIN_PASSWORD")
+        # 从环境变量读取默认管理员账户信息
+        default_email = os.getenv("DEFAULT_ADMIN_EMAIL")
+        default_password = os.getenv("DEFAULT_ADMIN_PASSWORD")
 
-            # 如果未设置环境变量，生成随机密码并记录
-            if not default_password:
-                import secrets
-                default_password = secrets.token_urlsafe(16)
-                logger.error("=" * 80)
-                logger.error("SECURITY WARNING: DEFAULT_ADMIN_PASSWORD not set in environment!")
-                logger.error(f"A random password has been generated: {default_password}")
-                logger.error("Please save this password and login immediately to change it!")
-                logger.error("=" * 80)
+        # 如果未配置环境变量，跳过（依赖 seed_production_data.py）
+        if not default_email or not default_password:
+            logger.info("DEFAULT_ADMIN_EMAIL or DEFAULT_ADMIN_PASSWORD not set, skipping")
+            return
 
-            # 验证密码强度
-            if len(default_password) < 8:
-                logger.error("Default admin password is too weak (min 8 characters required)")
-                logger.error("Generating a secure random password instead")
-                import secrets
-                default_password = secrets.token_urlsafe(16)
+        # 验证密码强度
+        if len(default_password) < 8:
+            logger.error("DEFAULT_ADMIN_PASSWORD is too weak (min 8 characters required), skipping")
+            return
 
-            # 创建默认用户（管理员权限）
+        # 检查用户是否已存在
+        existing_user = db.query(User).filter(User.email == default_email).first()
+
+        if existing_user:
+            # 用户已存在，检查是否是管理员
+            if existing_user.is_admin and existing_user.is_superuser:
+                logger.info(f"Admin user already exists: {default_email}")
+            else:
+                # 提升为管理员
+                existing_user.is_admin = True
+                existing_user.is_superuser = True
+                db.commit()
+                logger.info(f"✓ Promoted existing user to admin: {default_email}")
+        else:
+            # 创建新的管理员用户
             default_user = User(
                 email=default_email,
                 hashed_password=get_password_hash(default_password),
-                is_admin=True,  # 设置为管理员
+                is_admin=True,
                 is_active=True,
                 is_superuser=True
             )
             db.add(default_user)
             db.commit()
             db.refresh(default_user)
-            logger.info(f"Default admin user created: {default_email} (is_admin=True)")
+            logger.info(f"✓ Admin user created: {default_email} (is_admin=True)")
             logger.warning("SECURITY WARNING: Please change the default password after first login!")
-        else:
-            logger.info(f"Users already exist in database ({user_count} users). Skipping default user creation.")
+
     except Exception as e:
         logger.error(f"Error initializing default user: {e}")
         db.rollback()
