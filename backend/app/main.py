@@ -312,11 +312,24 @@ async def startup_event():
     应用启动时执行的初始化操作
 
     包括：
-    1. 启动飞书长连接（如果配置了飞书集成）
+    1. 确保管理员用户权限
+    2. 启动飞书长连接（如果配置了飞书集成）
     """
     logger.info("=" * 60)
     logger.info("🚀 应用启动中...")
     logger.info("=" * 60)
+
+    # 确保管理员用户权限（优先级最高，在所有其他初始化之前执行）
+    try:
+        from app.api.v1.endpoints.system import auto_ensure_admin
+        result = auto_ensure_admin()
+        if result.get("executed"):
+            logger.info(f"✅ {result.get('message', '管理员权限检查完成')}")
+        else:
+            logger.info(f"ℹ️ {result.get('message', '管理员权限检查跳过')}")
+    except Exception as e:
+        logger.warning(f"⚠️ 自动确保管理员权限失败: {e}")
+        logger.warning("管理员权限可能不正确，请手动检查")
 
     # 启动飞书长连接（仅在生产环境或明确启用时）
     feishu_enabled = os.getenv("FEISHU_ENABLED", "false").lower() == "true"

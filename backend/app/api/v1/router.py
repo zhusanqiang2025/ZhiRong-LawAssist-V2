@@ -9,7 +9,7 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import auth, contract_templates, admin, categories, tasks, smart_chat, rag_management
 from app.api.v1.endpoints import contract_knowledge_graph_db, risk_analysis
 from app.api.v1.endpoints import litigation_analysis, document_drafting, search
-from app.api.v1.endpoints import knowledge_base, consultation_history, health
+from app.api.v1.endpoints import knowledge_base, consultation_history, health, system
 # ⚠️⚠️⚠️ 紧急禁用：feishu_callback 模块导入导致路由注册失败 ⚠️⚠️⚠️
 # from app.api.v1.endpoints import feishu_callback
 
@@ -74,6 +74,9 @@ api_router.include_router(consultation_history.router, tags=["Consultation Histo
 
 # 健康检查 API
 api_router.include_router(health.router, prefix="/health", tags=["Health"])
+
+# 系统管理 API（管理员权限管理）
+api_router.include_router(system.router, prefix="/system", tags=["System Management"])
 
 # ⚠️⚠️⚠️ 飞书集成回调 API 已禁用（导入导致路由注册失败）⚠️⚠️⚠️
 # api_router.include_router(feishu_callback.router, prefix="/feishu", tags=["Feishu Integration"])
