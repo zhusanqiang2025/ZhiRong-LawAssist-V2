@@ -19,7 +19,7 @@ from app.api.v1.endpoints import knowledge_base, consultation_history, health, s
 # 飞书集成模块导入可能导致事件循环冲突，需要特殊处理
 def _try_import_feishu_callback():
     """
-    尝试导入飞书集成模块，带完整的前置检查
+    尝试导入飞书集成模块（不依赖 Redis）
 
     返回: (success, feishu_router_or_None)
     """
@@ -28,33 +28,14 @@ def _try_import_feishu_callback():
         logger.info("ℹ️ 飞书集成未启用（FEISHU_ENABLED=false），跳过路由注册")
         return False, None
 
-    # 检查 Redis 可用性
-    try:
-        import redis
-        redis_host = os.getenv("REDIS_HOST", "redis")
-        redis_port = int(os.getenv("REDIS_PORT", "6379"))
-        redis_password = os.getenv("REDIS_PASSWORD", "")
-
-        redis_client = redis.Redis(
-            host=redis_host,
-            port=redis_port,
-            password=redis_password if redis_password else None,
-            socket_connect_timeout=2,
-            socket_timeout=2
-        )
-        redis_client.ping()
-        logger.info(f"✅ Redis 可用，准备导入飞书集成模块: {redis_host}:{redis_port}")
-    except ImportError:
-        logger.warning("⚠️ Redis 模块未安装，跳过飞书集成路由注册")
-        return False, None
-    except Exception as e:
-        logger.warning(f"⚠️ Redis 不可用（{e}），跳过飞书集成路由注册")
-        return False, None
+    # ⚠️ 移除 Redis 强制依赖 - 使用内存存储代替
+    # 飞书集成模块内部已有降级处理（token_manager.py）
+    # 只要 FEISHU_ENABLED=true，就尝试导入
 
     # 尝试导入飞书模块
     try:
         from app.api.v1.endpoints import feishu_callback
-        logger.info("✅ 飞书集成模块导入成功")
+        logger.info("✅ 飞书集成模块导入成功（使用内存存储）")
         return True, feishu_callback.router
     except ImportError as e:
         logger.warning(f"⚠️ 飞书集成模块导入失败: {e}")
