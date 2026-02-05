@@ -1,0 +1,373 @@
+{
+  "hash": "7ab4cfc0",
+  "configHash": "932ea99f",
+  "lockfileHash": "a6ddf0d3",
+  "browserHash": "011e9b34",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "16dc6d73",
+      "needsInterop": true
+    },
+    "react-dom": {
+      "src": "../../node_modules/react-dom/index.js",
+      "file": "react-dom.js",
+      "fileHash": "8ef2cef1",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "2618c22d",
+      "needsInterop": true
+    },
+    "react/jsx-runtime": {
+      "src": "../../node_modules/react/jsx-runtime.js",
+      "file": "react_jsx-runtime.js",
+      "fileHash": "922abd33",
+      "needsInterop": true
+    },
+    "@ant-design/icons": {
+      "src": "../../node_modules/@ant-design/icons/es/index.js",
+      "file": "@ant-design_icons.js",
+      "fileHash": "e5e712b9",
+      "needsInterop": false
+    },
+    "@dnd-kit/core": {
+      "src": "../../node_modules/@dnd-kit/core/dist/core.esm.js",
+      "file": "@dnd-kit_core.js",
+      "fileHash": "420681fa",
+      "needsInterop": false
+    },
+    "@dnd-kit/sortable": {
+      "src": "../../node_modules/@dnd-kit/sortable/dist/sortable.esm.js",
+      "file": "@dnd-kit_sortable.js",
+      "fileHash": "fbc53ec0",
+      "needsInterop": false
+    },
+    "@dnd-kit/utilities": {
+      "src": "../../node_modules/@dnd-kit/utilities/dist/utilities.esm.js",
+      "file": "@dnd-kit_utilities.js",
+      "fileHash": "4f04af72",
+      "needsInterop": false
+    },
+    "@onlyoffice/document-editor-react": {
+      "src": "../../node_modules/@onlyoffice/document-editor-react/dist/esm/index.js",
+      "file": "@onlyoffice_document-editor-react.js",
+      "fileHash": "7514c4ad",
+      "needsInterop": false
+    },
+    "antd": {
+      "src": "../../node_modules/antd/es/index.js",
+      "file": "antd.js",
+      "fileHash": "26e016a6",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "b1a9a4b6",
+      "needsInterop": false
+    },
+    "mermaid": {
+      "src": "../../node_modules/mermaid/dist/mermaid.core.mjs",
+      "file": "mermaid.js",
+      "fileHash": "6bc5918c",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "b240493b",
+      "needsInterop": true
+    },
+    "react-markdown": {
+      "src": "../../node_modules/react-markdown/index.js",
+      "file": "react-markdown.js",
+      "fileHash": "ac851599",
+      "needsInterop": false
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "0c6ac2b0",
+      "needsInterop": false
+    },
+    "recharts": {
+      "src": "../../node_modules/recharts/es6/index.js",
+      "file": "recharts.js",
+      "fileHash": "1397e513",
+      "needsInterop": false
+    },
+    "remark-gfm": {
+      "src": "../../node_modules/remark-gfm/index.js",
+      "file": "remark-gfm.js",
+      "fileHash": "d9f2a98a",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "diagram-QEK2KX5R-NI4JDJTN": {
+      "file": "diagram-QEK2KX5R-NI4JDJTN.js"
+    },
+    "blockDiagram-VD42YOAC-SCPM6XTK": {
+      "file": "blockDiagram-VD42YOAC-SCPM6XTK.js"
+    },
+    "architectureDiagram-VXUJARFQ-MHVD4ZKU": {
+      "file": "architectureDiagram-VXUJARFQ-MHVD4ZKU.js"
+    },
+    "diagram-PSM6KHXK-LNCOG334": {
+      "file": "diagram-PSM6KHXK-LNCOG334.js"
+    },
+    "stateDiagram-FKZM4ZOC-SPTFBD2H": {
+      "file": "stateDiagram-FKZM4ZOC-SPTFBD2H.js"
+    },
+    "stateDiagram-v2-4FDKWEC3-RFUE2COP": {
+      "file": "stateDiagram-v2-4FDKWEC3-RFUE2COP.js"
+    },
+    "chunk-IT76DY26": {
+      "file": "chunk-IT76DY26.js"
+    },
+    "journeyDiagram-XKPGCS4Q-JLGRXJ76": {
+      "file": "journeyDiagram-XKPGCS4Q-JLGRXJ76.js"
+    },
+    "timeline-definition-IT6M3QCI-M2LJCBRB": {
+      "file": "timeline-definition-IT6M3QCI-M2LJCBRB.js"
+    },
+    "mindmap-definition-VGOIOE7T-IAOXCNS6": {
+      "file": "mindmap-definition-VGOIOE7T-IAOXCNS6.js"
+    },
+    "kanban-definition-3W4ZIXB7-C6RKRMUN": {
+      "file": "kanban-definition-3W4ZIXB7-C6RKRMUN.js"
+    },
+    "sankeyDiagram-TZEHDZUN-63QJXTGQ": {
+      "file": "sankeyDiagram-TZEHDZUN-63QJXTGQ.js"
+    },
+    "diagram-S2PKOQOG-MFJ65U62": {
+      "file": "diagram-S2PKOQOG-MFJ65U62.js"
+    },
+    "infoDiagram-WHAUD3N6-BVL4ZRUM": {
+      "file": "infoDiagram-WHAUD3N6-BVL4ZRUM.js"
+    },
+    "pieDiagram-ADFJNKIX-SCBCMWXI": {
+      "file": "pieDiagram-ADFJNKIX-SCBCMWXI.js"
+    },
+    "quadrantDiagram-AYHSOK5B-RCMN5A3J": {
+      "file": "quadrantDiagram-AYHSOK5B-RCMN5A3J.js"
+    },
+    "xychartDiagram-PRI3JC2R-F55ECP7M": {
+      "file": "xychartDiagram-PRI3JC2R-F55ECP7M.js"
+    },
+    "requirementDiagram-UZGBJVZJ-V4ZKA32Q": {
+      "file": "requirementDiagram-UZGBJVZJ-V4ZKA32Q.js"
+    },
+    "sequenceDiagram-WL72ISMW-UP4UUWZW": {
+      "file": "sequenceDiagram-WL72ISMW-UP4UUWZW.js"
+    },
+    "classDiagram-2ON5EDUG-XAVM6SK2": {
+      "file": "classDiagram-2ON5EDUG-XAVM6SK2.js"
+    },
+    "classDiagram-v2-WZHVMYZB-OBIML6YQ": {
+      "file": "classDiagram-v2-WZHVMYZB-OBIML6YQ.js"
+    },
+    "chunk-JLRKOLOE": {
+      "file": "chunk-JLRKOLOE.js"
+    },
+    "packet-BFZMPI3H-RC3NOQ52": {
+      "file": "packet-BFZMPI3H-RC3NOQ52.js"
+    },
+    "pie-7BOR55EZ-ATZVVRI5": {
+      "file": "pie-7BOR55EZ-ATZVVRI5.js"
+    },
+    "architecture-U656AL7Q-4G27SKBU": {
+      "file": "architecture-U656AL7Q-4G27SKBU.js"
+    },
+    "gitGraph-F6HP7TQM-QMQJ7ORM": {
+      "file": "gitGraph-F6HP7TQM-QMQJ7ORM.js"
+    },
+    "radar-NHE76QYJ-ZQ3JVZDC": {
+      "file": "radar-NHE76QYJ-ZQ3JVZDC.js"
+    },
+    "treemap-KMMF4GRG-BW5PMNZY": {
+      "file": "treemap-KMMF4GRG-BW5PMNZY.js"
+    },
+    "gitGraphDiagram-NY62KEGX-VFMZW23E": {
+      "file": "gitGraphDiagram-NY62KEGX-VFMZW23E.js"
+    },
+    "chunk-OXEVQIL2": {
+      "file": "chunk-OXEVQIL2.js"
+    },
+    "chunk-FPZUDIIY": {
+      "file": "chunk-FPZUDIIY.js"
+    },
+    "chunk-75LY33IR": {
+      "file": "chunk-75LY33IR.js"
+    },
+    "chunk-2LCDP2AZ": {
+      "file": "chunk-2LCDP2AZ.js"
+    },
+    "chunk-R3QO2ASY": {
+      "file": "chunk-R3QO2ASY.js"
+    },
+    "chunk-D25RZWOE": {
+      "file": "chunk-D25RZWOE.js"
+    },
+    "chunk-F6SSHYQZ": {
+      "file": "chunk-F6SSHYQZ.js"
+    },
+    "chunk-Q7V3RZ75": {
+      "file": "chunk-Q7V3RZ75.js"
+    },
+    "chunk-CPHAU6P2": {
+      "file": "chunk-CPHAU6P2.js"
+    },
+    "ganttDiagram-JELNMOA3-FBV3KDDR": {
+      "file": "ganttDiagram-JELNMOA3-FBV3KDDR.js"
+    },
+    "katex-5BCV5ZFW": {
+      "file": "katex-5BCV5ZFW.js"
+    },
+    "dagre-6UL2VRFP-3EVK5F4L": {
+      "file": "dagre-6UL2VRFP-3EVK5F4L.js"
+    },
+    "chunk-4PLNCQM4": {
+      "file": "chunk-4PLNCQM4.js"
+    },
+    "chunk-PJ7HUEVK": {
+      "file": "chunk-PJ7HUEVK.js"
+    },
+    "cose-bilkent-S5V4N54A-WZOMEGEK": {
+      "file": "cose-bilkent-S5V4N54A-WZOMEGEK.js"
+    },
+    "chunk-NYDVCOFU": {
+      "file": "chunk-NYDVCOFU.js"
+    },
+    "c4Diagram-YG6GDRKO-UDVHZKCW": {
+      "file": "c4Diagram-YG6GDRKO-UDVHZKCW.js"
+    },
+    "chunk-LQXFR4SO": {
+      "file": "chunk-LQXFR4SO.js"
+    },
+    "flowDiagram-NV44I4VS-YO7I6KVF": {
+      "file": "flowDiagram-NV44I4VS-YO7I6KVF.js"
+    },
+    "chunk-FZR6R6Q6": {
+      "file": "chunk-FZR6R6Q6.js"
+    },
+    "erDiagram-Q2GNP2WA-3XLQQIAT": {
+      "file": "erDiagram-Q2GNP2WA-3XLQQIAT.js"
+    },
+    "chunk-RGDLG4UH": {
+      "file": "chunk-RGDLG4UH.js"
+    },
+    "chunk-2GGHWUAH": {
+      "file": "chunk-2GGHWUAH.js"
+    },
+    "info-NVLQJR56-XVRGG4X6": {
+      "file": "info-NVLQJR56-XVRGG4X6.js"
+    },
+    "chunk-3YGP4RUS": {
+      "file": "chunk-3YGP4RUS.js"
+    },
+    "chunk-JU4N7ASV": {
+      "file": "chunk-JU4N7ASV.js"
+    },
+    "chunk-F6R2U5QB": {
+      "file": "chunk-F6R2U5QB.js"
+    },
+    "chunk-FBRJL6OU": {
+      "file": "chunk-FBRJL6OU.js"
+    },
+    "chunk-A62I4BPU": {
+      "file": "chunk-A62I4BPU.js"
+    },
+    "chunk-WAEKFLGE": {
+      "file": "chunk-WAEKFLGE.js"
+    },
+    "chunk-VCMIJN4Q": {
+      "file": "chunk-VCMIJN4Q.js"
+    },
+    "chunk-C2IJ3MWB": {
+      "file": "chunk-C2IJ3MWB.js"
+    },
+    "chunk-32EYRCJ7": {
+      "file": "chunk-32EYRCJ7.js"
+    },
+    "chunk-IK2EPANT": {
+      "file": "chunk-IK2EPANT.js"
+    },
+    "chunk-6QBU6W4N": {
+      "file": "chunk-6QBU6W4N.js"
+    },
+    "chunk-WS62GBNW": {
+      "file": "chunk-WS62GBNW.js"
+    },
+    "chunk-MOSZKKNL": {
+      "file": "chunk-MOSZKKNL.js"
+    },
+    "chunk-3SW3RFGL": {
+      "file": "chunk-3SW3RFGL.js"
+    },
+    "chunk-PERCMNIM": {
+      "file": "chunk-PERCMNIM.js"
+    },
+    "chunk-LXZIEOKS": {
+      "file": "chunk-LXZIEOKS.js"
+    },
+    "chunk-YFEFC66E": {
+      "file": "chunk-YFEFC66E.js"
+    },
+    "chunk-7KB542JL": {
+      "file": "chunk-7KB542JL.js"
+    },
+    "chunk-TXYUMXJC": {
+      "file": "chunk-TXYUMXJC.js"
+    },
+    "chunk-XHPT6X5E": {
+      "file": "chunk-XHPT6X5E.js"
+    },
+    "chunk-AHDI4WSU": {
+      "file": "chunk-AHDI4WSU.js"
+    },
+    "chunk-TXBF2BBY": {
+      "file": "chunk-TXBF2BBY.js"
+    },
+    "chunk-5WWYKPWR": {
+      "file": "chunk-5WWYKPWR.js"
+    },
+    "chunk-VPI4FCPN": {
+      "file": "chunk-VPI4FCPN.js"
+    },
+    "chunk-GI4O4QL5": {
+      "file": "chunk-GI4O4QL5.js"
+    },
+    "chunk-GWVER62F": {
+      "file": "chunk-GWVER62F.js"
+    },
+    "chunk-RK74YDVX": {
+      "file": "chunk-RK74YDVX.js"
+    },
+    "chunk-H3QGJKSP": {
+      "file": "chunk-H3QGJKSP.js"
+    },
+    "chunk-4X7V2T3X": {
+      "file": "chunk-4X7V2T3X.js"
+    },
+    "chunk-DVWMXTW2": {
+      "file": "chunk-DVWMXTW2.js"
+    },
+    "chunk-U3EF5KRT": {
+      "file": "chunk-U3EF5KRT.js"
+    },
+    "chunk-3S572DC2": {
+      "file": "chunk-3S572DC2.js"
+    },
+    "chunk-V53KFXEX": {
+      "file": "chunk-V53KFXEX.js"
+    },
+    "chunk-IKZWERSR": {
+      "file": "chunk-IKZWERSR.js"
+    }
+  }
+}

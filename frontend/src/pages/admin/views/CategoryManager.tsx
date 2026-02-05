@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
   Card, Tree, Button, Space, Tag, Modal, Form, Input, Switch,
-  message, Popconfirm, TreeSelect, Typography, Row, Col, Divider, Descriptions
+  message, Popconfirm, TreeSelect, Typography, Row, Col, Divider, Descriptions, Upload
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined,
-  FolderOutlined, FolderOpenOutlined
+  FolderOutlined, FolderOpenOutlined, DownloadOutlined, UploadOutlined
 } from '@ant-design/icons';
 import { contractTemplateApi } from '../../../api/contractTemplates';
+import { systemApi } from '../../../api/system';
 import type { CategoryTreeItem } from '../../../types/contract';
 
 const { Text, Paragraph } = Typography;
@@ -162,6 +163,34 @@ const CategoryManager: React.FC = () => {
     setModalVisible(true);
   };
 
+  // 导出分类数据
+  const handleExport = async () => {
+    try {
+      const data = await systemApi.exportData('categories');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      systemApi.downloadAsJson(data, `categories_export_${timestamp}.json`);
+      message.success('导出成功');
+    } catch (error: any) {
+      message.error(error.response?.data?.detail || '导出失败');
+    }
+  };
+
+  // 导入分类数据
+  const handleImport = async (file: File) => {
+    try {
+      const result = await systemApi.importData(file);
+      if (result.success) {
+        message.success('导入成功');
+        fetchTree();
+      } else {
+        message.error(result.message || '导入失败');
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.detail || '导入失败');
+    }
+    return false; // 阻止自动上传
+  };
+
   // 获取分类层级名称
   const getLevelName = (item: CategoryTreeItem): string => {
     if (!item.parent_id) return '一级分类';
@@ -184,6 +213,21 @@ const CategoryManager: React.FC = () => {
             >
               刷新
             </Button>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleExport}
+            >
+              导出配置
+            </Button>
+            <Upload
+              accept=".json"
+              showUploadList={false}
+              customRequest={({ file }) => handleImport(file as File)}
+            >
+              <Button icon={<UploadOutlined />}>
+                导入配置
+              </Button>
+            </Upload>
             <Button
               type="primary"
               icon={<PlusOutlined />}

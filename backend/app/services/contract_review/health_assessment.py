@@ -14,12 +14,29 @@ logger = logging.getLogger(__name__)
 class ContractHealthAssessment:
     """合同健康度评估器"""
 
-    # 严重程度扣分权重
+    # 严重程度扣分权重（标准化键名）
+    # 使用递减权重，避免过多风险点导致分数过低
     SEVERITY_WEIGHTS = {
-        "Critical": 30,
-        "High": 20,
-        "Medium": 10,
-        "Low": 5
+        "critical": 15,  # 从 30 降低到 15
+        "high": 8,       # 从 20 降低到 8
+        "medium": 3,     # 从 10 降低到 3
+        "low": 1,        # 从 5 降低到 1
+        # 兼容首字母大写格式
+        "Critical": 15,
+        "High": 8,
+        "Medium": 3,
+        "Low": 1
+    }
+
+    # 中文到英文的映射
+    SEVERITY_ZH_TO_EN = {
+        "极严重": "critical",
+        "严重": "high",
+        "中等": "medium",
+        "轻微": "low",
+        "高": "high",
+        "中": "medium",
+        "低": "low"
     }
 
     # 风险等级阈值
@@ -30,6 +47,39 @@ class ContractHealthAssessment:
         "高风险": 30,
         "极高风险": 0
     }
+
+    def _normalize_severity(self, severity: str) -> str:
+        """
+        标准化 severity 值
+
+        处理各种可能的输入格式：
+        - 英文：Critical, High, Medium, Low
+        - 中文：极严重, 严重, 中等, 轻微
+        - 小写：critical, high, medium, low
+        """
+        if not severity:
+            return "medium"
+
+        # 先转为字符串并去除首尾空格
+        severity = str(severity).strip()
+
+        # 如果已经是标准格式（首字母大写），直接返回
+        if severity in self.SEVERITY_WEIGHTS:
+            return severity
+
+        # 尝试中文映射
+        if severity in self.SEVERITY_ZH_TO_EN:
+            return self.SEVERITY_ZH_TO_EN[severity].capitalize()
+
+        # 尝试小写格式
+        severity_lower = severity.lower()
+        for key in self.SEVERITY_WEIGHTS:
+            if key.lower() == severity_lower:
+                return key
+
+        # 默认返回 medium
+        logger.warning(f"无法识别的 severity 值: '{severity}'，使用默认值 'Medium'")
+        return "Medium"
 
     def calculate_health_score(self, review_items: List[ContractReviewItem]) -> Dict:
         """
@@ -76,15 +126,32 @@ class ContractHealthAssessment:
         }
 
         for item in review_items:
-            severity = item.severity
+            severity_raw = item.severity
+            # 标准化 severity 值
+            severity = self._normalize_severity(severity_raw)
+            # 记录实际的 severity 值用于调试
+            if severity_raw != severity:
+                logger.info(f"[HealthAssessment] severity 规范化: '{severity_raw}' -> '{severity}'")
             if severity in self.SEVERITY_WEIGHTS:
                 total_deduction += self.SEVERITY_WEIGHTS[severity]
                 risk_distribution[severity] += 1
             else:
-                logger.warning(f"未知的严重程度: {severity}")
+                logger.warning(f"未知的严重程度: '{severity}' (期望值: {list(self.SEVERITY_WEIGHTS.keys())})")
 
-        # 3. 计算最终分数
-        final_score = max(0, min(100, base_score - total_deduction))
+        # 3. 改进的评分算法：使用非线性扣分，避免风险点过多导致分数过低
+        # 基础分 100 分，使用平方根函数平滑扣分
+        import math
+        if total_deduction > 0:
+            # 使用平方根函数平滑扣分：√(扣分) * 系数
+            # 这样即使有很多风险点，分数也不会过低
+            smooth_deduction = math.sqrt(total_deduction) * 8
+            final_score = max(0, min(100, base_score - smooth_deduction))
+        else:
+            final_score = 100
+
+        logger.info(
+            f"[HealthAssessment] 评分详情: 总扣分={total_deduction}, 平滑扣分={smooth_deduction:.1f}, 最终分数={final_score:.1f}"
+        )
 
         # 4. 确定风险等级
         level = self._get_risk_level(final_score)
@@ -95,13 +162,16 @@ class ContractHealthAssessment:
         # 6. 生成改进建议
         recommendations = self._generate_recommendations(review_items)
 
+        # 7. 四舍五入分数为整数
+        final_score_int = int(round(final_score))
+
         logger.info(
-            f"[HealthAssessment] 计算完成 - 分数: {final_score}, "
+            f"[HealthAssessment] 计算完成 - 分数: {final_score_int}, "
             f"等级: {level}, 风险点: {len(review_items)}"
         )
 
         return {
-            "score": final_score,
+            "score": final_score_int,
             "level": level,
             "summary": summary,
             "risk_distribution": risk_distribution,
@@ -129,10 +199,10 @@ class ContractHealthAssessment:
         level: str
     ) -> str:
         """生成综合评语"""
-        # 统计关键信息
+        # 统计关键信息（使用规范化后的 severity）
         total = len(review_items)
-        critical = sum(1 for r in review_items if r.severity == "Critical")
-        high = sum(1 for r in review_items if r.severity == "High")
+        critical = sum(1 for r in review_items if self._normalize_severity(r.severity) == "Critical")
+        high = sum(1 for r in review_items if self._normalize_severity(r.severity) == "High")
 
         # 按问题类型分组
         issue_types = {}
@@ -198,12 +268,12 @@ class ContractHealthAssessment:
         if "验收" in issue_count_str:
             recommendations.append("明确验收标准和程序，避免歧义")
 
-        # 根据严重程度添加建议
-        critical_count = sum(1 for r in review_items if r.severity == "Critical")
+        # 根据严重程度添加建议（使用规范化后的 severity）
+        critical_count = sum(1 for r in review_items if self._normalize_severity(r.severity) == "Critical")
         if critical_count > 0:
             recommendations.append(f"优先处理 {critical_count} 处极严重风险点")
 
-        high_count = sum(1 for r in review_items if r.severity == "High")
+        high_count = sum(1 for r in review_items if self._normalize_severity(r.severity) == "High")
         if high_count > 2:
             recommendations.append(f"高风险点较多（{high_count}处），建议全面审查合同")
 

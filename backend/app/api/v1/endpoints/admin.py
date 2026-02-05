@@ -2,29 +2,32 @@
 """
 管理员相关 API 端点
 
-提供系统统计、用户管理、JSON 审查规则管理等功能
+提供系统统计、用户管理、JSON 审查规则管理以及数据库规则 CRUD 功能
 """
 import logging
+import os
+import json
+from datetime import datetime, timedelta
+from typing import Optional, List
+
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from typing import Optional, List
 
 from app.database import get_db
 from app.models.user import User
 from app.models.task import Task
 from app.models.contract_template import ContractTemplate
-from app.models.rule import ReviewRule  # ✅ 从 contract.py 移动到独立的 rule.py
+from app.models.rule import ReviewRule  # 确保这里引用的是新的 rule.py
 from app.schemas import (
     RuleCreate,
-    RuleUpdate,
+    RuleUpdate, # 虽然代码里用的散装参数，但导入这个是个好习惯
     UniversalRulesOut,
     FeatureRuleOut,
     StanceRuleOut
 )
 from app.api.deps import get_current_user
 from app.services.review_rules_service import review_rules_service
-from datetime import datetime, timedelta
 from app.api.websocket import manager
 
 logger = logging.getLogger(__name__)
@@ -124,7 +127,6 @@ async def get_user_list(
 ):
     """
     获取用户列表
-
     仅管理员可访问
     """
     if not current_user.is_admin:
@@ -163,17 +165,13 @@ async def get_user_list(
     }
 
 
-# ==================== JSON 审查规则管理 API ====================
+# ==================== JSON 审查规则管理 API (保留旧功能) ====================
 
 @router.get("/rules/config")
 async def get_rules_config(
     current_user: User = Depends(get_current_user)
 ):
-    """
-    获取完整的规则配置
-
-    所有用户可查看
-    """
+    """获取完整的规则配置 (JSON)"""
     rules = review_rules_service.get_all_rules()
     return {
         "version": rules.get("version"),
@@ -186,11 +184,7 @@ async def get_rules_config(
 async def get_universal_rules(
     current_user: User = Depends(get_current_user)
 ):
-    """
-    获取通用基础规则
-
-    所有用户可查看
-    """
+    """获取通用基础规则 (JSON)"""
     return review_rules_service.get_universal_rules()
 
 
@@ -200,15 +194,7 @@ async def get_feature_rules(
     feature_value: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    获取特征规则
-
-    参数:
-    - feature_type: 特征类型（交易性质/合同标的）
-    - feature_value: 特征值（如：转移所有权/不动产）
-
-    所有用户可查看
-    """
+    """获取特征规则 (JSON)"""
     return review_rules_service.get_feature_rules(feature_type, feature_value)
 
 
@@ -217,14 +203,7 @@ async def get_stance_rules(
     party: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    获取立场规则
-
-    参数:
-    - party: 立场（party_a/party_b）
-
-    所有用户可查看
-    """
+    """获取立场规则 (JSON)"""
     return review_rules_service.get_stance_rules(party)
 
 
@@ -234,15 +213,7 @@ async def add_universal_rule(
     instruction: str,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    添加通用规则
-
-    参数:
-    - category: 规则分类（如：形式质量、定义一致性、争议解决等）
-    - instruction: 规则指令
-
-    权限：仅管理员可添加系统通用规则
-    """
+    """添加通用规则 (JSON)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可添加通用规则")
 
@@ -262,17 +233,7 @@ async def add_feature_rule(
     instruction: str,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    添加特征规则
-
-    参数:
-    - feature_type: 特征类型（交易性质/合同标的）
-    - feature_value: 特征值（如：转移所有权/不动产）
-    - focus: 关注点
-    - instruction: 规则指令
-
-    权限：仅管理员可添加系统特征规则
-    """
+    """添加特征规则 (JSON)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可添加特征规则")
 
@@ -290,16 +251,7 @@ async def add_stance_rule(
     instruction: str,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    添加立场规则
-
-    参数:
-    - party: 立场（party_a/party_b）
-    - focus: 关注点
-    - instruction: 规则指令
-
-    权限：仅管理员可添加系统立场规则
-    """
+    """添加立场规则 (JSON)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可添加立场规则")
 
@@ -317,16 +269,7 @@ async def update_universal_rule(
     instruction: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    更新通用规则
-
-    参数:
-    - rule_id: 规则ID（如：U01）
-    - category: 新的规则分类
-    - instruction: 新的规则指令
-
-    权限：仅管理员可修改系统规则
-    """
+    """更新通用规则 (JSON)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可修改系统规则")
 
@@ -349,18 +292,7 @@ async def update_feature_rule(
     instruction: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    更新特征规则
-
-    参数:
-    - feature_type: 特征类型
-    - feature_value: 特征值
-    - index: 规则索引（从0开始）
-    - focus: 新的关注点
-    - instruction: 新的规则指令
-
-    权限：仅管理员可修改系统规则
-    """
+    """更新特征规则 (JSON)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可修改系统规则")
 
@@ -382,17 +314,7 @@ async def update_stance_rule(
     instruction: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    更新立场规则
-
-    参数:
-    - party: 立场（party_a/party_b）
-    - index: 规则索引（从0开始）
-    - focus: 新的关注点
-    - instruction: 新的规则指令
-
-    权限：仅管理员可修改系统规则
-    """
+    """更新立场规则 (JSON)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可修改系统规则")
 
@@ -411,14 +333,7 @@ async def delete_universal_rule(
     rule_id: str,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    删除通用规则
-
-    参数:
-    - rule_id: 规则ID（如：U01）
-
-    权限：仅管理员可删除系统规则
-    """
+    """删除通用规则 (JSON)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可删除系统规则")
 
@@ -439,16 +354,7 @@ async def delete_feature_rule(
     index: int,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    删除特征规则
-
-    参数:
-    - feature_type: 特征类型
-    - feature_value: 特征值
-    - index: 规则索引（从0开始）
-
-    权限：仅管理员可删除系统规则
-    """
+    """删除特征规则 (JSON)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可删除系统规则")
 
@@ -468,15 +374,7 @@ async def delete_stance_rule(
     index: int,
     current_user: User = Depends(get_current_user)
 ):
-    """
-    删除立场规则
-
-    参数:
-    - party: 立场（party_a/party_b）
-    - index: 规则索引（从0开始）
-
-    权限：仅管理员可删除系统规则
-    """
+    """删除立场规则 (JSON)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可删除系统规则")
 
@@ -494,11 +392,7 @@ async def delete_stance_rule(
 async def reload_rules(
     current_user: User = Depends(get_current_user)
 ):
-    """
-    重新加载规则文件
-
-    权限：仅管理员可执行
-    """
+    """重新加载规则文件 (JSON)"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可执行此操作")
 
@@ -517,18 +411,9 @@ async def migrate_json_rules_to_db(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    将 JSON 规则文件迁移到数据库
-
-    权限：仅管理员可执行
-    会清除现有的系统规则，然后从 JSON 文件导入新的规则
-    """
+    """将 JSON 规则文件迁移到数据库"""
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可执行此操作")
-
-    import json
-    import os
-    from datetime import datetime
 
     # 加载 JSON 规则文件
     current_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -554,23 +439,18 @@ async def migrate_json_rules_to_db(
     # 迁移通用规则
     universal_rules = rules_data.get("universal_rules", {}).get("rules", [])
     for rule in universal_rules:
-        existing = db.query(ReviewRule).filter(
-            ReviewRule.name == f"[通用] {rule['id']}"
-        ).first()
-
-        if not existing:
-            new_rule = ReviewRule(
-                name=f"[通用] {rule['id']}",
-                description=f"{rule['category']} - {rules_data['universal_rules']['description']}",
-                content=rule['instruction'],
-                rule_category="universal",
-                priority=10 + int(rule['id'][1:]),
-                is_system=True,
-                is_active=True,
-                created_at=datetime.utcnow()
-            )
-            db.add(new_rule)
-            created_count += 1
+        new_rule = ReviewRule(
+            name=f"[通用] {rule['id']}",
+            description=f"{rule['category']} - {rules_data['universal_rules']['description']}",
+            content=rule['instruction'],
+            rule_category="universal",
+            priority=10 + int(rule['id'][1:]),
+            is_system=True,
+            is_active=True,
+            created_at=datetime.utcnow()
+        )
+        db.add(new_rule)
+        created_count += 1
 
     # 迁移特征规则
     feature_rules = rules_data.get("feature_rules", {})
@@ -581,22 +461,20 @@ async def migrate_json_rules_to_db(
         for feature_value, rules in feature_values.items():
             for rule in rules:
                 rule_name = f"[{feature_type}] {feature_value} - {rule['focus']}"
-                existing = db.query(ReviewRule).filter(ReviewRule.name == rule_name).first()
-                if not existing:
-                    content = f"**{feature_type}**: {feature_value}\n**关注点**: {rule['focus']}\n**审查指令**: {rule['instruction']}"
-                    new_rule = ReviewRule(
-                        name=rule_name,
-                        description=f"{feature_type}为'{feature_value}'时的{rule['focus']}审查要点",
-                        content=content,
-                        rule_category="feature",
-                        priority=priority,
-                        is_system=True,
-                        is_active=True,
-                        created_at=datetime.utcnow()
-                    )
-                    db.add(new_rule)
-                    created_count += 1
-                    priority += 1
+                content = f"**{feature_type}**: {feature_value}\n**关注点**: {rule['focus']}\n**审查指令**: {rule['instruction']}"
+                new_rule = ReviewRule(
+                    name=rule_name,
+                    description=f"{feature_type}为'{feature_value}'时的{rule['focus']}审查要点",
+                    content=content,
+                    rule_category="feature",
+                    priority=priority,
+                    is_system=True,
+                    is_active=True,
+                    created_at=datetime.utcnow()
+                )
+                db.add(new_rule)
+                created_count += 1
+                priority += 1
 
     # 迁移立场规则
     stance_rules = rules_data.get("stance_rules", {})
@@ -608,40 +486,32 @@ async def migrate_json_rules_to_db(
         rules = party_data.get("rules", [])
         for rule in rules:
             rule_name = f"[立场-{party}] {rule['focus']}"
-            existing = db.query(ReviewRule).filter(ReviewRule.name == rule_name).first()
-            if not existing:
-                content = f"**立场**: {party}\n**角色定义**: {role_definition}\n**关注点**: {rule['focus']}\n**审查指令**: {rule['instruction']}"
-                new_rule = ReviewRule(
-                    name=rule_name,
-                    description=f"{role_definition}的{rule['focus']}审查要点",
-                    content=content,
-                    rule_category="stance",
-                    priority=priority,
-                    is_system=True,
-                    is_active=True,
-                    created_at=datetime.utcnow()
-                )
-                db.add(new_rule)
-                created_count += 1
-                priority += 1
+            content = f"**立场**: {party}\n**角色定义**: {role_definition}\n**关注点**: {rule['focus']}\n**审查指令**: {rule['instruction']}"
+            new_rule = ReviewRule(
+                name=rule_name,
+                description=f"{role_definition}的{rule['focus']}审查要点",
+                content=content,
+                rule_category="stance",
+                priority=priority,
+                is_system=True,
+                is_active=True,
+                target_stance=party, # 简单的将party映射到立场字段
+                created_at=datetime.utcnow()
+            )
+            db.add(new_rule)
+            created_count += 1
+            priority += 1
 
     db.commit()
-
-    # 统计
-    total_rules = db.query(ReviewRule).count()
-    system_rules = db.query(ReviewRule).filter(ReviewRule.is_system == True).count()
 
     return {
         "success": True,
         "message": f"迁移完成！共创建 {created_count} 条系统规则",
         "stats": {
-            "total_rules": total_rules,
-            "system_rules": system_rules,
             "created_rules": created_count,
             "cleared_rules": existing_count
         },
-        "version": rules_data.get("version"),
-        "description": rules_data.get("description")
+        "version": rules_data.get("version")
     }
 
 
@@ -658,16 +528,7 @@ async def get_rules_from_db(
     current_user: User = Depends(get_current_user)
 ):
     """
-    从数据库获取审查规则列表（支持分页和过滤）
-
-    参数:
-    - rule_category: 规则类型
-    - is_system: 是否为系统规则
-    - is_active: 是否启用
-    - page: 页码（从1开始）
-    - size: 每页数量
-
-    所有用户可查看
+    从数据库获取审查规则列表（支持新架构 Hub-and-Spoke 字段）
     """
     # 构建查询
     query = db.query(ReviewRule)
@@ -685,7 +546,7 @@ async def get_rules_from_db(
     # 分页查询，按优先级排序
     rules = query.order_by(ReviewRule.priority.asc(), ReviewRule.id.asc()).offset((page - 1) * size).limit(size).all()
 
-    # 转换为字典格式
+    # 转换为字典格式 (包含新增字段)
     items = []
     for rule in rules:
         items.append({
@@ -698,7 +559,10 @@ async def get_rules_from_db(
             "is_system": rule.is_system,
             "is_active": rule.is_active,
             "creator_id": rule.creator_id,
-            "created_at": rule.created_at.isoformat() if rule.created_at else None
+            "created_at": rule.created_at.isoformat() if rule.created_at else None,
+            # ✅ 新增字段返回
+            "apply_to_category_ids": rule.apply_to_category_ids or [],
+            "target_stance": rule.target_stance
         })
 
     return {
@@ -715,11 +579,7 @@ async def get_rule_by_id(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    根据ID获取单个规则详情
-
-    所有用户可查看
-    """
+    """根据ID获取单个规则详情"""
     rule = db.query(ReviewRule).filter(ReviewRule.id == rule_id).first()
 
     if not rule:
@@ -735,23 +595,21 @@ async def get_rule_by_id(
         "is_system": rule.is_system,
         "is_active": rule.is_active,
         "creator_id": rule.creator_id,
-        "created_at": rule.created_at.isoformat() if rule.created_at else None
+        "created_at": rule.created_at.isoformat() if rule.created_at else None,
+        # ✅ 新增字段返回
+        "apply_to_category_ids": rule.apply_to_category_ids or [],
+        "target_stance": rule.target_stance
     }
 
 
 @router.post("/rules")
 async def create_rule(
-    rule_data: RuleCreate,
+    rule_data: RuleCreate, # 此处引用的是更新后的 Schema
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
-    创建新的审查规则
-
-    参数:
-    - rule_data: 规则创建数据（请求体）
-
-    权限：所有用户可创建自定义规则
+    创建新的审查规则 (支持关联分类和立场)
     """
     # 验证 rule_category
     valid_categories = ["universal", "feature", "stance", "custom"]
@@ -762,10 +620,11 @@ async def create_rule(
         )
 
     # 只有管理员可以创建系统规则
-    if rule_data.rule_category in ["universal", "feature", "stance"] and not current_user.is_admin:
+    is_system_rule = rule_data.rule_category in ["universal", "feature", "stance"]
+    if is_system_rule and not current_user.is_admin:
         raise HTTPException(status_code=403, detail="仅管理员可创建系统规则")
 
-    # 创建规则
+    # 创建规则对象
     new_rule = ReviewRule(
         name=rule_data.name,
         description=rule_data.description,
@@ -773,27 +632,23 @@ async def create_rule(
         rule_category=rule_data.rule_category,
         priority=rule_data.priority,
         is_active=rule_data.is_active,
-        is_system=(rule_data.rule_category in ["universal", "feature", "stance"]),
-        creator_id=current_user.id
+        is_system=is_system_rule,
+        creator_id=current_user.id,
+        
+        # ✅ [Hub-and-Spoke] 写入关联字段
+        apply_to_category_ids=rule_data.apply_to_category_ids,
+        target_stance=rule_data.target_stance
     )
 
     db.add(new_rule)
     db.commit()
     db.refresh(new_rule)
 
-    logger.info(f"用户 {current_user.email} 创建了规则: {rule_data.name} (ID: {new_rule.id})")
+    logger.info(f"用户 {current_user.email} 创建了规则: {rule_data.name} (ID: {new_rule.id}, Cats: {new_rule.apply_to_category_ids})")
 
     return {
         "id": new_rule.id,
         "name": new_rule.name,
-        "description": new_rule.description,
-        "content": new_rule.content,
-        "rule_category": new_rule.rule_category,
-        "priority": new_rule.priority,
-        "is_system": new_rule.is_system,
-        "is_active": new_rule.is_active,
-        "creator_id": new_rule.creator_id,
-        "created_at": new_rule.created_at.isoformat() if new_rule.created_at else None,
         "message": "规则创建成功"
     }
 
@@ -801,30 +656,23 @@ async def create_rule(
 @router.put("/rules/{rule_id}")
 async def update_rule(
     rule_id: int,
-    name: Optional[str] = None,
-    content: Optional[str] = None,
-    description: Optional[str] = None,
-    rule_category: Optional[str] = None,
-    priority: Optional[int] = None,
-    is_active: Optional[bool] = None,
+    # 为了兼容前端可能的传参方式，这里支持通过 Body 传入可选字段
+    # 如果前端严格按照 Schema 传 JSON，其实可以直接用 rule_data: RuleUpdate
+    name: Optional[str] = Body(None),
+    content: Optional[str] = Body(None),
+    description: Optional[str] = Body(None),
+    rule_category: Optional[str] = Body(None),
+    priority: Optional[int] = Body(None),
+    is_active: Optional[bool] = Body(None),
+    # ✅ 新增参数
+    apply_to_category_ids: Optional[List[int]] = Body(None),
+    target_stance: Optional[str] = Body(None),
+    
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
     更新审查规则
-
-    参数:
-    - rule_id: 规则ID
-    - name: 新的规则名称（可选）
-    - content: 新的规则内容（可选）
-    - description: 新的规则描述（可选）
-    - rule_category: 新的规则类型（可选）
-    - priority: 新的优先级（可选）
-    - is_active: 新的启用状态（可选）
-
-    权限：
-    - 自定义规则：创建者可修改
-    - 系统规则：仅管理员可修改
     """
     rule = db.query(ReviewRule).filter(ReviewRule.id == rule_id).first()
 
@@ -839,24 +687,25 @@ async def update_rule(
         raise HTTPException(status_code=403, detail="仅创建者可修改自己的自定义规则")
 
     # 更新字段
-    if name is not None:
-        rule.name = name
-    if content is not None:
-        rule.content = content
-    if description is not None:
-        rule.description = description
+    if name is not None: rule.name = name
+    if content is not None: rule.content = content
+    if description is not None: rule.description = description
+    
     if rule_category is not None:
         valid_categories = ["universal", "feature", "stance", "custom"]
         if rule_category not in valid_categories:
-            raise HTTPException(
-                status_code=400,
-                detail=f"无效的规则类型: {rule_category}。有效值为: {', '.join(valid_categories)}"
-            )
+            raise HTTPException(status_code=400, detail="无效的规则类型")
         rule.rule_category = rule_category
-    if priority is not None:
-        rule.priority = priority
-    if is_active is not None:
-        rule.is_active = is_active
+        
+    if priority is not None: rule.priority = priority
+    if is_active is not None: rule.is_active = is_active
+
+    # ✅ 更新新字段
+    if apply_to_category_ids is not None:
+        rule.apply_to_category_ids = apply_to_category_ids
+    
+    if target_stance is not None:
+        rule.target_stance = target_stance
 
     db.commit()
     db.refresh(rule)
@@ -866,14 +715,6 @@ async def update_rule(
     return {
         "id": rule.id,
         "name": rule.name,
-        "description": rule.description,
-        "content": rule.content,
-        "rule_category": rule.rule_category,
-        "priority": rule.priority,
-        "is_system": rule.is_system,
-        "is_active": rule.is_active,
-        "creator_id": rule.creator_id,
-        "created_at": rule.created_at.isoformat() if rule.created_at else None,
         "message": "规则更新成功"
     }
 
@@ -886,40 +727,22 @@ async def delete_rule(
 ):
     """
     删除审查规则
-
-    权限：
-    - 自定义规则：创建者可删除
-    - 系统规则：仅管理员可删除
     """
-    logger.info(f"删除规则请求: rule_id={rule_id}, user={current_user.email}, is_admin={current_user.is_admin}")
-
     rule = db.query(ReviewRule).filter(ReviewRule.id == rule_id).first()
 
     if not rule:
-        logger.error(f"规则不存在: rule_id={rule_id}")
         raise HTTPException(status_code=404, detail=f"规则 ID {rule_id} 不存在")
-
-    logger.info(f"找到规则: id={rule.id}, name={rule.name}, is_system={rule.is_system}, creator_id={rule.creator_id}")
 
     # 权限检查
     if rule.is_system and not current_user.is_admin:
-        logger.error(f"权限拒绝: 非管理员尝试删除系统规则")
         raise HTTPException(status_code=403, detail="仅管理员可删除系统规则")
 
     if not rule.is_system and rule.creator_id != current_user.id:
-        logger.error(f"权限拒绝: 非创建者尝试删除自定义规则")
         raise HTTPException(status_code=403, detail="仅创建者可删除自己的自定义规则")
 
     rule_name = rule.name
     db.delete(rule)
     db.commit()
-
-    # 验证删除
-    deleted_rule = db.query(ReviewRule).filter(ReviewRule.id == rule_id).first()
-    if deleted_rule:
-        logger.error(f"删除失败: 规则仍然存在于数据库中")
-    else:
-        logger.info(f"删除成功: 规则已从数据库中移除")
 
     logger.info(f"用户 {current_user.email} 删除了规则: {rule_name} (ID: {rule_id})")
 
@@ -937,10 +760,6 @@ async def toggle_rule_status(
 ):
     """
     切换规则启用/禁用状态
-
-    权限：
-    - 自定义规则：创建者可切换
-    - 系统规则：仅管理员可切换
     """
     rule = db.query(ReviewRule).filter(ReviewRule.id == rule_id).first()
 
@@ -958,8 +777,6 @@ async def toggle_rule_status(
     rule.is_active = not rule.is_active
     db.commit()
     db.refresh(rule)
-
-    logger.info(f"用户 {current_user.email} 切换了规则状态: {rule.name} (ID: {rule.id}) -> {rule.is_active}")
 
     return {
         "id": rule.id,

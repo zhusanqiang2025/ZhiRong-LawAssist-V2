@@ -1091,7 +1091,7 @@ const DocumentProcessingPage: React.FC = () => {
           {previewConfig ? (
             <DocumentEditor
               id="docPreviewEditor"
-              documentServerUrl={import.meta.env.VITE_ONLYOFFICE_URL || (import.meta.env.PROD ? '/onlyoffice' : 'http://localhost:8082')}
+              documentServerUrl={import.meta.env.VITE_ONLYOFFICE_URL || 'https://onlyoffice.azgpu02.azshentong.com'}
               config={{
                 ...previewConfig.config,
                 token: previewConfig.token

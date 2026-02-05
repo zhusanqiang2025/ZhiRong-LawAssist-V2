@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 import { DocumentEditor } from "@onlyoffice/document-editor-react";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import api from '../api';
 import { logger } from '../utils/logger';
 import { Button, Spin, Select, Input, Tag, Alert, Card, Modal, Checkbox, Dropdown, Space, Form, Table, Popconfirm, Collapse, Badge, Tabs, Progress, Row, Col, Statistic, App } from 'antd';
@@ -29,7 +29,8 @@ import {
   HeartOutlined,
   CheckCircleOutlined,
   FlagOutlined,
-  FileExclamationOutlined
+  FileExclamationOutlined,
+  CloudUploadOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import EnhancedModuleNavBar from '../components/ModuleNavBar/EnhancedModuleNavBar';
@@ -107,7 +108,8 @@ const parsePartiesString = (parties: string | string[] | undefined): string[] =>
 const ContractReview: React.FC = () => {
   const navigate = useNavigate();
   const { contractId: urlContractId } = useParams<{ contractId?: string }>();
-  const { message: messageApi } = App.useApp(); // 【修复】使用 App.useApp() 替代静态 message
+  const [searchParams] = useSearchParams();
+  const { message: messageApi } = App.useApp(); // 【修复】使用 App.useApp() 替代替代静态 message
   const [editorConfig, setEditorConfig] = useState<any>(null);
   const [contractId, setContractId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -125,10 +127,6 @@ const ContractReview: React.FC = () => {
   const [fileUploaded, setFileUploaded] = useState(false);
   const [processingStatus, setProcessingStatus] = useState<string>('');
   const [showUploadProgress, setShowUploadProgress] = useState(false);
-
-  // ⭐ 新增：会话恢复状态
-  const [hasPendingSession, setHasPendingSession] = useState(false);
-  const [pendingSessionInfo, setPendingSessionInfo] = useState<any>(null);
 
   // ⭐ 新增：监控 showUploadProgress 状态变化
   useEffect(() => {
@@ -156,6 +154,8 @@ const ContractReview: React.FC = () => {
   const [selectedItemIds, setSelectedItemIds] = useState<number[]>([]);
 
   const [applyingRevisions, setApplyingRevisions] = useState(false);
+  const [uploadingToFeishu, setUploadingToFeishu] = useState(false);
+  const [feishuRecordId, setFeishuRecordId] = useState<string | null>(null);
 
   // ⭐ 新增：结果页签状态
   const [activeResultTab, setActiveResultTab] = useState<string>('suggestions'); // 默认显示"修改意见"
@@ -183,127 +183,26 @@ const ContractReview: React.FC = () => {
     }
   };
 
-  // ⭐ 新增：清除会话，开始新任务
-  const startNewTask = () => {
-    // 清除 localStorage 中的会话数据
-    localStorage.removeItem('contractReview_contractId');
-    localStorage.removeItem('contractReview_step');
-
-    // 重置所有状态
-    setContractId(null);
-    setStep('upload');
-    setEditorConfig(null);
-    setEditedMetadata({});
-    setStance('甲方');
-    setReviews([]);
-    setMetadataExtracting(false);
-    setMetadataExtracted(false);
-    setFileUploaded(false);
-    setProcessingStatus('');
-    setShowUploadProgress(false);
-    setSelectedTransactionStructures([]);
-    setActiveResultTab('suggestions');
-    setReviewProgress('');
-
-    // 清除会话提示
-    setHasPendingSession(false);
-    setPendingSessionInfo(null);
-
-    messageApi.success('已开始新任务');
-  };
-
-  // ⭐ 新增：恢复旧会话
-  const restorePendingSession = async () => {
-    if (!pendingSessionInfo) return;
-
-    const { savedContractId, status, metadata, canLoadEditor } = pendingSessionInfo;
-
-    try {
-      setContractId(parseInt(savedContractId));
-
-      // 恢复编辑器配置
-      if (canLoadEditor) {
-        const cfgRes = await api.get(`/contract-review/${savedContractId}/onlyoffice-config`);
-        const cfg = cfgRes.data.config;
-        const tkn = cfgRes.data.token;
-        setEditorConfig({ ...cfg, token: tkn });
-      }
-
-      // 恢复元数据
-      if (metadata) {
-        setEditedMetadata(prev => ({
-          ...prev,
-          contract_name: metadata.contract_name || prev.contract_name || '',
-          parties: parsePartiesString(metadata.parties),
-          amount: metadata.amount || prev.amount || '',
-          contract_type: metadata.contract_type || prev.contract_type || '',
-          core_terms: metadata.core_terms || prev.core_terms || '',
-          legal_features: metadata.legal_features || prev.legal_features,
-        }));
-        setMetadataExtracting(false);
-        setMetadataExtracted(true);
-      }
-
-      // 恢复步骤
-      const savedStep = localStorage.getItem('contractReview_step');
-      if (savedStep) {
-        setStep(savedStep as any);
-      }
-
-      setHasPendingSession(false);
-      setPendingSessionInfo(null);
-      messageApi.success('已恢复上次的会话');
-    } catch (error) {
-      console.error('恢复会话失败', error);
-      messageApi.error('恢复会话失败，请开始新任务');
-      startNewTask();
-    }
-  };
-
   // 组件挂载时获取自定义规则
   useEffect(() => {
-    const checkPendingSession = async () => {
-      try {
-        // 从 localStorage 读取上次保存的 contractId
-        const savedContractId = localStorage.getItem('contractReview_contractId');
-        if (!savedContractId) return;
-
-        console.log('🔍 检测到上次的会话，contractId:', savedContractId);
-
-        // 查询合同处理状态
-        const statusRes = await api.get(`/contract-review/${savedContractId}/processing-status`);
-        const { processing_status, can_load_editor, has_metadata, metadata } = statusRes.data;
-
-        console.log('🔍 上次会话状态:', processing_status, 'can_load_editor:', can_load_editor, 'has_metadata:', has_metadata);
-
-        // ⭐ 修改：不自动恢复，而是设置待恢复会话信息，让用户选择
-        setPendingSessionInfo({
-          savedContractId,
-          status: processing_status,
-          canLoadEditor: can_load_editor,
-          hasMetadata: has_metadata,
-          metadata
-        });
-        setHasPendingSession(true);
-
-        messageApi.info('检测到上次的未完成任务，可在下方选择继续或开始新任务');
-      } catch (error) {
-        console.error('检查会话失败', error);
-        // 清除无效的会话数据
-        localStorage.removeItem('contractReview_contractId');
-        localStorage.removeItem('contractReview_step');
-      }
-    };
-
-    checkPendingSession();
+    fetchCustomRules();
   }, []);
 
-  // ⭐ 新增：保存关键状态到 localStorage
+  // 保存 contractId 到 localStorage（用于飞书通知跳转等功能）
   useEffect(() => {
     if (contractId) {
       localStorage.setItem('contractReview_contractId', contractId.toString());
     }
   }, [contractId]);
+
+  // 从 URL 查询参数中提取 feishu_record_id（用于飞书多维表上传）
+  useEffect(() => {
+    const feishuRecordIdParam = searchParams.get('feishu_record_id');
+    if (feishuRecordIdParam) {
+      console.log('📌 从 URL 获取飞书记录ID:', feishuRecordIdParam);
+      setFeishuRecordId(feishuRecordIdParam);
+    }
+  }, [searchParams]);
 
   // ⭐ 新增：处理 URL 参数中的 contractId（用于飞书通知跳转）
   useEffect(() => {
@@ -1012,6 +911,14 @@ const ContractReview: React.FC = () => {
   const highlightInOriginal = (quote: string) => {
     console.log('[高亮定位] 尝试定位:', quote);
 
+    // 首先检查 connector 状态
+    console.log('[高亮定位] Connector 状态:', {
+      hasConnector: !!connectorRef.current,
+      connectorType: typeof connectorRef.current,
+      hasExecuteMethod: typeof connectorRef.current?.executeMethod === 'function',
+      hasCallCommand: typeof connectorRef.current?.callCommand === 'function'
+    });
+
     const trimmedQuote = quote.trim();
 
     if (!trimmedQuote) {
@@ -1027,29 +934,7 @@ const ContractReview: React.FC = () => {
       .slice(0, 3);  // 取前3个关键词
 
     const searchQuery = keywords.length > 0 ? keywords[0] : trimmedQuote;
-
-    // 方法1: 尝试使用 connector (如果可用)
-    if (connectorRef.current && typeof connectorRef.current.executeMethod === 'function') {
-      console.log('[高亮定位] 使用 executeMethod 方法');
-      try {
-        // OnlyOffice 的 executeMethod 可以调用内置方法
-        connectorRef.current.executeMethod("SearchAndReplace", {
-          "searchString": searchQuery,
-          "replaceString": searchQuery,
-          "matchCase": false
-        }).then(() => {
-          messageApi.success(`已定位到关键词: "${searchQuery}"${keywords.length > 1 ? ` (其他: ${keywords.slice(1).join(', ')})` : ''}`);
-        }).catch((err: any) => {
-          console.warn('[高亮定位] executeMethod 失败:', err);
-          // 降级到方法2
-          fallbackToCallCommand();
-        });
-        return;
-      } catch (err) {
-        console.warn('[高亮定位] executeMethod 异常:', err);
-        // 继续尝试方法2
-      }
-    }
+    console.log('[高亮定位] 搜索关键词:', searchQuery, '全部关键词:', keywords);
 
     // 方法2: 尝试使用 callCommand (Builder API)
     const fallbackToCallCommand = () => {
@@ -1117,15 +1002,42 @@ const ContractReview: React.FC = () => {
         } catch (err) {
           console.error('[高亮定位] callCommand 异常:', err);
         }
+      } else {
+        // callCommand 也不可用
+        console.log('[高亮定位] callCommand 也不可用，显示手动搜索提示');
+        messageApi.info(`💡 提示：请按 Ctrl+F 在文档中搜索，建议关键词: ${keywords.join(', ')}`);
       }
     };
 
-    fallbackToCallCommand();
+    // 方法1: 尝试使用 connector (如果可用)
+    if (connectorRef.current && typeof connectorRef.current.executeMethod === 'function') {
+      console.log('[高亮定位] 使用 executeMethod 方法');
+      try {
+        // OnlyOffice 的 executeMethod 可以调用内置方法
+        // 使用正确的 API 格式: executeMethod(methodName, callback, ...params)
+        connectorRef.current.executeMethod("SearchAndReplace", function() {
+          // 成功回调
+          messageApi.success(`已定位到关键词: "${searchQuery}"${keywords.length > 1 ? ` (其他: ${keywords.slice(1).join(', ')})` : ''}`);
+        }, function(error: any) {
+          // 错误回调
+          console.warn('[高亮定位] executeMethod 失败:', error);
+          fallbackToCallCommand();
+        }, {
+          "searchString": searchQuery,
+          "replaceString": searchQuery,
+          "matchCase": false
+        });
+        return;
+      } catch (err) {
+        console.warn('[高亮定位] executeMethod 异常:', err);
+        // 继续尝试方法2
+        fallbackToCallCommand();
+        return;
+      }
+    }
 
-    // 方法3: 最终降级 - 提示用户手动搜索
-    setTimeout(() => {
-      messageApi.info(`💡 提示：请按 Ctrl+F 在文档中搜索，建议关键词: ${keywords.join(', ')}`);
-    }, 800);
+    // executeMethod 不可用，直接使用方法2
+    fallbackToCallCommand();
   };
 
   // 11. 下载文件
@@ -1149,6 +1061,40 @@ const ContractReview: React.FC = () => {
     }
   };
 
+  // 12. 上传审查后合同到飞书多维表
+  const handleUploadToFeishu = async () => {
+    if (!contractId || !feishuRecordId) {
+      messageApi.warning('缺少飞书记录ID，无法上传到飞书多维表');
+      return;
+    }
+
+    try {
+      setUploadingToFeishu(true);
+      messageApi.loading({
+        content: '正在上传到飞书多维表...',
+        key: 'upload-feishu',
+        duration: 0
+      });
+
+      await api.uploadRevisedToFeishu(contractId, feishuRecordId);
+
+      messageApi.success({
+        content: '✅ 审查后合同已上传至飞书多维表',
+        key: 'upload-feishu',
+        duration: 4
+      });
+    } catch (error: any) {
+      console.error('上传到飞书失败', error);
+      messageApi.error({
+        content: error.response?.data?.detail || '上传到飞书失败',
+        key: 'upload-feishu',
+        duration: 5
+      });
+    } finally {
+      setUploadingToFeishu(false);
+    }
+  };
+
   // 下载菜单项
   const downloadMenuItems: MenuProps['items'] = [
     {
@@ -1163,6 +1109,13 @@ const ContractReview: React.FC = () => {
       icon: <DownloadOutlined />,
       onClick: () => handleDownload('revised'),
     },
+    {
+      key: 'upload-feishu',
+      label: '上传到飞书多维表',
+      icon: <CloudUploadOutlined />,
+      onClick: handleUploadToFeishu,
+      disabled: !feishuRecordId || uploadingToFeishu,
+    },
   ];
 
   const onDocumentReady = (event: any) => {
@@ -1170,8 +1123,20 @@ const ContractReview: React.FC = () => {
     try {
       const connector = event?.docEditor?.createConnector?.();
       connectorRef.current = connector ?? null;
+
+      // 添加调试日志
+      console.log('[OnlyOffice Connector] 初始化状态:', {
+        hasConnector: !!connector,
+        hasExecuteMethod: typeof connector?.executeMethod === 'function',
+        hasCallCommand: typeof connector?.callCommand === 'function',
+        connectorType: typeof connector
+      });
+
+      if (!connector) {
+        console.warn('[OnlyOffice Connector] ⚠️ connector 为 null，可能无法使用定位功能');
+      }
     } catch (err) {
-      console.error('创建 connector 失败', err);
+      console.error('[OnlyOffice Connector] 创建 connector 失败', err);
       connectorRef.current = null;
     }
   };
@@ -1752,37 +1717,6 @@ const ContractReview: React.FC = () => {
       {/* 统一导航栏 */}
       <EnhancedModuleNavBar currentModuleKey="contract-review" />
 
-      {/* ⭐ 新增：会话恢复提示 */}
-      {hasPendingSession && (
-        <div style={{
-          background: '#fff7e6',
-          borderBottom: '1px solid #ffd591',
-          padding: '12px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <WarningOutlined style={{ fontSize: '18px', color: '#fa8c16' }} />
-            <div>
-              <div style={{ fontWeight: 500, color: '#d46b08' }}>检测到上次的未完成任务</div>
-              <div style={{ fontSize: '12px', color: '#8c8c8c' }}>
-                {pendingSessionInfo?.metadata?.contract_name || `合同 #${pendingSessionInfo?.savedContractId}`} -
-                状态: {pendingSessionInfo?.status === 'completed' ? '已完成' : '进行中'}
-              </div>
-            </div>
-          </div>
-          <Space>
-            <Button size="small" onClick={startNewTask}>
-              开始新任务
-            </Button>
-            <Button type="primary" size="small" onClick={restorePendingSession}>
-              继续上次任务
-            </Button>
-          </Space>
-        </div>
-      )}
-
       {/* 原有内容区域 */}
       <div className="review-container">
       {/* 左侧：编辑器 */}
@@ -1837,7 +1771,7 @@ const ContractReview: React.FC = () => {
           // ⭐ 优先级2: 显示文档编辑器（元数据已提取）
           <DocumentEditor
             id="docxEditor"
-            documentServerUrl={import.meta.env.VITE_ONLYOFFICE_URL || (import.meta.env.PROD ? '/onlyoffice' : 'http://localhost:8082')}
+            documentServerUrl={import.meta.env.VITE_ONLYOFFICE_URL || 'https://onlyoffice.azgpu02.azshentong.com'}
             config={editorConfig}
             events_onDocumentReady={onDocumentReady}
             height="100%"

@@ -17,7 +17,7 @@ export type { ContractTemplate, CategoryTreeItem, TemplateListResponse, Contract
 // 否则使用环境变量，最后回退到 localhost
 const baseUrl = import.meta.env.VITE_API_BASE_URL
   ? import.meta.env.VITE_API_BASE_URL
-  : (import.meta.env.PROD ? '' : 'http://localhost:8000');
+  : (import.meta.env.PROD ? '' : 'http://localhost:9000');
 
 const apiClient = axios.create({
   baseURL: baseUrl + '/api/v1',
@@ -160,7 +160,7 @@ export const contractTemplateApi = {
   downloadTemplate: async (templateId: string): Promise<void> => {
     const baseURL = import.meta.env.VITE_API_BASE_URL
       ? import.meta.env.VITE_API_BASE_URL
-      : (import.meta.env.PROD ? '' : 'http://localhost:8000');
+      : (import.meta.env.PROD ? '' : 'http://localhost:9000');
     const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
     const url = `${baseURL}/api/v1/contract/${templateId}/download`;
 

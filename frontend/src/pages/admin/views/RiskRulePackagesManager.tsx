@@ -20,7 +20,8 @@ import {
   Badge,
   Row,
   Col,
-  Typography
+  Typography,
+  Upload
 } from 'antd';
 import {
   PlusOutlined,
@@ -31,10 +32,13 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   MinusCircleOutlined,
-  PlusCircleOutlined
+  PlusCircleOutlined,
+  DownloadOutlined,
+  UploadOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { riskRulePackagesApi } from '../../../api/riskRulePackages';
+import { systemApi } from '../../../api/system';
 import type { RiskRulePackage, RiskRule } from '../../../types/riskAnalysis';
 import { RULE_PACKAGE_CATEGORIES } from '../../../types/riskAnalysis';
 
@@ -205,6 +209,34 @@ const RiskRulePackagesManager: React.FC = () => {
     return colors[category] || 'default';
   };
 
+  // 导出规则包配置
+  const handleExport = async () => {
+    try {
+      const data = await systemApi.exportData('risk');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      systemApi.downloadAsJson(data, `risk_packages_export_${timestamp}.json`);
+      message.success('导出成功');
+    } catch (error: any) {
+      message.error(error.response?.data?.detail || '导出失败');
+    }
+  };
+
+  // 导入规则包配置
+  const handleImport = async (file: File) => {
+    try {
+      const result = await systemApi.importData(file);
+      if (result.success) {
+        message.success('导入成功');
+        loadPackages();
+      } else {
+        message.error(result.message || '导入失败');
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.detail || '导入失败');
+    }
+    return false;
+  };
+
   // 表格列定义
   const columns: ColumnsType<RiskRulePackage> = [
     {
@@ -340,6 +372,21 @@ const RiskRulePackagesManager: React.FC = () => {
           >
             刷新
           </Button>
+          <Button
+            icon={<DownloadOutlined />}
+            onClick={handleExport}
+          >
+            导出配置
+          </Button>
+          <Upload
+            accept=".json"
+            showUploadList={false}
+            customRequest={({ file }) => handleImport(file as File)}
+          >
+            <Button icon={<UploadOutlined />}>
+              导入配置
+            </Button>
+          </Upload>
           <Button
             type="primary"
             icon={<PlusOutlined />}

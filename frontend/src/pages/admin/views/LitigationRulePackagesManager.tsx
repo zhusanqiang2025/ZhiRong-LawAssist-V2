@@ -20,7 +20,8 @@ import {
   Row,
   Col,
   Typography,
-  InputNumber
+  InputNumber,
+  Upload
 } from 'antd';
 import {
   PlusOutlined,
@@ -31,10 +32,13 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   MinusCircleOutlined,
-  PlusCircleOutlined
+  PlusCircleOutlined,
+  DownloadOutlined,
+  UploadOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { litigationRulePackagesApi } from '../../../api/litigationRulePackages';
+import { systemApi } from '../../../api/system';
 import type { LitigationRulePackage, LitigationRule } from '../../../api/litigationRulePackages';
 import {
   LITIGATION_PACKAGE_CATEGORIES,
@@ -179,6 +183,34 @@ const LitigationRulePackagesManager: React.FC = () => {
     const newRules = [...editingRules];
     newRules[index] = { ...newRules[index], [field]: value };
     setEditingRules(newRules);
+  };
+
+  // 导出规则包配置
+  const handleExport = async () => {
+    try {
+      const data = await systemApi.exportData('litigation');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      systemApi.downloadAsJson(data, `litigation_packages_export_${timestamp}.json`);
+      message.success('导出成功');
+    } catch (error: any) {
+      message.error(error.response?.data?.detail || '导出失败');
+    }
+  };
+
+  // 导入规则包配置
+  const handleImport = async (file: File) => {
+    try {
+      const result = await systemApi.importData(file);
+      if (result.success) {
+        message.success('导入成功');
+        loadPackages();
+      } else {
+        message.error(result.message || '导入失败');
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.detail || '导入失败');
+    }
+    return false;
   };
 
   const columns: ColumnsType<LitigationRulePackage> = [
@@ -333,6 +365,21 @@ const LitigationRulePackagesManager: React.FC = () => {
             >
               刷新
             </Button>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleExport}
+            >
+              导出配置
+            </Button>
+            <Upload
+              accept=".json"
+              showUploadList={false}
+              customRequest={({ file }) => handleImport(file as File)}
+            >
+              <Button icon={<UploadOutlined />}>
+                导入配置
+              </Button>
+            </Upload>
             <Button
               type="primary"
               icon={<PlusOutlined />}

@@ -175,6 +175,17 @@ export const contractReviewApi = {
    */
   updateReviewItem: (itemId: number, data: { explanation: string; suggestion: string }) =>
     axiosInstance.put(`/contract-review/review-items/${itemId}`, data),
-};
 
-export default contractReviewApi;
+  /**
+   * 上传审查后合同到飞书多维表
+   * @param contractId - 合同ID
+   * @param feishuRecordId - 飞书多维表记录ID
+   * @returns 上传响应
+   */
+  uploadRevisedToFeishu: (contractId: number, feishuRecordId: string) => {
+    const formData = new FormData();
+    formData.append('contract_id', contractId.toString());
+    formData.append('feishu_record_id', feishuRecordId);
+    return axiosInstance.post(`/contract-review/${contractId}/upload-revised-to-feishu`, formData);
+  }
+};

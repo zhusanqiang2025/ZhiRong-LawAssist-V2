@@ -8,8 +8,41 @@ import os
 import json
 
 # 添加项目根目录到路径
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, project_root)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+backend_root = os.path.dirname(current_dir)  # 向上一级: backend/
+project_root = os.path.dirname(backend_root)   # 再向上一级: 项目根目录
+sys.path.insert(0, backend_root)  # 将 backend/ 加入路径，确保可以导入 app 模块
+
+# 智能路径判定：兼容 Docker 和本地环境
+def find_knowledge_graph_json():
+    """查找知识图谱 JSON 文件，支持多种环境"""
+    # 路径 1: Docker 环境 /app/app/services/...
+    json_path_docker = os.path.join(backend_root, "app/services/legal_features/knowledge_graph_data.json")
+
+    # 路径 2: 某些本地环境 backend/app/services/... (使用 project_root)
+    json_path_local = os.path.join(project_root, "backend/app/services/legal_features/knowledge_graph_data.json")
+
+    # 路径 3: 相对路径（从 backend/scripts/ 出发）
+    json_path_relative = os.path.join(current_dir, "../app/services/legal_features/knowledge_graph_data.json")
+
+    # 按优先级尝试
+    for path_desc, path in [
+        ("Docker环境", json_path_docker),
+        ("本地环境", json_path_local),
+        ("相对路径", json_path_relative),
+    ]:
+        abs_path = os.path.abspath(path)
+        if os.path.exists(abs_path):
+            print(f"✅ 找到 JSON 文件 ({path_desc}): {abs_path}")
+            return abs_path
+
+    # 都没找到，列出所有尝试的路径
+    print("❌ 错误: 无法找到知识图谱 JSON 文件")
+    print(f"   尝试的路径:")
+    print(f"   1. {os.path.abspath(json_path_docker)}")
+    print(f"   2. {os.path.abspath(json_path_local)}")
+    print(f"   3. {os.path.abspath(json_path_relative)}")
+    return None
 
 from app.database import SessionLocal
 from app.models.contract_knowledge import ContractKnowledgeType
@@ -20,14 +53,12 @@ def migrate_knowledge_graph():
     db = SessionLocal()
 
     try:
-        # 读取JSON文件
-        json_file = os.path.join(project_root, "backend/app/services/legal_features/knowledge_graph_data.json")
-
-        if not os.path.exists(json_file):
-            print(f"❌ JSON文件不存在: {json_file}")
+        # 读取JSON文件 - 使用智能路径查找
+        json_file = find_knowledge_graph_json()
+        if not json_file:
             return False
 
-        print(f"📖 读取JSON文件: {json_file}")
+        print(f"📖 正在读取 JSON 文件...")
         with open(json_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
 

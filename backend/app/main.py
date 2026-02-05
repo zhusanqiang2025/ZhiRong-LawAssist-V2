@@ -386,15 +386,27 @@ async def add_security_headers(request: Request, call_next):
     # 添加安全头
     response.headers["X-Content-Type-Options"] = "nosniff"
 
-    # X-Frame-Options: 允许 OnlyOffice 和同源嵌入
-    # OnlyOffice Document Server 需要在 iframe 中加载文档
+    # X-Frame-Options: 允许同源和 OnlyOffice 嵌入
+    # 本地开发环境允许同源 iframe，生产环境根据需要配置
     request_path = request.url.path
-    if request_path.startswith("/storage/"):
-        # 文件资源允许被 OnlyOffice 嵌入
-        # 不设置 X-Frame-Options，使用 Content-Security-Policy 代替
-        response.headers["Content-Security-Policy"] = "frame-ancestors *"
+    origin = request.headers.get("origin", "")
+
+    # 检查是否为同源请求或文件资源
+    is_same_origin = (
+        not origin or  # 无 origin 头（直接访问）
+        origin in ["http://localhost:8000", "http://127.0.0.1:8000",
+                    "http://localhost:9000", "http://127.0.0.1:9000"] or
+        origin.startswith("http://localhost:") or
+        origin.startswith("http://127.0.0.1:")
+    )
+
+    # 允许同源和文件资源的 iframe 嵌入
+    if is_same_origin or request_path.startswith("/storage/"):
+        # 使用 CSP 代替 X-Frame-Options，更灵活
+        response.headers["Content-Security-Policy"] = "frame-ancestors 'self' *"
     else:
-        response.headers["X-Frame-Options"] = "DENY"
+        # 其他请求禁止 iframe 嵌入
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
 
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
@@ -424,7 +436,7 @@ ONLYOFFICE_URL = os.getenv(
 )
 
 
-@app.get("/onlyoffice/{full_path:path}")
+@app.api_route("/onlyoffice/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"])
 async def proxy_onlyoffice(full_path: str, request: Request):
     """
     OnlyOffice 静态资源代理
@@ -451,6 +463,8 @@ async def proxy_onlyoffice(full_path: str, request: Request):
         content_type = "text/html; charset=utf-8"
     elif path_without_query.endswith(".json"):
         content_type = "application/json; charset=utf-8"
+    elif path_without_query.endswith(".wasm"):
+        content_type = "application/wasm"
 
     logger.info(f"[OnlyOffice Proxy] {request.method} {full_path} -> {target_url}")
     logger.info(f"[OnlyOffice Proxy] 预设 MIME type: {content_type}")
@@ -477,11 +491,20 @@ async def proxy_onlyoffice(full_path: str, request: Request):
 
             logger.info(f"[OnlyOffice Proxy] 响应: status={response.status_code}, original-content-type={response.headers.get('content-type', 'N/A')}")
 
+            # 构建响应头（添加缓存控制）
+            headers = {}
+            # WASM 文件需要严格禁用缓存以确保 MIME type 更新生效
+            if path_without_query.endswith(".wasm"):
+                headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+                headers["Pragma"] = "no-cache"
+                headers["Expires"] = "0"
+
             # 返回响应（强制使用预设的 MIME type）
             return Response(
                 content=response.content,
                 status_code=response.status_code,
-                media_type=content_type
+                media_type=content_type,
+                headers=headers
             )
 
     except httpx.RequestError as e:
@@ -495,6 +518,59 @@ async def proxy_onlyoffice(full_path: str, request: Request):
         import traceback
         logger.error(f"[OnlyOffice Proxy] 错误堆栈: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"代理请求失败: {str(e)}")
+
+
+@app.websocket("/onlyoffice/{full_path:path}")
+async def proxy_onlyoffice_websocket(websocket: WebSocket, full_path: str):
+    """
+    OnlyOffice WebSocket 代理
+
+    代理 OnlyOffice 的 WebSocket 连接用于实时协作功能
+    """
+    await websocket.accept()
+
+    # 构建目标 WebSocket URL
+    target_url = f"ws://onlyoffice:80/{full_path}"
+    if websocket.query_params:
+        query_string = "&".join([f"{k}={v}" for k, v in websocket.query_params.items()])
+        target_url += f"?{query_string}"
+
+    logger.info(f"[OnlyOffice WebSocket Proxy] 连接: {full_path} -> {target_url}")
+
+    try:
+        # 连接到 OnlyOffice WebSocket
+        import websockets
+        async with websockets.connect(target_url) as onlyoffice_ws:
+            # 双向转发数据
+            async def forward_to_onlyoffice():
+                try:
+                    while True:
+                        data = await websocket.receive_text()
+                        await onlyoffice_ws.send(data)
+                except Exception as e:
+                    logger.debug(f"[OnlyOffice WebSocket] 前传停止: {e}")
+
+            async def forward_to_frontend():
+                try:
+                    while True:
+                        data = await onlyoffice_ws.recv()
+                        await websocket.send_text(data)
+                except Exception as e:
+                    logger.debug(f"[OnlyOffice WebSocket] 回传停止: {e}")
+
+            # 并发运行双向转发
+            import asyncio
+            await asyncio.gather(
+                forward_to_onlyoffice(),
+                forward_to_frontend(),
+                return_exceptions=True
+            )
+
+    except Exception as e:
+        logger.error(f"[OnlyOffice WebSocket Proxy] 连接失败: {e}")
+        await websocket.close()
+    finally:
+        logger.info(f"[OnlyOffice WebSocket Proxy] 连接关闭: {full_path}")
 
 
 @app.get("/")

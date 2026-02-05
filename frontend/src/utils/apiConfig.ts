@@ -16,7 +16,7 @@ export const getApiBaseUrl = (): string => {
     return '';
   }
   // 开发环境：localhost
-  return 'http://localhost:8000';
+  return 'http://localhost:9000';
 };
 
 /**

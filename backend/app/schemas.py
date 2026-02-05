@@ -1,6 +1,6 @@
-# backend/app/schemas.py (v3.0 - 合并版，包含所有数据模型)
-from pydantic import BaseModel, EmailStr, field_validator
-from typing import Optional, List, Any, Literal, Union
+# backend/app/schemas.py (v3.2 - 完整合并修正版)
+from pydantic import BaseModel, EmailStr, field_validator, Field
+from typing import Optional, List, Any, Literal, Union, Dict
 from datetime import datetime
 import re
 
@@ -41,7 +41,6 @@ class UserUpdate(UserBase):
 class User(UserBase):
     id: int
     phone: Optional[str] = None
-    # <<< 新增: 返回给前端的权限字段 >>>
     is_admin: bool = False
 
     class Config:
@@ -78,7 +77,7 @@ class Task(TaskBase):
         from_attributes = True
 
 # =======================
-# Contract Template Schemas (新增)
+# Contract Template Schemas
 # =======================
 
 # 基础字段
@@ -139,32 +138,13 @@ class ContractTemplateSearchResponse(BaseModel):
     processing_time: float
 
 # =======================
-# Category Schemas (新增)
-# =======================
-class CategoryBase(BaseModel):
-    name: str
-    sort_order: Optional[int] = 0
-    is_active: Optional[bool] = True
-
-class CategoryCreate(CategoryBase):
-    pass
-
-class CategoryUpdate(CategoryBase):
-    pass
-
-class CategoryResponse(CategoryBase):
-    id: int
-    class Config:
-        from_attributes = True
-
-# =======================
 # Category Schemas (v2.0 - 支持层级)
 # =======================
 class CategoryBase(BaseModel):
     name: str
     sort_order: Optional[int] = 0
     is_active: Optional[bool] = True
-    parent_id: Optional[int] = None # 新增
+    parent_id: Optional[int] = None
 
 class CategoryCreate(CategoryBase):
     pass
@@ -179,11 +159,12 @@ class CategoryResponse(CategoryBase):
     
     class Config:
         from_attributes = True
+
 # =======================
-# Contract Review Schemas (新增：合同审查模块)
+# Contract Review Schemas (v3.2 - Hub-and-Spoke 核心增强)
 # =======================
 
-# 1. 规则库模型
+# 1. 规则基础模型 (Unified)
 class ReviewRuleBase(BaseModel):
     name: str
     description: Optional[str] = None
@@ -191,27 +172,57 @@ class ReviewRuleBase(BaseModel):
     rule_category: str  # universal/feature/stance/custom
     priority: int = 0
     is_active: bool = True
+    
+    # ✅ [核心新增] Hub-and-Spoke 关联字段
+    # 前端传参示例: [101, 102]
+    apply_to_category_ids: Optional[List[int]] = [] 
+    
+    # 前端传参示例: "buyer"
+    target_stance: Optional[str] = None 
 
-class ReviewRuleCreate(ReviewRuleBase):
+# 2. 规则创建模型
+class RuleCreate(ReviewRuleBase):
+    # is_system 通常由后端权限判断，这里作为可选参数
     is_system: bool = False
 
-class ReviewRuleUpdate(BaseModel):
+# 3. 规则更新模型
+class RuleUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     content: Optional[str] = None
     rule_category: Optional[str] = None
     priority: Optional[int] = None
     is_active: Optional[bool] = None
+    
+    # ✅ 允许更新关联
+    apply_to_category_ids: Optional[List[int]] = None
+    target_stance: Optional[str] = None
 
+# 4. 规则响应模型 (用于列表展示)
 class ReviewRuleOut(ReviewRuleBase):
     id: int
     is_system: bool
     creator_id: Optional[int]
     created_at: datetime
+    updated_at: Optional[datetime] = None
+    
+    # 确保列表不为 None
+    apply_to_category_ids: List[int] = []
+
     class Config:
         from_attributes = True
 
-# 2. 审查项模型 (ReviewItem)
+# 5. 为了兼容 Admin API 旧接口定义的别名 (如有必要)
+class ReviewRuleCreate(RuleCreate):
+    pass
+
+class ReviewRuleUpdate(RuleUpdate):
+    pass
+
+# =======================
+# Review Item & Contract Schemas
+# =======================
+
 class ReviewItemBase(BaseModel):
     issue_type: str
     quote: str
@@ -236,43 +247,29 @@ class ReviewItemOut(ReviewItemBase):
     class Config:
         from_attributes = True
 
-# 3. 合同元数据模型 (嵌套用)
+# 合同元数据模型
 class ContractMetadataSchema(BaseModel):
     contract_name: Optional[str] = None
     parties: Optional[str] = None
     amount: Optional[str] = None
     contract_type: Optional[str] = None
-    # core_terms 可以是字符串或列表，存储时统一转换为字符串
     core_terms: Optional[Union[str, List[str]]] = None
 
     @field_validator('core_terms', mode='before')
     @classmethod
     def validate_core_terms(cls, v):
-        """处理 core_terms 字段，支持字符串或列表输入"""
-        if v is None:
-            return None
-        if isinstance(v, list):
-            # 将列表转换为逗号分隔的字符串
-            return ', '.join(str(item) for item in v)
-        if isinstance(v, str):
-            return v
-        # 其他类型转换为字符串
+        if v is None: return None
+        if isinstance(v, list): return ', '.join(str(item) for item in v)
         return str(v)
 
     @field_validator('parties', mode='before')
     @classmethod
     def validate_parties(cls, v):
-        """处理 parties 字段，支持列表或字符串输入"""
-        if v is None:
-            return None
-        if isinstance(v, list):
-            # 将列表转换为分号分隔的字符串
-            return '; '.join(str(item) for item in v)
-        if isinstance(v, str):
-            return v
+        if v is None: return None
+        if isinstance(v, list): return '; '.join(str(item) for item in v)
         return str(v)
 
-# 4. 合同主表模型 (ContractDoc)
+# 合同主表模型
 class ContractDocBase(BaseModel):
     title: str
 
@@ -291,12 +288,14 @@ class ContractDocOut(ContractDocBase):
     pdf_converted_path: Optional[str]
     final_docx_path: Optional[str]
     
-    # 嵌套元数据
     metadata_info: Optional[ContractMetadataSchema] = None
     stance: Optional[str] = None
     
     # 嵌套关联的审查项
     review_items: List[ReviewItemOut] = []
+    
+    # 关联分类 (简单返回)
+    category_id: Optional[int] = None
     
     created_at: datetime
     updated_at: datetime
@@ -305,44 +304,41 @@ class ContractDocOut(ContractDocBase):
         from_attributes = True
 
 # =======================
-# Contract Review Output Schema (新增：AI 结构化输出模型)
+# Contract Review Output Schema (AI 结构化输出)
 # =======================
 
 class ReviewIssue(BaseModel):
     """单个审查问题"""
-    issue_type: str                    # e.g. "付款条款", "违约责任", "保密义务"
-    quote: str                         # 原文引用（关键词或短句）
-    explanation: str                   # 问题解释
-    suggestion: str                    # 建议修改内容或警告
-    legal_basis: str = ""              # 审查依据（法律法规、标准条款等）
-    severity: Literal["Low", "Medium", "High", "Critical"]  # 严重程度
-    action_type: Literal["Revision", "Alert"]               # Revision=建议修改, Alert=红线预警
+    issue_type: str
+    quote: str
+    explanation: str
+    suggestion: str
+    legal_basis: str = ""
+    severity: Literal["Low", "Medium", "High", "Critical"]
+    action_type: Literal["Revision", "Alert"]
 
 class ReviewOutput(BaseModel):
     """AI 深度审查的完整结构化输出"""
-    issues: List[ReviewIssue]          # 所有发现的问题列表
+    issues: List[ReviewIssue]
 
 # =======================
-# JSON 规则系统 Schemas (新增 - 用于替换数据库规则)
+# JSON 规则迁移辅助 Schemas
+# (仅用于 JSON 文件解析，不用于 API 创建)
 # =======================
 
 class RuleInstruction(BaseModel):
-    """单条规则指令"""
-    focus: str                          # 关注点
-    instruction: str                    # 具体指令
+    focus: str
+    instruction: str
 
 class FeatureRuleCategory(BaseModel):
-    """特征规则分类"""
     description: str
     rules: List[RuleInstruction]
 
 class StanceRuleRole(BaseModel):
-    """立场规则角色"""
     role_definition: str
     rules: List[RuleInstruction]
 
 class ReviewRulesConfig(BaseModel):
-    """完整的 JSON 规则配置"""
     version: str
     description: str
     universal_rules: FeatureRuleCategory
@@ -350,64 +346,34 @@ class ReviewRulesConfig(BaseModel):
     stance_rules: dict
 
 class UniversalRule(BaseModel):
-    """通用规则"""
     id: str
     category: str
     instruction: str
 
 class UniversalRulesOut(BaseModel):
-    """通用规则输出"""
     name: str
     description: str
     rules: List[UniversalRule]
 
 class FeatureRuleOut(BaseModel):
-    """特征规则输出"""
-    feature_type: str                   # 交易性质/合同标的
-    feature_value: str                  # 转移所有权/不动产
+    feature_type: str
+    feature_value: str
     rules: List[RuleInstruction]
 
 class StanceRuleOut(BaseModel):
-    """立场规则输出"""
-    party: str                          # party_a/party_b
+    party: str
     role_definition: str
     rules: List[RuleInstruction]
-
-class RuleCreate(BaseModel):
-    """创建自定义规则"""
-    category: str                       # universal/transaction_nature/contract_object/stance
-    feature_value: Optional[str] = None # 对于 feature_rules: 具体的特征值
-    stance: Optional[str] = None        # 对于 stance_rules: party_a/party_b
-    focus: str
-    instruction: str
-
-class RuleUpdate(BaseModel):
-    """更新规则"""
-    rule_id: str                        # 规则的唯一标识
-    category: str
-    feature_value: Optional[str] = None
-    stance: Optional[str] = None
-    focus: Optional[str] = None
-    instruction: Optional[str] = None
-    is_active: Optional[bool] = None# backend/app/schemas/risk_analysis.py
-"""
-风险评估模块的 Pydantic Schema 定义
-
-用于 API 请求和响应的数据验证和序列化
-"""
-
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
-from datetime import datetime
-
-
+    
+# =======================
+# Risk Analysis Schemas (必须保留)
+# =======================
 class RiskSectionRef(BaseModel):
     """文档片段引用"""
     doc_id: str = Field(..., description="文档ID")
     page: Optional[int] = Field(None, description="页码")
     text: str = Field(..., description="原文片段")
     highlight: bool = Field(True, description="是否高亮")
-
 
 class RiskItemCreate(BaseModel):
     """创建风险项请求"""
@@ -422,7 +388,6 @@ class RiskItemCreate(BaseModel):
     related_sections: Optional[List[RiskSectionRef]] = Field(None, description="相关文档片段")
     graph_data: Optional[Dict[str, Any]] = Field(None, description="关系图数据")
 
-
 class RiskItemResponse(RiskItemCreate):
     """风险项响应"""
     id: int
@@ -431,7 +396,6 @@ class RiskItemResponse(RiskItemCreate):
 
     class Config:
         from_attributes = True
-
 
 class RiskAnalysisSubmitRequest(BaseModel):
     """提交风险分析请求"""
@@ -442,7 +406,6 @@ class RiskAnalysisSubmitRequest(BaseModel):
     user_description: Optional[str] = Field(None, description="用户描述")
     document_ids: Optional[List[str]] = Field(None, description="已上传文档 ID 列表")
     enable_custom_rules: bool = Field(False, description="是否启用用户自定义规则")
-
 
 class RiskAnalysisSessionResponse(BaseModel):
     """风险分析会话响应"""
@@ -461,12 +424,10 @@ class RiskAnalysisSessionResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 class RiskAnalysisDetailResponse(RiskAnalysisSessionResponse):
     """风险分析详情响应（包含风险项）"""
     risk_items: List[RiskItemResponse]
     disclaimer: str = "本评估仅供参考，不能替代专业律师意见。"
-
 
 class RiskAnalysisStatusResponse(BaseModel):
     """风险分析状态响应"""
@@ -475,21 +436,18 @@ class RiskAnalysisStatusResponse(BaseModel):
     summary: Optional[str]
     risk_distribution: Optional[Dict[str, int]]
 
-
 class RiskAnalysisUploadResponse(BaseModel):
     """文档上传响应"""
     file_id: str
     file_path: str
     message: str
 
-
 class RiskAnalysisStartResponse(BaseModel):
     """开始分析响应"""
     message: str
     session_id: str
 
-
-# 规则管理相关 Schema
+# 规则管理相关 Schema (风险评估专用)
 class RiskAnalysisRuleCreate(BaseModel):
     """创建风险评估规则请求"""
     name: str = Field(..., description="规则名称")
@@ -501,7 +459,6 @@ class RiskAnalysisRuleCreate(BaseModel):
     keywords: Optional[List[str]] = Field(None, description="关键词列表")
     pattern: Optional[str] = Field(None, description="正则表达式模式")
     default_risk_level: Optional[str] = Field(None, description="默认风险等级")
-
 
 class RiskAnalysisRuleResponse(BaseModel):
     """风险评估规则响应"""

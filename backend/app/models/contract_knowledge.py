@@ -2,7 +2,8 @@
 """
 合同法律特征知识图谱数据库模型
 """
-from sqlalchemy import Column, Integer, String, JSON, Boolean, DateTime, Text
+# 1. 引入 ForeignKey
+from sqlalchemy import Column, Integer, String, JSON, Boolean, DateTime, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 from datetime import datetime
@@ -17,9 +18,16 @@ class ContractKnowledgeType(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
+    # ==================== 🔗 核心连接 (Hub-and-Spoke 新增) ====================
+    # 将知识图谱挂载到 Category 上
+    # unique=True 确保一个分类只能有一套法律特征定义
+    linked_category_id = Column(Integer, ForeignKey("categories.id"), nullable=True, unique=True, index=True, comment="绑定的分类ID")
+
     # ==================== 合同基本信息 ====================
     name = Column(String(255), nullable=False, unique=True, index=True, comment="合同类型名称")
     aliases = Column(JSON, comment="别名列表")
+    
+    # [保留兼容] 这里的字符串分类字段建议保留用于显示，但逻辑上以 linked_category_id 为准
     category = Column(String(100), index=True, comment="一级分类")
     subcategory = Column(String(100), index=True, comment="二级分类")
 
@@ -53,6 +61,7 @@ class ContractKnowledgeType(Base):
         """转换为字典格式（兼容原有JSON结构）"""
         return {
             "id": self.id,
+            "linked_category_id": self.linked_category_id,  # ✅ 新增返回
             "name": self.name,
             "aliases": self.aliases or [],
             "category": self.category or "",

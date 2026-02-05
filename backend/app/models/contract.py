@@ -24,6 +24,11 @@ class ContractDoc(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False, index=True, comment="合同标题/文件名")
 
+    # ==================== 🔗 核心连接 (Hub-and-Spoke 新增) ====================
+    # 确定的分类ID (由 AI 解析或用户手动指定)
+    # 这让 RuleAssembler 可以直接用 ID 查找规则，而不需要猜名字
+    category_id = Column(Integer, ForeignKey("categories.id"), nullable=True, index=True)
+
     # 流程状态
     status = Column(String(32), default=ContractStatus.DRAFT.value, index=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False, comment="上传用户ID")
@@ -47,6 +52,11 @@ class ContractDoc(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # ==================== 关系定义 ====================
+    # 1. 关联分类 (Hub-and-Spoke 新增)
+    # 允许通过 contract.category 访问分类信息
+    category = relationship("Category", foreign_keys=[category_id])
 
     # 关系：一对多 → 审查项
     review_items = relationship(

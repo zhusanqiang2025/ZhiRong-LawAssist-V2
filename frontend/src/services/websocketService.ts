@@ -215,7 +215,7 @@ export class TaskWebSocketService {
               taskId: message.data.task_id,
               status: (message.data.current_node || message.data.status || 'processing') as 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled',
               progress: message.data.progress || 0,
-              currentNode: message.data.message || message.data.current_node || '', // ✅ 使用 message 字段作为当前节点描述
+              currentNode: message.message || message.data.current_node || '', // ✅ 使用 message 字段作为当前节点描述
               nodeProgress: message.data.node_progress || {},
               workflowSteps: (message.data.workflow_steps || []).map((step: any) => ({
                 ...step,

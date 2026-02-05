@@ -11,7 +11,7 @@ export default defineConfig({
   // 配置部署基础路径（支持子路径部署）
   base: base,
   // 禁用缓存以强制重新构建
-  cacheDir: false,
+  cacheDir: '.vite-cache',
   // 定义全局变量
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
@@ -40,12 +40,12 @@ export default defineConfig({
     proxy: {
       // API 代理到后端服务（本地开发环境）
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:9000',
         changeOrigin: true,
         ws: true,
       },
       '/storage': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:9000',
         changeOrigin: true,
       },
     },

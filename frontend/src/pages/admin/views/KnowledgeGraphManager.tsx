@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
   Card, Table, Button, Space, Tag, Modal, Form, Input, Select, Cascader, AutoComplete,
-  message, Popconfirm, Tooltip, Typography, Row, Col, Checkbox, Progress, Alert
+  message, Popconfirm, Tooltip, Typography, Row, Col, Checkbox, Progress, Alert, Upload
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined,
-  ReloadOutlined, FileTextOutlined, ExportOutlined, SyncOutlined,
-  ThunderboltOutlined, StopOutlined
+  ReloadOutlined, FileTextOutlined, SyncOutlined,
+  ThunderboltOutlined, StopOutlined, DownloadOutlined, UploadOutlined
 } from '@ant-design/icons';
 import { contractTemplateApi } from '../../../api/contractTemplates';
+import { systemApi } from '../../../api/system';
 import type { CategoryTreeItem } from '../../../types/contract';
 
 const { Title, Text, Paragraph } = Typography;
@@ -47,6 +48,7 @@ const KnowledgeGraphManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [contractTypes, setContractTypes] = useState<ContractTypeDefinition[]>([]);
   const [categories, setCategories] = useState<CategoryTreeItem[]>([]); // 分类树数据
+  const [flatCategories, setFlatCategories] = useState<CategoryTreeItem[]>([]); // 扁平分类数据
   const [modalVisible, setModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<ContractTypeDefinition | null>(null);
   const [originalName, setOriginalName] = useState<string>(''); // 用于更新时的原名
@@ -73,11 +75,40 @@ const KnowledgeGraphManager: React.FC = () => {
   // 获取分类树
   const fetchCategories = async () => {
     try {
-      const data = await contractTemplateApi.getCategoryTree(true);
-      setCategories(data);
+      // ✅ 变更点1: 请求 '/categories/tree' 接口 (对应你后端的 get_category_tree)
+      const treeData = await contractTemplateApi.getCategoryTree();
+      
+      // ✅ 变更点2: 后端直接返回了树形结构 (children)，不需要前端再 buildCategoryTree 了
+      setCategories(transformToTreeSelect(treeData));
+      
+      // 同时也存一份扁平数据用于显示名称 (可选，如果只是为了 ID 转 Name，可以递归提取)
+      setFlatCategories(flattenTree(treeData));
     } catch (error) {
-      message.error('加载分类失败');
+      console.warn("加载分类失败:", error);
+      message.error("加载分类树失败，请检查后端 /categories/tree 接口");
     }
+  };
+
+  // ✅ 新增辅助函数: 将后端树结构转换为 Antd TreeSelect 需要的格式 (title, value, key)
+  const transformToTreeSelect = (nodes: any[]): any[] => {
+    return nodes.map(node => ({
+      title: node.name,
+      value: node.id,
+      key: node.id,
+      // 递归处理子节点
+      children: node.children ? transformToTreeSelect(node.children) : []
+    }));
+  };
+
+  // ✅ 新增辅助函数: 将树拍平 (用于列表页根据 ID 查 Name)
+  const flattenTree = (nodes: any[], list: any[] = []) => {
+    nodes.forEach(node => {
+      list.push(node);
+      if (node.children) {
+        flattenTree(node.children, list);
+      }
+    });
+    return list;
   };
 
   useEffect(() => {
@@ -194,6 +225,22 @@ const KnowledgeGraphManager: React.FC = () => {
     } catch (error) {
       message.error('导出失败');
     }
+  };
+
+  // 导入知识图谱
+  const handleImport = async (file: File) => {
+    try {
+      const result = await systemApi.importData(file);
+      if (result.success) {
+        message.success('导入成功');
+        fetchContractTypes();
+      } else {
+        message.error(result.message || '导入失败');
+      }
+    } catch (error: any) {
+      message.error(error.response?.data?.detail || '导入失败');
+    }
+    return false;
   };
 
   // 从合同分类同步
@@ -415,11 +462,20 @@ const KnowledgeGraphManager: React.FC = () => {
               同步分类
             </Button>
             <Button
-              icon={<ExportOutlined />}
+              icon={<DownloadOutlined />}
               onClick={handleExport}
             >
-              导出
+              导出配置
             </Button>
+            <Upload
+              accept=".json"
+              showUploadList={false}
+              customRequest={({ file }) => handleImport(file as File)}
+            >
+              <Button icon={<UploadOutlined />}>
+                导入配置
+              </Button>
+            </Upload>
             <Button
               icon={<ReloadOutlined />}
               onClick={fetchContractTypes}

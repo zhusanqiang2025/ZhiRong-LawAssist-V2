@@ -451,7 +451,7 @@ def monitor_review_status(self, system_task_id: str, feishu_record_id: str, cont
 
 def _handle_review_completion(record_id: str, file_path: str, contract_id: str = None):
     """
-    内部函数：处理审查完成 (回写状态 + 发送卡片通知)
+    内部函数：处理审查完成 (回写状态 + 审查意见 + 发送卡片通知)
 
     参数:
         record_id: 飞书多维表记录ID
@@ -460,15 +460,57 @@ def _handle_review_completion(record_id: str, file_path: str, contract_id: str =
     """
     try:
         from app.utils.feishu_api import update_feishu_bitable_record, send_feishu_card_message, get_bitable_record_simple
+        from app.database import SessionLocal
+        from app.models.contract import ContractDoc, ContractReviewItem
 
-        # 1. 回写多维表状态
+        # 1. 获取审查结果数据
+        review_summary = ""
+        review_items_count = 0
+        if contract_id:
+            db = SessionLocal()
+            try:
+                contract = db.query(ContractDoc).filter(ContractDoc.id == contract_id).first()
+                if contract:
+                    review_items = contract.review_items
+                    review_items_count = len(review_items)
+
+                    if review_items:
+                        # 生成审查意见摘要（前5条）
+                        summary_lines = []
+                        for idx, item in enumerate(review_items[:5], 1):
+                            severity_emoji = {
+                                "Critical": "🔴",
+                                "High": "🟠",
+                                "Medium": "🟡",
+                                "Low": "🟢"
+                            }.get(item.severity, "⚪")
+
+                            summary_lines.append(
+                                f"{idx}. {severity_emoji} [{item.issue_type}]\n"
+                                f"   原文：{item.quote[:50]}...\n"
+                                f"   建议：{item.suggestion[:80]}..."
+                            )
+
+                        review_summary = "\n\n".join(summary_lines)
+
+                        if len(review_items) > 5:
+                            review_summary += f"\n\n... 还有 {len(review_items) - 5} 条审查意见"
+            finally:
+                db.close()
+
+        # 2. 回写多维表状态和审查意见
         fields = {
-            "审查状态": "审查完成"
+            "审查状态": "AI审查完成"
         }
-        update_feishu_bitable_record(record_id, fields)
-        logger.info(f"✅ 状态已回写至多维表: {record_id} -> 审查完成")
 
-        # 2. 发送卡片通知 - 包含审查结果页面链接
+        # 如果有审查意见，添加到回写字段
+        if review_summary:
+            fields["审查意见"] = review_summary
+
+        update_feishu_bitable_record(record_id, fields)
+        logger.info(f"✅ 状态和审查意见已回写至多维表: {record_id} -> AI审查完成，共{review_items_count}条意见")
+
+        # 3. 发送卡片通知 - 包含审查结果页面链接
         try:
             # 获取记录详情以找到审查人
             record_data = get_bitable_record_simple(record_id)
@@ -484,9 +526,10 @@ def _handle_review_completion(record_id: str, file_path: str, contract_id: str =
             # 合同名称
             contract_name = fields_data.get("合同名称", "") or "未命名合同"
 
-            # 构造审查结果页面URL（指向前端页面而不是后端API）
-            frontend_public_url = os.getenv("FRONTEND_PUBLIC_URL", "http://localhost:5173")
-            review_url = f"{frontend_public_url}/contract/review/{contract_id}"
+            # 构造审查结果页面URL
+            # 前端是通过后端静态文件服务提供的，所以使用 BACKEND_PUBLIC_URL
+            backend_public_url = os.getenv("BACKEND_PUBLIC_URL", "http://localhost:8000")
+            review_url = f"{backend_public_url}/contract/review/{contract_id}?feishu_record_id={record_id}"
 
             # 构造飞书卡片内容
             card_content = {

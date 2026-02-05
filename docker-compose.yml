@@ -3,6 +3,7 @@ services:
   db:
     image: pgvector/pgvector:pg15
     container_name: legal_assistant_v3_db
+    env_file: .env  # ← 添加这一行！
     ports:
       - "${DB_PORT:-5433}:5432"
     environment:
@@ -200,7 +201,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     # 不再使用 env_file，直接使用 Dockerfile 中的 ENV 配置
-    # env_file: .env
+    env_file: .env
     ports:
       - "${BACKEND_PORT:-9000}:8000"
     volumes:

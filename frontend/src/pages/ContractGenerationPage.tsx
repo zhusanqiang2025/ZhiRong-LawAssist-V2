@@ -1115,7 +1115,7 @@ const ContractGenerationPage: React.FC = () => {
 
   // 预览文档文本内容（新窗口打开预览页面）
   const handlePreview = (contract: GeneratedContract) => {
-    const baseUrl = window.location.protocol + '//' + window.location.hostname + ':8000';
+    const baseUrl = window.location.protocol + '//' + window.location.hostname + ':9000';
     const previewUrl = baseUrl + contract.preview_url;
     window.open(previewUrl, '_blank');
   };
@@ -1184,7 +1184,7 @@ const ContractGenerationPage: React.FC = () => {
   const handleDownload = async (contract: GeneratedContract) => {
     try {
       // 构造下载 URL
-      const baseUrl = window.location.protocol + '//' + window.location.hostname + ':8000';
+      const baseUrl = window.location.protocol + '//' + window.location.hostname + ':9000';
       const downloadUrl = baseUrl + contract.download_docx_url;
       window.open(downloadUrl, '_blank');
       message.success('开始下载');

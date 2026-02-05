@@ -170,6 +170,7 @@ interface ApiClient {
   applyRevisions: (contractId: number, reviewItemIds: number[], autoApply?: boolean) => Promise<AxiosResponse<any>>;
   getRevisionConfig: (contractId: number) => Promise<AxiosResponse<any>>;
   downloadContract: (contractId: number, docType: 'original' | 'revised') => Promise<Blob>;
+  uploadRevisedToFeishu: (contractId: number, feishuRecordId: string) => Promise<AxiosResponse<any>>;
 
   // --- 合同生成接口 ---
   analyzeRequirement: (data: ContractGenerationAnalyzeRequest) => Promise<AxiosResponse<ContractGenerationAnalyzeResponse>>;
@@ -463,6 +464,10 @@ const api: ApiClient = {
 
   downloadContract: (contractId: number, docType: 'original' | 'revised') =>
     contractReviewApi.downloadContract(contractId, docType),
+
+  // --- 飞书集成接口 ---
+  uploadRevisedToFeishu: (contractId: number, feishuRecordId: string) =>
+    contractReviewApi.uploadRevisedToFeishu(contractId, feishuRecordId),
 
   // --- 合同健康度评估 ---
   getHealthAssessment: (contractId: number) =>

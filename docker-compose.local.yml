@@ -46,11 +46,31 @@ services:
       - DATABASE_URL=sqlite:///./app.db  # 使用SQLite简化部署
       # 飞书API配置（修复：添加 /open-apis 路径）
       - FEISHU_BASE_API_URL=https://open.feishu.cn/open-apis
+      # OnlyOffice 配置
+      - ONLYOFFICE_URL=http://onlyoffice:80
+      - ONLYOFFICE_JWT_SECRET=legal_doc_secret_2025
     depends_on:
       redis:
         condition: service_healthy
+      onlyoffice:
+        condition: service_started
     restart: unless-stopped
     command: ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    networks:
+      - legal_doc_local_network
+
+  # ==================== OnlyOffice 文档编辑服务 ====================
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: legal_doc_onlyoffice_local
+    ports:
+      - "9000:80"
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=legal_doc_secret_2025
+      - JWT_HEADER=Authorization
+      - JWT_IN_BODY=true
+    restart: unless-stopped
     networks:
       - legal_doc_local_network
 
@@ -80,6 +100,9 @@ services:
       - FEISHU_BASE_API_URL=https://open.feishu.cn/open-apis
       # 审查模块API配置（Docker网络内使用服务名）
       - REVIEW_API_BASE=http://backend:8000
+      # OnlyOffice 配置
+      - ONLYOFFICE_URL=http://onlyoffice:80
+      - ONLYOFFICE_JWT_SECRET=legal_doc_secret_2025
     depends_on:
       redis:
         condition: service_healthy

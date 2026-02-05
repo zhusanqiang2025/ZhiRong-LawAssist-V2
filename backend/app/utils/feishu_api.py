@@ -1234,7 +1234,12 @@ def update_feishu_bitable_record(record_id: str, update_data: dict) -> bool:
 # ==================== 飞书文件上传 ====================
 def upload_file_to_feishu(file_path: str) -> Optional[str]:
     """
-    上传本地文件到飞书云空间（用于回写多维表附件）
+    上传本地文件到飞书多维表格云空间（用于回写多维表附件）
+
+    根据飞书官方文档，多维表附件需要上传到 bitable 空间：
+    - API: /drive/v1/medias/upload_all
+    - parent_type: "bitable"
+    - parent_node: bitable app_token
 
     参数:
         file_path: 本地文件路径
@@ -1242,7 +1247,7 @@ def upload_file_to_feishu(file_path: str) -> Optional[str]:
     返回:
         file_token: 飞书文件标识（可直接用于多维表附件字段），失败返回 None
 
-    文档:
+    官方文档:
         https://open.feishu.cn/document/server-docs/docs/drive/v1/media/upload_all
     """
     try:
@@ -1253,32 +1258,38 @@ def upload_file_to_feishu(file_path: str) -> Optional[str]:
 
         file_size = os.path.getsize(file_path)
         file_name = os.path.basename(file_path)
-        
-        # 2. 获取 token
+
+        # 2. 获取多维表格配置
+        if not FEISHU_BITABLE_APP_TOKEN:
+            logger.error("❌ 未配置 FEISHU_BITABLE_APP_TOKEN，无法上传到多维表格")
+            return None
+
+        # 3. 获取 token
         tenant_token = get_tenant_access_token()
         if not tenant_token:
             logger.error("❌ 获取 tenant_access_token 失败")
             return None
 
         # 3. 准备上传请求
-        # 使用 drive/v1/files/upload_all 接口（上传到云空间根目录，不挂载父节点）
-        # 注意：多维表附件需要的是云空间的文件 token
-        url = f"{FEISHU_BASE_API_URL}/drive/v1/files/upload_all"
-        
+        # 使用 drive/v1/medias/upload_all 接口（上传到多维表格专属空间）
+        # 根据官方文档：parent_type 必须为 "bitable"，parent_node 为 app_token
+        url = f"{FEISHU_BASE_API_URL}/drive/v1/medias/upload_all"
+
         headers = {
             "Authorization": f"Bearer {tenant_token}"
             # 注意：requests 处理 multipart/form-data 时不需要手动设置 Content-Type
         }
-        
+
         # 构造 multipart/form-data
+        # 关键：parent_type="bitable" 且 parent_node=app_token 才能用于多维表附件
         data = {
             "file_name": file_name,
-            "parent_type": "explorer", # 上传到云空间根目录
-            "parent_node": "",         # 根目录为空
+            "parent_type": "bitable",  # 上传到多维表格专属空间
+            "parent_node": FEISHU_BITABLE_APP_TOKEN,  # 多维表格的 app_token
             "size": str(file_size)
         }
-        
-        logger.info(f"📤 开始上传文件到飞书 | 文件: {file_name} | 大小: {file_size} bytes")
+
+        logger.info(f"📤 开始上传文件到飞书多维表 | 文件: {file_name} | 大小: {file_size} bytes | app_token: {FEISHU_BITABLE_APP_TOKEN}")
         
         with open(file_path, "rb") as f:
             files = {

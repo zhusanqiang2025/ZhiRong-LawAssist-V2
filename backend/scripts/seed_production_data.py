@@ -11,6 +11,7 @@
 3. 初始化风险评估规则
 4. 初始化案件分析规则包（6种案件类型）
 5. 迁移知识图谱数据
+6. 迁移分类数据（从 categories.json）
 
 幂等性: 可以安全地重复执行
 """
@@ -236,7 +237,7 @@ def seed_production_data():
             logger.error(f"[Seed] Failed to initialize litigation packages: {e}")
 
         # 5. 迁移知识图谱（调用现有函数）
-        logger.info("[Seed] Step 5/5: Migrating knowledge graph...")
+        logger.info("[Seed] Step 5/6: Migrating knowledge graph...")
         try:
             from scripts.migrate_knowledge_graph_to_db import migrate_knowledge_graph
             migrate_knowledge_graph()
@@ -244,6 +245,102 @@ def seed_production_data():
             logger.warning("[Seed] migrate_knowledge_graph module not found, skipping")
         except Exception as e:
             logger.error(f"[Seed] Failed to migrate knowledge graph: {e}")
+
+        # 6. 迁移分类数据（从 categories.json）
+        logger.info("[Seed] Step 6/6: Migrating categories data...")
+        try:
+            from app.models.category import Category
+            import json
+
+            # 定位 categories.json
+            categories_file = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "categories.json"
+            )
+
+            if not os.path.exists(categories_file):
+                logger.warning(f"[Seed] categories.json not found at {categories_file}")
+                logger.warning("[Seed] Skipping category migration. Run migrate_categories_from_json.py manually if needed.")
+            else:
+                with open(categories_file, 'r', encoding='utf-8') as f:
+                    categories_data = json.load(f)
+
+                db = SessionLocal()
+                try:
+                    # 检查现有数据
+                    existing_count = db.query(Category).count()
+                    if existing_count > 0:
+                        logger.info(f"[Seed]  Found {existing_count} existing category records, skipping migration")
+                        logger.info("[Seed]  To re-import: clear categories table first")
+                    else:
+                        # 执行迁移
+                        total_count = 0
+
+                        for primary_cat in categories_data.get("primary_categories", []):
+                            primary_id = primary_cat.get("id")
+                            primary_name = primary_cat.get("name")
+                            primary_desc = primary_cat.get("description", "")
+
+                            # 一级分类
+                            primary_category = Category(
+                                name=primary_name,
+                                code=primary_id,
+                                description=primary_desc,
+                                parent_id=None,
+                                sort_order=int(primary_id) if primary_id.isdigit() else 0,
+                                meta_info={"level": "primary"},
+                                is_active=True
+                            )
+                            db.add(primary_category)
+                            db.flush()
+                            primary_db_id = primary_category.id
+                            total_count += 1
+
+                            # 二级分类
+                            for sub_type in primary_cat.get("sub_types", []):
+                                sub_type_name = sub_type.get("name")
+
+                                sub_category = Category(
+                                    name=sub_type_name,
+                                    code=f"{primary_id}-{sub_type_name[:2]}",
+                                    description="",
+                                    parent_id=primary_db_id,
+                                    sort_order=0,
+                                    meta_info={
+                                        "level": "secondary",
+                                        "sub_categories": sub_type.get("sub_categories", [])
+                                    },
+                                    is_active=True
+                                )
+                                db.add(sub_category)
+                                db.flush()
+                                total_count += 1
+
+                                # 三级分类
+                                for sub_cat_name in sub_type.get("sub_categories", []):
+                                    tertiary_category = Category(
+                                        name=sub_cat_name,
+                                        code=f"{primary_id}-{sub_type_name[:2]}-{sub_cat_name[:2]}",
+                                        description="",
+                                        parent_id=sub_category.id,
+                                        sort_order=0,
+                                        meta_info={"level": "tertiary"},
+                                        is_active=True
+                                    )
+                                    db.add(tertiary_category)
+                                    total_count += 1
+
+                        db.commit()
+                        logger.info(f"[Seed] ✓ Migrated {total_count} category records")
+
+                except Exception as e:
+                    logger.error(f"[Seed] Failed to migrate categories: {e}")
+                    db.rollback()
+                finally:
+                    db.close()
+
+        except Exception as e:
+            logger.error(f"[Seed] Category migration error: {e}")
 
         logger.info("=" * 60)
         logger.info("[Seed] Production data seeding completed!")
