@@ -20,9 +20,9 @@ from pathlib import Path
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from app.services.document_structurer import get_structurer
-from app.services.document_renderer import get_renderer
-from app.services.document_templates import get_template_manager
+from app.services.common.document_structurer import get_structurer
+from app.services.common.document_renderer import get_renderer
+from app.services.common.document_templates import get_template_manager
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +143,7 @@ class DocumentProcessorTool:
             pdf_path = None
             if output_format == "pdf":
                 try:
-                    from app.services.converter import convert_to_pdf_via_onlyoffice
+                    from app.services.common.converter import convert_to_pdf_via_onlyoffice
                     success, pdf_content = convert_to_pdf_via_onlyoffice(docx_filename)
                     if success:
                         pdf_path = docx_path.replace('.docx', '.pdf')

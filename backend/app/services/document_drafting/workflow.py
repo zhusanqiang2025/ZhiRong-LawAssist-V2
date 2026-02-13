@@ -37,9 +37,9 @@ logger = logging.getLogger(__name__)
 
 def _get_llm():
     """获取 LLM 实例（使用硬编码配置）"""
-    from app.core.llm_config import get_qwen_llm
+    from app.core.llm_config import get_qwen3_llm as get_qwen3_llm
 
-    llm = get_qwen_llm()
+    llm = get_qwen3_llm()
     if not llm:
         logger.warning("[_get_llm] LLM 初始化失败")
 
@@ -90,7 +90,7 @@ async def process_user_input(state: DocumentDraftingState) -> DocumentDraftingSt
     # 提取附件内容
     if uploaded_files:
         try:
-            from app.services.unified_document_service import get_unified_document_service
+            from app.services.common.unified_document_service import get_unified_document_service
             doc_service = get_unified_document_service()
             extracted_texts = []
 

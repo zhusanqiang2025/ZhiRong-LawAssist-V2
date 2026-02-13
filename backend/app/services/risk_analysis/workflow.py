@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.models.risk_analysis import RiskAnalysisSession, RiskAnalysisStatus, RiskItem
-from app.services.unified_document_service import get_unified_document_service, StructuredDocumentResult
+from app.services.common.unified_document_service import get_unified_document_service, StructuredDocumentResult
 from app.services.risk_analysis.document_preorganization import get_document_preorganization_service, PreorganizedDocuments
 from app.services.risk_analysis.rule_assembler import get_risk_rule_assembler
 from app.services.risk_analysis.multi_model_analyzer import get_multi_model_analyzer
@@ -168,12 +168,9 @@ async def preorganize_documents_node(state: RiskAnalysisState) -> Dict[str, Any]
         await send_ws_progress(session_id, "documentPreorganization", "failed", "没有可用的文档", 0)
         return {"status": "no_documents", "error": "没有可用的文档"}
 
-    llm = ChatOpenAI(
-        model=settings.MODEL_NAME or "Qwen3-235B-A22B-Thinking-2507",
-        api_key=settings.LANGCHAIN_API_KEY,
-        base_url=settings.LANGCHAIN_API_BASE_URL,
-        temperature=0
-    )
+    # 使用统一的 LLM 配置
+    from app.core.llm_config import get_qwen3_llm
+    llm = get_qwen3_llm()
 
     # 定义进度回调函数
     async def progress_callback(step: str, progress: float, message: str):

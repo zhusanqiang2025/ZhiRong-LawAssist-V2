@@ -178,8 +178,8 @@ class RequirementAnalyzer:
             # 使用类初始化时传入的 LLM，如果没有则尝试获取
             llm = self.llm
             if not llm:
-                from app.core.llm_config import get_qwen_llm
-                llm = get_qwen_llm()
+                from app.core.llm_config import get_qwen3_llm as get_qwen3_llm
+                llm = get_qwen3_llm()
                 if not llm:
                     raise ValueError("LLM 初始化失败")
 

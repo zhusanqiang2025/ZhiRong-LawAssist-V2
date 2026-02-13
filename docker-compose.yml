@@ -1,9 +1,10 @@
-# docker-compose.yml (v4.9 - 移除 Redis，使用内存缓存)
+# docker-compose.yml - 优化版（无 Redis 依赖，PostgreSQL Broker）
+version: '3.8'
+
 services:
   db:
     image: pgvector/pgvector:pg15
-    container_name: legal_assistant_v3_db
-    env_file: .env  # ← 添加这一行！
+    env_file: .env
     ports:
       - "${DB_PORT:-5433}:5432"
     environment:
@@ -11,164 +12,22 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme_secure_password_123}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+       - pgdata:/var/lib/postgresql/data
     restart: always
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d legal_assistant_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-legal_assistant_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # ==================== Redis 已移除，使用内存缓存 ====================
-  # 原 Redis 服务已移除，缓存功能现在使用内存实现
-
-  # ==================== Celery Worker 服务 (已注释，需要 Redis broker) ====================
-  # 注意：以下 Celery 服务需要 Redis 作为 broker，当前已禁用
-  # 当前 CELERY_ENABLED=false，使用旧系统，不需要启动这些服务
-  #
-  # 启用 Celery 的步骤：
-  # 1. 重新启用 Redis 服务
-  # 2. 运行：docker-compose build backend
-  # 3. 取消下面所有 celery-* 服务的注释
-  # 4. 修改 .env 中的 CELERY_ENABLED=true
-  # 5. 运行：docker-compose up -d
-
-  # celery-worker-high:
-  #   container_name: legal_assistant_v3_celery_worker_high
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   env_file: .env
-  #   environment:
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #     - WORKER_NAME=worker-high
-  #     - LANGCHAIN_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
-  #     - LANGCHAIN_API_BASE_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
-  #     - MODEL_NAME=Qwen3-235B-A22B-Thinking-2507
-  #     - OPENAI_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
-  #     - OPENAI_API_BASE=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
-  #   volumes:
-  #     - ./backend:/app:rw
-  #     - ./storage:/app/storage:rw
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #     db:
-  #       condition: service_healthy
-  #   command: >
-  #     celery -A app.tasks.celery_app worker
-  #     --loglevel=info
-  #     --concurrency=2
-  #     --queue=high_priority
-  #     -n worker-high@%h
-  #     --max-tasks-per-child=100
-  #   restart: always
-  #   networks:
-  #     - app-network
-
-  # celery-worker-medium:
-  #   container_name: legal_assistant_v3_celery_worker_medium
-  #   image: legal_document_assistantv3-backend:latest
-  #   env_file: .env
-  #   environment:
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #   volumes:
-  #     - ./backend:/app:rw
-  #     - ./storage:/app/storage:rw
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #     db:
-  #       condition: service_healthy
-  #   command: >
-  #     celery -A app.tasks.celery_app worker
-  #     --loglevel=info
-  #     --concurrency=2
-  #     --queues=high_priority,medium_priority,low_priority,default
-  #     -n worker-medium@%h
-  #     --max-tasks-per-child=100
-  #   restart: always
-  #   networks:
-  #     - app-network
-
-  # celery-worker-low:
-  #   container_name: legal_assistant_v3_celery_worker_low
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   env_file: .env
-  #   environment:
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #     - WORKER_NAME=worker-low
-  #     - LANGCHAIN_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
-  #     - LANGCHAIN_API_BASE_URL=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
-  #     - MODEL_NAME=Qwen3-235B-A22B-Thinking-2507
-  #     - OPENAI_API_KEY=7adb34bf-3cb3-4dea-af41-b79de8c08ca3
-  #     - OPENAI_API_BASE=https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1
-  #   volumes:
-  #     - ./backend:/app:rw
-  #     - ./storage:/app/storage:rw
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #     db:
-  #       condition: service_healthy
-  #   command: >
-  #     celery -A app.tasks.celery_app worker
-  #     --loglevel=info
-  #     --concurrency=1
-  #     --queue=low_priority
-  #     -n worker-low@%h
-  #     --max-tasks-per-child=100
-  #   restart: always
-  #   networks:
-  #     - app-network
-
-  # celery-beat:
-  #   container_name: legal_assistant_v3_celery_beat
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   env_file: .env
-  #   environment:
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #   volumes:
-  #     - ./backend:/app:rw
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   command: celery -A app.tasks.celery_app beat --loglevel=info
-  #   restart: always
-  #   networks:
-  #     - app-network
-
-  # celery-flower:
-  #   container_name: legal_assistant_v3_celery_flower
-  #   image: legal_document_assistantv3-backend:latest
-  #   env_file: .env
-  #   ports:
-  #     - "${FLOWER_PORT:-5556}:5555"
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   command: celery -A app.tasks.celery_app flower --port=5555 --broker=redis://redis:6379/0
-  #   restart: always
-  #   networks:
-  #     - app-network
-
-  # =========================================
-  # 新增服务: ONLYOFFICE 文档服务器
-  # =========================================
   onlyoffice:
     image: onlyoffice/documentserver:latest
-    container_name: legal_assistant_v3_onlyoffice
     restart: always
+    depends_on:  # 确保数据库先启动
+      db:
+        condition: service_healthy
     environment:
       - JWT_ENABLED=true
       - JWT_SECRET=${ONLYOFFICE_JWT_SECRET:-changeme_onlyoffice_jwt_secret_2025}
@@ -179,9 +38,8 @@ services:
     volumes:
       - onlyoffice_data:/var/www/onlyoffice/Data
       - onlyoffice_log:/var/log/onlyoffice
-      - onlyoffice_cache:/var/lib/onlyoffice/documentserver/App_Data/cache/files
+      - onlyoffice_cache:/var/www/onlyoffice/documentserver/App_Data/cache/files
       - onlyoffice_fonts_cache:/var/www/onlyoffice/documentserver/.cache
-    # 修复缓存目录权限
     entrypoint:
       - /bin/sh
       - -c
@@ -193,19 +51,16 @@ services:
     networks:
       - app-network
 
-  # =========================================
-
   backend:
-    container_name: legal_assistant_v3_backend
     build:
       context: ./backend
       dockerfile: Dockerfile
-    # 不再使用 env_file，直接使用 Dockerfile 中的 ENV 配置
     env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-changeme_secure_password_123}@db:5432/${POSTGRES_DB:-legal_assistant_db}
     ports:
       - "${BACKEND_PORT:-9000}:8000"
     volumes:
-      # 挂载backend代码到/app，便于开发时实时更新
       - ./backend:/app:rw
       - ./storage:/app/storage:rw
     depends_on:
@@ -219,17 +74,17 @@ services:
       - app-network
 
   frontend:
-    container_name: legal_assistant_v3_frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # 生产环境：使用空字符串（相对路径），通过 nginx 代理访问后端
         - VITE_API_BASE_URL=${VITE_API_BASE_URL:-}
-        - VITE_ONLYOFFICE_URL=${VITE_ONLYOFFICE_URL:-https://legal-assistant-v3.azgpu02.azshentong.com/onlyoffice}
+        - VITE_ONLYOFFICE_URL=${VITE_ONLYOFFICE_URL:-http://localhost:8083}
         - VITE_BASE_PATH=${VITE_BASE_PATH:-/}
     ports:
       - "${FRONTEND_PORT:-3001}:80"
+    volumes:
+      - ./frontend:/app:rw  # 源码挂载（热更新）
     depends_on:
       - backend
       - onlyoffice
@@ -237,16 +92,38 @@ services:
     networks:
       - app-network
 
+  # ==================== Celery Worker（PostgreSQL Broker，无 Redis 依赖）====================
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-changeme_secure_password_123}@db:5432/${POSTGRES_DB:-legal_assistant_db}
+    volumes:
+      - ./backend:/app:rw
+      - ./storage:/app/storage:rw
+    depends_on:
+      db:
+        condition: service_healthy
+    command: |-
+      celery -A app.tasks.celery_app worker
+      --loglevel=info
+      --concurrency=2
+      --pool=solo
+      --queues=high_priority,medium_priority,low_priority,default
+      --max-tasks-per-child=100
+    restart: always
+    networks:
+      - app-network
+
 volumes:
   pgdata:
-  # redis_data:  # Redis 已移除
-  # 新增 ONLYOFFICE 卷
   onlyoffice_data:
   onlyoffice_log:
   onlyoffice_cache:
   onlyoffice_fonts_cache:
 
-# <<< 核心修正点 4: 彻底移除 dify_network >>>
 networks:
   app-network:
     driver: bridge

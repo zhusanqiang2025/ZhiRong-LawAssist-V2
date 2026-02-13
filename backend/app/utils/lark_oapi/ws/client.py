@@ -104,7 +104,8 @@ class Client(object):
         self._reconnect_nonce: int = 30
         self._reconnect_count: int = -1
         self._reconnect_interval: int = 120
-        self._ping_interval: int = 120
+        # 【修复】将ping间隔从120秒减少到30秒，避免keepalive超时
+        self._ping_interval: int = 30
         self._cache: ExpiringCache = ExpiringCache(clear_interval=30)
         self._lock = asyncio.Lock()
         logger.setLevel(log_level.value)
@@ -133,8 +134,16 @@ class Client(object):
                     frame = _new_ping_frame(int(self._service_id))
                     await self._write_message(frame.SerializeToString())
                     logger.debug(self._fmt_log("ping success"))
+                else:
+                    logger.debug(self._fmt_log("connection is None, skipping ping"))
             except Exception as e:
                 logger.warn(self._fmt_log("ping failed, err: {}", e))
+                # 关闭当前连接并尝试重连
+                await self._disconnect()
+                if self._auto_reconnect:
+                    await self._reconnect()
+                else:
+                    raise e
             finally:
                 await asyncio.sleep(self._ping_interval)
 

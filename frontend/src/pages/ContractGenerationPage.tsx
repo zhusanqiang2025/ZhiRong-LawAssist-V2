@@ -364,13 +364,47 @@ const ContractGenerationPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 只在组件挂载时执行一次
 
-  // ========== 智能引导上下文穿透 ==========
+  // ========== 智能引导和上下文复用穿透 ==========
   useEffect(() => {
     // 从智能引导页面传递过来的参数
-    const state = location.state as { user_requirement?: string } | null;
+    const state = location.state as {
+      user_requirement?: string;
+      consultationContext?: {
+        target_module: string;
+        data: any;
+        summary: string;
+      };
+    } | null;
+
     if (state?.user_requirement) {
       setUserInput(state.user_requirement);
       message.success('已根据您的需求自动填充内容');
+    }
+
+    // 【新增】处理从咨询复用的上下文
+    if (state?.consultationContext) {
+      const { data, summary } = state.consultationContext;
+      console.log('[ContractGeneration] 接收到复用上下文:', state.consultationContext);
+
+      // 填充用户输入（使用摘要作为基础描述）
+      if (summary) {
+        setUserInput(prev => {
+          // 如果已有输入，追加；否则直接设置
+          return prev ? `${prev}\n\n【案情摘要】\n${summary}` : `【案情摘要】\n${summary}`;
+        });
+      }
+
+      // 如果有提取出的合同相关信息，可以进一步填充（需配合后端提取逻辑完善）
+      if (data) {
+        // 这里可以根据提取的 data 进一步优化，例如：
+        // 自动识别合同类型并设置（如果有相应的状态）
+        // data.contract_type -> 可能用于预设 prompt
+      }
+
+      message.success('已自动导入咨询案情信息');
+
+      // 清除 state 防止刷新重复触发 (React Router 默认保留 state)
+      // window.history.replaceState({}, document.title);
     }
   }, [location.state]);
 
@@ -786,8 +820,8 @@ const ContractGenerationPage: React.FC = () => {
 
       // 根据状态更新连接状态
       const isActive = progress.status !== 'completed' &&
-                       progress.status !== 'failed' &&
-                       progress.status !== 'cancelled';
+        progress.status !== 'failed' &&
+        progress.status !== 'cancelled';
       setIsWebSocketConnected(isActive);
     };
 
@@ -1124,9 +1158,9 @@ const ContractGenerationPage: React.FC = () => {
   const handleGenerateFiles = async (contract: GeneratedContract, index: number) => {
     // 【修改】：使用用户编辑后的内容 (editableContent) 而不是原始 contract.content
     // 注意：如果是当前选中的合同，用 editableContent；如果是列表里的其他合同，用它自己的 content
-    const contentToUse = (selectedContract?.filename === contract.filename) 
-        ? editableContent 
-        : contract.content;
+    const contentToUse = (selectedContract?.filename === contract.filename)
+      ? editableContent
+      : contract.content;
 
     if (!contentToUse) {
       message.error('没有可用的文本内容');
@@ -1159,7 +1193,7 @@ const ContractGenerationPage: React.FC = () => {
           file_generated: true
         };
         setGeneratedContracts(updatedContracts);
-        
+
         // 如果当前正在编辑的是这个合同，也更新 selectedContract
         if (selectedContract?.filename === contract.filename) {
           setSelectedContract(updatedContracts[index]);
@@ -1311,7 +1345,7 @@ const ContractGenerationPage: React.FC = () => {
     // 2. 或者有 taskId 但还没有生成的合同（任务刚完成但结果还没显示）
     const shouldShowProgress = taskId &&
       (taskStatus === 'processing' ||
-       (taskStatus === 'completed' && generatedContracts.length === 0));
+        (taskStatus === 'completed' && generatedContracts.length === 0));
 
     // ✨ Celery 任务进行中时，显示进度覆盖层
     if (shouldShowProgress) {
@@ -1415,10 +1449,10 @@ const ContractGenerationPage: React.FC = () => {
                   dataSource={
                     info.post_termination_arrangements && Object.keys(info.post_termination_arrangements).length > 0
                       ? Object.entries(info.post_termination_arrangements).map(([key, value]) => ({
-                          key: key,
-                          item: key,
-                          detail: value as string
-                        }))
+                        key: key,
+                        item: key,
+                        detail: value as string
+                      }))
                       : [{ key: 'empty', item: '', detail: '' }]
                   }
                   columns={[
@@ -1831,7 +1865,7 @@ const ContractGenerationPage: React.FC = () => {
                   <br />
                   <Text type="secondary" style={{ fontSize: 13 }}>
                     {template_match_result.match_level === 'HIGH' ? '高度匹配' :
-                     template_match_result.match_level === 'STRUCTURAL' ? '结构参考' : '未找到匹配模板'}
+                      template_match_result.match_level === 'STRUCTURAL' ? '结构参考' : '未找到匹配模板'}
                   </Text>
                 </div>
               </Space>
@@ -1902,43 +1936,43 @@ const ContractGenerationPage: React.FC = () => {
               type="error"
             />
           ) : (
-          <Form
-            form={form}
-            layout="vertical"
-            onValuesChange={(changedValues) => {
-              setClarificationFormData({ ...clarificationFormData, ...changedValues });
-            }}
-          >
-            {normalizedClarificationForm?.sections?.map((section) => (
-              <div key={section.section_id} style={{ marginBottom: 24 }}>
-                <Title level={5} style={{ marginBottom: 16 }}>
-                  {section.section_title}
-                </Title>
+            <Form
+              form={form}
+              layout="vertical"
+              onValuesChange={(changedValues) => {
+                setClarificationFormData({ ...clarificationFormData, ...changedValues });
+              }}
+            >
+              {normalizedClarificationForm?.sections?.map((section) => (
+                <div key={section.section_id} style={{ marginBottom: 24 }}>
+                  <Title level={5} style={{ marginBottom: 16 }}>
+                    {section.section_title}
+                  </Title>
 
-                <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                  {section.fields.map((field) => (
-                    <Form.Item
-                      key={field.field_id}
-                      name={field.field_id}
-                      label={
-                        <Space>
-                          <Text>{field.label}</Text>
-                          {field.required && <Text type="danger"> *</Text>}
-                          {normalizedClarificationForm?.summary?.missing_info?.includes(field.label) && (
-                            <Tag color="red">缺失</Tag>
-                          )}
-                        </Space>
-                      }
-                      initialValue={field.default_value}
-                      rules={field.required ? [{ required: true, message: `请填写${field.label}` }] : []}
-                    >
-                      {renderFormField(field)}
-                    </Form.Item>
-                  ))}
-                </Space>
-              </div>
-            ))}
-          </Form>
+                  <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                    {section.fields.map((field) => (
+                      <Form.Item
+                        key={field.field_id}
+                        name={field.field_id}
+                        label={
+                          <Space>
+                            <Text>{field.label}</Text>
+                            {field.required && <Text type="danger"> *</Text>}
+                            {normalizedClarificationForm?.summary?.missing_info?.includes(field.label) && (
+                              <Tag color="red">缺失</Tag>
+                            )}
+                          </Space>
+                        }
+                        initialValue={field.default_value}
+                        rules={field.required ? [{ required: true, message: `请填写${field.label}` }] : []}
+                      >
+                        {renderFormField(field)}
+                      </Form.Item>
+                    ))}
+                  </Space>
+                </div>
+              ))}
+            </Form>
           )}
         </Card>
 
@@ -1962,7 +1996,7 @@ const ContractGenerationPage: React.FC = () => {
                   开始生成合同规划
                 </Button>
               ) : clarificationFormResponse.processing_type === 'contract_modification' ||
-                        clarificationFormResponse.processing_type === 'contract_termination' ? (
+                clarificationFormResponse.processing_type === 'contract_termination' ? (
                 // 合同变更/解除场景：显示单一按钮（不涉及模板）
                 <Button
                   type="primary"
@@ -2147,10 +2181,10 @@ const ContractGenerationPage: React.FC = () => {
 
     return (
       <div className="step-card result-container">
-        
+
         {/* === 上半部分：左右分屏显示区 === */}
         <div className="result-split-view">
-          
+
           {/* 左侧：可编辑区域 (Source) */}
           <div className="split-pane edit-pane-container">
             <div className="pane-header">
@@ -2205,7 +2239,7 @@ const ContractGenerationPage: React.FC = () => {
 
         {/* === 下半部分：底部操作工具栏 === */}
         <div className="result-toolbar">
-          
+
           {/* 左侧：状态信息 */}
           <div className="toolbar-left">
             <div className="status-capsule">
@@ -2259,11 +2293,11 @@ const ContractGenerationPage: React.FC = () => {
             <Button onClick={handleReset}>
               放弃并重新开始
             </Button>
-            
+
             {/* 下载按钮 (仅当文件已生成时显示) */}
             {primaryContract?.file_generated && (
-              <Button 
-                icon={<DownloadOutlined />} 
+              <Button
+                icon={<DownloadOutlined />}
                 onClick={() => handleDownload(primaryContract)}
               >
                 下载 {outputFormat === 'pdf' ? 'PDF' : 'Word'}

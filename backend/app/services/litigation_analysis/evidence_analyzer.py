@@ -15,7 +15,7 @@ import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 
-from app.services.deepseek_service import DeepseekService
+from app.services.common.deepseek_service import DeepseekService
 # 假设有一个通用的 Prompt 构建器或工具类，这里简化为内部方法
 
 logger = logging.getLogger(__name__)

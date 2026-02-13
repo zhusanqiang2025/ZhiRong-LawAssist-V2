@@ -633,8 +633,8 @@ async def extract_modification_termination_info_endpoint(request: ExtractModific
     """
     try:
         # 创建 LLM（使用硬编码配置）
-        from app.core.llm_config import get_qwen_llm
-        llm = get_qwen_llm()
+        from app.core.llm_config import get_qwen3_llm
+        llm = get_qwen3_llm()
         if not llm:
             raise HTTPException(status_code=500, detail="LLM 初始化失败")
 
@@ -687,10 +687,10 @@ async def generate_with_form_data(request: GenerateWithFormDataRequest):
 
                 try:
                     from app.services.contract_generation.agents.requirement_analyzer import RequirementAnalyzer
-                    from app.core.llm_config import get_qwen_llm
+                    from app.core.llm_config import get_qwen3_llm
 
                     # 创建 LLM 和分析器（使用硬编码配置）
-                    llm = get_qwen_llm()
+                    llm = get_qwen3_llm()
                     if not llm:
                         raise Exception("LLM 初始化失败")
                     analyzer = RequirementAnalyzer(llm)
@@ -998,7 +998,7 @@ def _generate_recommendations(config_summary: Dict[str, Any]) -> List[str]:
     available_models = config_summary["overall_status"]["available_models"]
     if len(available_models) < 2:
         recommendations.append(
-            "建议配置更多模型（Qwen3-Thinking、DeepSeek、GPT-OSS）以启用多模型规划功能"
+            "建议配置更多模型（Qwen3、DeepSeek、GPT-OSS）以启用多模型规划功能"
         )
 
     # 检查 Celery
@@ -1015,7 +1015,7 @@ def _generate_recommendations(config_summary: Dict[str, Any]) -> List[str]:
             )
         if "GPT-OSS" in warning and "未配置" in warning:
             recommendations.append(
-                "建议配置 GPT-OSS 模型（OPENAI_API_KEY 和 OPENAI_API_BASE_URL）"
+                "建议配置 GPT-OSS 模型（GPT_OSS_120B_API_KEY 和 GPT_OSS_120B_API_URL）"
             )
 
     return recommendations

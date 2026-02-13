@@ -1,0 +1,23 @@
+{
+  "version": "3.0",
+  "description": "基于法律特征与立场的模块化审查规则库",
+  "universal_rules": {
+    "name": "通用底线审查",
+    "description": "适用于所有类型合同的微观与形式审查",
+    "rules": []
+  },
+  "feature_rules": {
+    "交易性质": {},
+    "合同标的": {}
+  },
+  "stance_rules": {
+    "party_a": {
+      "role_definition": "甲方 (通常为：买方/发包方/出资方/雇主)",
+      "rules": []
+    },
+    "party_b": {
+      "role_definition": "乙方 (通常为：卖方/承包方/受托方/劳动者)",
+      "rules": []
+    }
+  }
+}

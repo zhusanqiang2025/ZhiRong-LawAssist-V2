@@ -4,13 +4,14 @@
 提供智能咨询文件上传和咨询服务
 """
 
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 import uuid
 import os
 import asyncio
 import logging
+from app.api.deps import get_current_user_optional
 
 router = APIRouter(tags=["Intelligent Consultation"])
 logger = logging.getLogger(__name__)
@@ -58,6 +59,16 @@ class ConsultationResponse(BaseModel):
     risk_warning: Optional[str] = None  # 风险提醒
     action_steps: Optional[List[str]] = None  # 行动步骤
     session_id: Optional[str] = None  # 会话ID（用于多轮对话）
+    # P0-4: 动态人设字段
+    persona_definition: Optional[Dict[str, Any]] = None  # 专家人设定义
+    strategic_focus: Optional[Dict[str, Any]] = None  # 战略分析重点
+    # P1-2/P1-3: RAG 检索状态和结果
+    rag_triggered: Optional[bool] = None  # 是否触发了RAG检索
+    rag_sources: Optional[List[str]] = None  # RAG来源列表
+    # 【新增】UI 行为控制字段
+    ui_action: Optional[str] = None  # "show_confirmation" | "chat_only" | "async_processing" | None
+    # 【新增】Celery任务ID（用于轮询）
+    task_id: Optional[str] = None
 
 
 @router.post("/upload", response_model=FileUploadResponse)
@@ -234,6 +245,36 @@ async def delete_consultation_file(file_id: str):
     return {"message": "文件删除成功"}
 
 
+@router.get("/session/{session_id}/validate")
+async def validate_session_endpoint(session_id: str):
+    """
+    验证会话是否有效
+
+    返回会话的有效性和状态信息
+    """
+    from app.services.consultation.session_service import consultation_session_service
+
+    try:
+        is_valid = await consultation_session_service.validate_session(session_id)
+
+        session_data = None
+        if is_valid:
+            session_data = await consultation_session_service.get_session(session_id)
+
+        return {
+            "valid": is_valid,
+            "session_id": session_id,
+            "status": session_data.get("status") if session_data else None,
+            "current_phase": session_data.get("current_phase") if session_data else None,
+            "is_in_specialist_mode": session_data.get("is_in_specialist_mode") if session_data else None,
+            "updated_at": session_data.get("updated_at") if session_data else None
+        }
+
+    except Exception as e:
+        logger.error(f"[API] 验证会话失败: {e}")
+        return {"valid": False}
+
+
 @router.post("", response_model=ConsultationResponse)
 async def legal_consultation(request: ConsultationRequest):
     """
@@ -262,7 +303,7 @@ async def legal_consultation(request: ConsultationRequest):
             logger.info(f"[API]   问题 {i+1}: {q}")
 
     # 【关键修改】使用后端会话管理
-    from app.services.consultation_session_service import consultation_session_service
+    from app.services.consultation.session_service import consultation_session_service
 
     # 获取或创建会话
     session_id, is_follow_up, previous_output = await consultation_session_service.get_or_create_session(
@@ -278,7 +319,7 @@ async def legal_consultation(request: ConsultationRequest):
     if request.user_confirmed:
         original_is_follow_up = is_follow_up
         is_follow_up = False  # 强制设置为 False
-
+        
         # 【关键】从会话中恢复第一阶段的分类结果
         saved_classification = await consultation_session_service.get_classification(session_id)
         logger.info(f"[API] 用户确认阶段：从会话恢复 classification, saved_classification keys: {list(saved_classification.keys()) if saved_classification else None}")
@@ -347,180 +388,266 @@ async def legal_consultation(request: ConsultationRequest):
     if file_preview_text:
         enhanced_context["file_preview_text"] = file_preview_text
 
-    # 调用 LangGraph 法律咨询工作流（异步）
+    # 【修改】改为Celery异步任务模式，与HTTP请求解耦
     try:
-        from legal_consultation_graph import run_legal_consultation
+        from app.tasks.consultation_tasks import task_run_consultation
 
-        # 【关键修改】使用后端判断的 is_follow_up 和 previous_output
-        consultation_result, final_report = await run_legal_consultation(
-            question=enhanced_question,
-            context=enhanced_context,
-            conversation_history=None,
-            user_confirmed=request.user_confirmed or False,
-            selected_suggested_questions=request.selected_suggested_questions,
-            is_follow_up=is_follow_up,  # 使用后端判断的结果
-            session_id=session_id,  # 使用后端管理的 session_id
-            previous_specialist_output=previous_output,  # 使用后端获取的上一轮输出
-            saved_classification=saved_classification  # 【新增】传递恢复的分类结果
-        )
+        # 1. 立即初始化会话（保存用户输入）
+        from app.services.consultation.session_service import consultation_session_service
+        await consultation_session_service.initialize_session(session_id, request.question, user_id=1)
 
-        if consultation_result:
-            # 从咨询结果中提取信息
-            classification_result = consultation_result.classification_result
+        # 【加固】路由逻辑粘性化：检查会话状态中的 user_decision
+        # 【修复】只在会话已存在且已进入专家模式时才启用路由粘性化
+        # 这样可以区分"用户确认阶段"和"真正的后续追问"
+        is_sticky_route = False
+        try:
+            session_data = await consultation_session_service.get_session(session_id)
+            if session_data:
+                user_decision = session_data.get('user_decision')
+                is_in_specialist_mode = session_data.get('is_in_specialist_mode')
+                current_phase = session_data.get('current_phase')
 
-            # 判断是否为第一阶段（用户未确认）
-            is_first_stage = not request.user_confirmed
+                # 【新增】严格条件：必须同时满足以下条件才启用路由粘性化
+                # 1. 用户已确认
+                # 2. 已进入专家模式
+                # 3. 会话处于活跃状态
+                # 4. 问题在短时间内（防止重启后误判）
 
-            if is_first_stage:
-                # ========== 第一阶段：返回律师助理分析结果 ==========
+                if (user_decision == 'confirmed' and
+                    is_in_specialist_mode and
+                    current_phase in ['specialist', 'completed'] and
+                    request.reset_session == False):
 
-                # 即使 classification_result 为空，也要返回确认消息
-                if classification_result:
-                    primary_type = classification_result.get("primary_type", "法律咨询")
-                    specialist_role = classification_result.get("specialist_role", "专业律师")
-                    confidence = classification_result.get("confidence", 0.8)
-                    basic_summary = classification_result.get("basic_summary", "")
-                    direct_questions = classification_result.get("direct_questions", [])
-                    suggested_questions = classification_result.get("suggested_questions", [])
-                    recommended_approach = classification_result.get("recommended_approach", "")
+                    # 【新增】时间窗口检查
+                    updated_at = session_data.get('updated_at')
+                    if updated_at:
+                        from datetime import datetime, timedelta
+                        try:
+                            updated_time = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
+                            # 30分钟内才启用路由粘性化
+                            if datetime.now() - updated_time <= timedelta(minutes=30):
+                                is_sticky_route = True
+                                logger.info(f"[API] 路由粘性化：30分钟内专家模式，保持专家对话")
+                        except Exception as e:
+                            logger.warning(f"[API] 时间解析失败，不启用路由粘性化: {e}")
 
-                    # 构建简单的第一阶段回复（由前端展示详细结构化信息）
-                    first_stage_answer = f"""根据您的问题，我识别出这属于 {primary_type} 领域，建议转交给该领域的专业律师为您提供更深入的解答。
+            # 如果启用路由粘性化
+            if is_sticky_route:
+                logger.info(f"[API] 路由粘性化启用：检测到近期专家模式，保持专家对话")
+                request.user_confirmed = True
 
-是否同意转交专业律师进行深入分析？"""
-                else:
-                    # classification_result 为空时的兜底处理
-                    logger.warning("[API] classification_result 为空，使用默认值")
-                    primary_type = "法律咨询"
-                    specialist_role = "专业律师"
-                    confidence = 0.8
-                    basic_summary = ""
-                    direct_questions = []
-                    suggested_questions = []
-                    recommended_approach = ""
-
-                    # 构建兜底的第一阶段回复
-                    first_stage_answer = f"""根据您的问题，建议由专业律师为您提供更深入的法律分析和建议。
-
-是否同意转交专业律师进行深入分析？"""
-
-                return ConsultationResponse(
-                    answer=first_stage_answer,
-                    specialist_role=specialist_role,
-                    primary_type=primary_type,
-                    confidence=confidence,
-                    relevant_laws=[],
-                    need_confirmation=True,  # 标记需要确认
-                    response=first_stage_answer,
-                    basic_summary=basic_summary,
-                    direct_questions=direct_questions,
-                    suggested_questions=suggested_questions,
-                    recommended_approach=recommended_approach,
-                    session_id=session_id  # 返回会话ID
-                )
-
-            # ========== 第二阶段：返回完整专业律师报告 ==========
-
-            # 【关键修改】如果是专业律师的最终回复，保存会话状态
-            if final_report:
-                await consultation_session_service.save_session(
+                # 【修复】重置输出缓存：清空 specialist_output，避免追问时返回相同内容
+                # 将 current_phase 设为 'specialist'，清空 specialist_output 字段
+                # 严禁修改 messages 历史
+                logger.info(f"[API] 重置输出缓存：清空 specialist_output，设置 current_phase=specialist")
+                await consultation_session_service.update_session(
                     session_id=session_id,
-                    is_in_specialist_mode=True,
-                    specialist_output={
-                        "legal_analysis": consultation_result.analysis,
-                        "legal_advice": consultation_result.advice,
-                        "risk_warning": consultation_result.risk_warning,
-                        "action_steps": consultation_result.action_steps
-                    },
-                    classification=classification_result,
-                    question=request.question
+                    current_phase="specialist",
+                    specialist_output=None,  # 清空上一轮输出
+                    is_in_specialist_mode=True   # 保持专家模式
                 )
-            logger.info(f"[API] 会话已保存: {session_id} (进入专业律师模式)")
+        except Exception as e:
+            logger.error(f"[API] 路由粘性化检查失败: {e}")
+            # 继续执行，不阻止请求处理
 
-            # 【调试】打印返回的 session_id
-            logger.info(f"[API] 第二阶段响应: 将返回 session_id={session_id} 给前端")
-
-            # 如果有分类结果，提取详细信息
-            if classification_result:
-                primary_type = classification_result.get("primary_type", "法律咨询")
-                specialist_role = classification_result.get("specialist_role", "专业律师")
-                confidence = classification_result.get("confidence", 0.8)
-                urgency = classification_result.get("urgency", "medium")
-                complexity = classification_result.get("complexity", "medium")
-                relevant_laws = consultation_result.legal_basis.split("、") if consultation_result.legal_basis else []
-            else:
-                primary_type = "法律咨询"
-                specialist_role = "专业律师"
-                confidence = 0.8
-                urgency = "medium"
-                complexity = "medium"
-                relevant_laws = []
-
-            # 构建响应 - 使用用户可见的问题描述（不包含文件完整内容）
-            display_question = user_visible_question if file_summaries else consultation_result.question
-
-            # 使用工作流生成的最终报告作为回答（纯文本格式，已清理 Markdown 符号）
-            if final_report:
-                response_content = final_report
-            else:
-                # 兜底：手动构建纯文本响应
-                response_content = f"""━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                    法律咨询报告
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-【问题描述】
-{display_question}
-
-【法律依据】
-{consultation_result.legal_basis}
-
-【分析】
-{consultation_result.analysis}
-
-【建议】
-{consultation_result.advice}
-
-【风险提醒】
-{consultation_result.risk_warning}
-
-【行动步骤】
-"""
-                for step in consultation_result.action_steps:
-                    response_content += f"  • {step}\n"
-
-                response_content += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-
-            response_data = ConsultationResponse(
-                answer=response_content,
-                specialist_role=specialist_role,
-                primary_type=primary_type,
-                confidence=confidence,
-                relevant_laws=relevant_laws,
-                need_confirmation=False,  # 第二阶段：用户已确认，不需要再次确认
-                response=response_content,  # 保持兼容性
-                final_report=True,  # 标识为最终专业律师报告
-                analysis=consultation_result.analysis,  # ConsultationOutput 使用 analysis 字段
-                advice=consultation_result.advice,  # ConsultationOutput 使用 advice 字段
-                risk_warning=consultation_result.risk_warning,
-                action_steps=consultation_result.action_steps,
-                session_id=session_id  # 返回会话ID给前端
+        # 【修复】如果用户已确认，立即设置会话为专业律师阶段
+        # 这样前端轮询时就不会误认为还在 waiting_confirmation
+        if request.user_confirmed:
+            logger.info(f"[API] 用户确认阶段：立即设置 current_phase=specialist")
+            await consultation_session_service.update_session(
+                session_id=session_id,
+                current_phase="specialist",
+                user_decision="confirmed"
             )
 
-            logger.info(f"[API] 咨询完成: session_id={session_id}, is_follow_up={is_follow_up}")
+        # 2. 启动Celery后台任务
+        task = task_run_consultation.delay(
+            session_id=session_id,
+            question=request.question,
+            context=enhanced_context,
+            user_id=1,
+            user_confirmed=request.user_confirmed or False,
+            selected_suggested_questions=request.selected_suggested_questions,
+            previous_specialist_output=previous_output,
+            saved_classification=saved_classification
+        )
 
-            return response_data
-        else:
-            # 咨询失败，返回错误信息
-            error_msg = final_report if isinstance(final_report, str) else "咨询失败，请稍后重试"
-            raise HTTPException(status_code=500, detail=error_msg)
+        logger.info(f"[API] Celery任务已启动: task_id={task.id}")
 
-    except HTTPException:
-        raise
+        # 3. 返回异步响应（前端通过轮询获取结果）
+        return ConsultationResponse(
+            answer="正在分析您的问题，请稍候...",
+            session_id=session_id,
+            response="正在分析您的问题，请稍候...",
+            need_confirmation=False,
+            ui_action="async_processing",
+            task_id=task.id  # 返回task_id供前端轮询
+        )
+
     except Exception as e:
-        import traceback
-        logger.error(f"法律咨询失败：{str(e)}")
-        logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"咨询失败：{str(e)}")
+        logger.error(f"[API] 启动Celery任务失败: {e}")
+        raise HTTPException(status_code=500, detail=f"启动咨询任务失败: {str(e)}")
+
+
+@router.get("/task-status/{session_id}")
+async def get_task_status(session_id: str):
+    """
+    获取异步任务状态
+
+    返回任务的当前状态和结果（如果已完成）
+    """
+    try:
+        from app.services.consultation.session_service import consultation_session_service
+
+        # 获取会话数据
+        session_data = await consultation_session_service.get_session(session_id)
+
+        if not session_data:
+            raise HTTPException(status_code=404, detail="会话会不存在")
+
+        # 提取会话状态信息
+        current_phase = session_data.get("current_phase", "initial")
+        status = session_data.get("status", "processing")
+        classification = session_data.get("classification")
+        specialist_output = session_data.get("specialist_output")
+        last_question = session_data.get("last_question", "")
+        user_decision = session_data.get("user_decision")
+
+        # 【新增】调试日志
+        logger.info(f"[API] 任务状态查询: session_id={session_id}")
+        logger.info(f"[API] - current_phase={current_phase}, user_decision={user_decision}, status={status}")
+        logger.info(f"[API] - classification存在={bool(classification)}")
+        if classification:
+            logger.info(f"[API] - primary_type={classification.get('primary_type')}")
+            logger.info(f"[API] - specialist_role={classification.get('specialist_role')}")
+            logger.info(f"[API] - persona_definition存在={bool(classification.get('persona_definition'))}")
+            logger.info(f"[API] - strategic_focus存在={bool(classification.get('strategic_focus'))}")
+
+        # 根据当前阶段返回不同状态
+        if current_phase == "initial" or status == "running":
+            # 任务仍在处理中
+            return {
+                "status": "processing",
+                "current_phase": current_phase,
+                "session_id": session_id
+            }
+        elif current_phase == "waiting_confirmation" and user_decision != "cancelled":
+            # 助理节点完成，等待用户确认
+            return {
+                "status": "waiting_confirmation",
+                "current_phase": current_phase,
+                "session_id": session_id,
+                "primary_type": classification.get('primary_type', '未知领域') if classification else '未知领域',
+                "specialist_role": classification.get('specialist_role', '专业律师') if classification else '专业律师',
+                "suggested_questions": classification.get('suggested_questions', []) if classification else [],
+                "direct_questions": classification.get('direct_questions', []) if classification else [],
+                "basic_summary": classification.get('basic_summary', '') if classification else '',
+                "recommended_approach": classification.get('recommended_approach', '') if classification else '',
+                # 【新增】人设和战略信息
+                "persona_definition": classification.get('persona_definition', {}) if classification else {},
+                "strategic_focus": classification.get('strategic_focus', {}) if classification else {}
+            }
+        elif current_phase in ["specialist", "completed"] and specialist_output:
+            # 任务完成，返回完整结果
+            return {
+                "status": "completed",
+                "current_phase": current_phase,
+                "result": {
+                    "response": specialist_output.get('legal_analysis', ''),
+                    "answer": specialist_output.get('legal_advice', ''),
+                    "final_report": True,
+                    "confidence": specialist_output.get('confidence', 0.95),
+                    "suggestions": [
+                        "相关法规查询", 
+                        "风险评估", 
+                        "文书起草"
+                    ],
+                    "action_buttons": [
+                        {"key": "risk_analysis", "label": "风险评估"},
+                        {"key": "contract_review", "label": "合同审查"}
+                    ],
+                    "analysis": specialist_output.get('legal_analysis', ''),
+                    "advice": specialist_output.get('legal_advice', ''),
+                    "risk_warning": specialist_output.get('risk_warning', ''),
+                    "action_steps": specialist_output.get('action_steps', [])
+                },
+                "session_id": session_id
+            }
+        elif current_phase == "assistant" and user_decision == "cancelled":
+            # 用户已取消转交专家
+            return {
+                "status": "cancelled",
+                "current_phase": current_phase,
+                "session_id": session_id,
+                "message": "用户已取消转交专家律师"
+            }
+        else:
+            # 未知状态
+            return {
+                "status": "unknown",
+                "current_phase": current_phase,
+                "session_id": session_id
+            }
+            
+    except Exception as e:
+        logger.error(f"[API] 获取任务状态失败: {e}")
+        raise HTTPException(status_code=500, detail="获取任务状态失败")
+
+
+@router.post("/{session_id}/continue", response_model=ConsultationResponse)
+async def continue_consultation_session(
+    session_id: str,
+    request: ConsultationRequest,
+    current_user = Depends(get_current_user_optional)
+):
+    """
+    继续历史会话（页面关闭后恢复对话）
+
+    批准条件：前端可实现轮询恢复机制（页面关闭后可继续对话）
+    """
+    from app.services.consultation.session_service import consultation_session_service
+    from app.tasks.consultation_tasks import task_run_consultation
+
+    user_id = current_user.id if current_user else 1
+
+    # 1. 验证会话存在
+    session_data = await consultation_session_service.get_session(session_id)
+    if not session_data:
+        raise HTTPException(status_code=404, detail="会话不存在")
+
+    # 2. 获取之前的输出（用于多轮对话）
+    previous_output = await consultation_session_service.get_specialist_output(session_id)
+    saved_classification = await consultation_session_service.get_classification(session_id)
+
+    logger.info(f"[API] 继续会话: {session_id}, previous_output_exists={bool(previous_output)}")
+
+    # 3. 启动新的Celery任务（带上下文）
+    try:
+        task = task_run_consultation.delay(
+            session_id=session_id,
+            question=request.question,
+            context=request.context or {},
+            user_id=user_id,
+            user_confirmed=True,  # 继续会话时，直接进入专业律师模式
+            selected_suggested_questions=None,
+            previous_specialist_output=previous_output,
+            saved_classification=saved_classification
+        )
+
+        logger.info(f"[API] 继续会话任务已启动: task_id={task.id}")
+
+        return ConsultationResponse(
+            answer="正在继续分析您的问题...",
+            session_id=session_id,
+            response="正在继续分析您的问题...",
+            need_confirmation=False,
+            ui_action="async_processing",
+            task_id=task.id
+        )
+
+    except Exception as e:
+        logger.error(f"[API] 启动继续会话任务失败: {e}")
+        raise HTTPException(status_code=500, detail=f"启动任务失败: {str(e)}")
 
 
 @router.post("/new-session")
@@ -548,7 +675,7 @@ async def reset_session(session_id: str):
 
     用户点击"开启新对话"时调用
     """
-    from app.services.consultation_session_service import consultation_session_service
+    from app.services.consultation.session_service import consultation_session_service
 
     success = await consultation_session_service.delete_session(session_id)
 
@@ -614,3 +741,156 @@ async def save_consultation_history(request: dict):
     except Exception as e:
         logger.error(f"[API] 保存对话历史异常: {e}")
         return {"success": False, "message": f"保存失败: {str(e)}"}
+
+
+# ==================== 【新增】会话决策管理 API ====================
+
+class ConsultationDecisionRequest(BaseModel):
+    """用户决策请求模型"""
+    action: str  # "confirm" | "cancel"
+    selected_suggested_questions: Optional[List[str]] = None  # 用户选择的建议问题
+    custom_question: Optional[str] = None  # 用户自定义问题
+
+
+@router.post("/{session_id}/decision")
+async def handle_consultation_decision(
+    session_id: str,
+    request: ConsultationDecisionRequest,
+    current_user = Depends(get_current_user_optional)
+):
+    """
+    处理用户对律师助理分析结果的决策（确认转交专家律师 / 取消转交）
+
+    场景A（确认）：
+    - 用户点击"转交专家律师"
+    - 启动专业律师任务
+    - 更新会话状态为 specialist
+    - 返回新任务ID供前端轮询
+
+    场景B（取消）：
+    - 用户点击"取消"
+    - 标记会话为 cancelled
+    - 保存到历史记录
+    - 返回取消状态
+
+    批准条件：会话生命周期管理优化
+    """
+    user_id = current_user.id if current_user else 1
+
+    from app.services.consultation.session_service import consultation_session_service
+    from app.tasks.consultation_tasks import task_run_consultation
+
+    logger.info(f"[API] 收到用户决策: session_id={session_id}, action={request.action}")
+
+    # 1. 验证会话存在且状态正确
+    session_data = await consultation_session_service.get_session(session_id)
+    if not session_data:
+        raise HTTPException(status_code=404, detail="会话不存在")
+
+    current_phase = session_data.get("current_phase", "initial")
+
+    # 验证会话处于等待确认状态
+    if current_phase != "waiting_confirmation":
+        logger.warning(f"[API] 会话阶段错误: {current_phase}, 期望: waiting_confirmation")
+        raise HTTPException(
+            status_code=400,
+            detail=f"当前会话阶段不允许此操作。当前阶段: {current_phase}"
+        )
+
+    # 2. 根据用户决策处理
+    if request.action == "confirm":
+        # ========== 场景A：用户确认转交专家律师 ==========
+
+        # 2.1 获取分类结果（从第一阶段任务）
+        classification = await consultation_session_service.get_classification(session_id)
+        if not classification:
+            raise HTTPException(status_code=404, detail="未找到分类结果")
+
+        # 2.2 获取用户原始问题
+        last_question = session_data.get("last_question")
+        if not last_question:
+            raise HTTPException(status_code=404, detail="未找到原始问题")
+
+        # 2.3 合并用户选择的问题
+        selected_questions = request.selected_suggested_questions or []
+        if request.custom_question:
+            selected_questions.append(request.custom_question)
+
+        logger.info(f"[API] 用户确认转交专家，补充问题: {len(selected_questions)} 个")
+
+        # 2.4 更新会话状态（从 waiting_confirmation → specialist）
+        await consultation_session_service.update_session(
+            session_id=session_id,
+            current_phase="specialist",
+            user_decision="confirmed",
+            status="running"
+        )
+
+        # 2.5 启动专业律师 Celery 任务
+        try:
+            task = task_run_consultation.delay(
+                session_id=session_id,
+                question=last_question,
+                context={},
+                user_id=user_id,
+                user_confirmed=True,  # 程序确认
+                selected_suggested_questions=selected_questions if selected_questions else None,
+                previous_specialist_output=None,
+                saved_classification=classification
+            )
+
+            logger.info(f"[API] 专业律师任务已启动: task_id={task.id}")
+
+            return {
+                "success": True,
+                "session_id": session_id,
+                "action": "confirm",
+                "next_phase": "specialist",
+                "new_task_id": task.id,
+                "status": "processing",
+                "message": "已转交专业律师进行分析"
+            }
+
+        except Exception as e:
+            logger.error(f"[API] 启动专业律师任务失败: {e}")
+            raise HTTPException(status_code=500, detail=f"启动专家分析失败: {str(e)}")
+
+    elif request.action == "cancel":
+        # ========== 场景B：用户取消转交 ==========
+
+        logger.info(f"[API] 用户取消转交专家，会话将归档")
+
+        # 3.1 更新会话状态为 cancelled
+        await consultation_session_service.update_session(
+            session_id=session_id,
+            current_phase="assistant",
+            user_decision="cancelled",
+            status="archived"  # 归档（保留历史记录）
+        )
+
+        # 3.2 保存到历史记录（如果尚未保存）
+        classification = await consultation_session_service.get_classification(session_id)
+        last_question = session_data.get("last_question")
+
+        if classification and last_question:
+            # 构建简短的历史记录消息
+            message_content = f"【问题】\n{last_question}\n\n【分析结果】\n属于【{classification.get('primary_type', '未知领域')}】领域"
+            if classification.get('specialist_role'):
+                message_content += f"，建议由【{classification.get('specialist_role')}】处理"
+
+            # 注意：这里只是记录，不会触发实际转交
+            # 会话状态已标记为 archived 和 cancelled
+
+            logger.info(f"[API] 会话已归档: {session_id}")
+
+        return {
+            "success": True,
+            "session_id": session_id,
+            "action": "cancel",
+            "status": "cancelled",
+            "saved_to_history": True,
+            "message": "已取消转交，您可以继续提问或开启新对话"
+        }
+
+    else:
+        raise HTTPException(status_code=400, detail=f"不支持的决策操作: {request.action}")

@@ -52,11 +52,11 @@ class TimelineGenerator:
                 base_url=settings.DEEPSEEK_API_URL,
                 temperature=0.1 # 时间线必须精确，低温度
             )
-        elif getattr(settings, "QWEN3_THINKING_ENABLED", False):
+        elif getattr(settings, "QWEN3_ENABLED", False):
             return ChatOpenAI(
-                model=settings.QWEN3_THINKING_MODEL,
-                api_key=settings.QWEN3_THINKING_API_KEY,
-                base_url=settings.QWEN3_THINKING_API_URL,
+                model=settings.QWEN3_MODEL,
+                api_key=settings.QWEN3_API_KEY,
+                base_url=settings.QWEN3_API_BASE,
                 temperature=0.1
             )
         else:

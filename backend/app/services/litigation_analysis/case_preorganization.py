@@ -13,8 +13,8 @@ from app.schemas.litigation_analysis import (
     PartyInfo
     # 移除 PartyRole 引用，避免 ImportError
 )
-from app.services.unified_document_service import UnifiedDocumentService
-from app.services.deepseek_service import DeepseekService
+from app.services.common.unified_document_service import UnifiedDocumentService
+from app.services.common.deepseek_service import DeepseekService
 
 logger = logging.getLogger(__name__)
 

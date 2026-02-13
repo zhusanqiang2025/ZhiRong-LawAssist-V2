@@ -21,23 +21,22 @@ import json
 from typing import Dict
 import httpx
 
-from app.database import Base, engine
+from app.database import Base, engine, SessionLocal
 from app.models.user import User
 from app.models.task import Task
 from app.models.task_view import TaskViewRecord
+from app.core.config import settings  # 导入配置
 
 # ==================== 核心路由导入（唯一）====================
 from app.api.v1.router import api_router  # 统一 v1 路由入口
 from app.api.websocket import manager  # WebSocket 连接管理器
 from app.core.security import get_password_hash
 from app.core.exceptions import setup_exception_handlers
+from app.core.logger import setup_logging  # 导入新的日志配置
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
-logger = logging.getLogger(__name__)
+# 设置应用专用日志记录器
+setup_logging()
+logger = logging.getLogger("legal_assistant")
 
 # ==================== 数据库初始化 ====================
 # 首先尝试连接到 PostgreSQL 默认数据库，检查目标数据库是否存在
@@ -330,6 +329,29 @@ async def startup_event():
     except Exception as e:
         logger.warning(f"⚠️ 自动确保管理员权限失败: {e}")
         logger.warning("管理员权限可能不正确，请手动检查")
+
+    # ==================== 配置验证 ====================
+    logger.info("🔍 验证关键配置...")
+    required_keys = {
+        "DEEPSEEK_API_KEY": settings.DEEPSEEK_API_KEY,
+        "QWEN3_API_KEY": settings.QWEN3_API_KEY,
+        "QWEN3_API_BASE": settings.QWEN3_API_BASE,
+        "AI_POSTPROCESS_API_KEY": settings.AI_POSTPROCESS_API_KEY,
+        "AI_POSTPROCESS_API_URL": settings.AI_POSTPROCESS_API_URL,
+    }
+
+    placeholder_keys = [k for k, v in required_keys.items() if v and v.startswith("your-")]
+    missing_keys = [k for k, v in required_keys.items() if not v]
+
+    if placeholder_keys:
+        logger.warning(f"⚠️ 以下配置项使用占位符，请在 .env 中设置真实值: {placeholder_keys}")
+        logger.warning("   应用将尝试从 .env 文件读取配置")
+
+    if missing_keys:
+        logger.warning(f"⚠️ 以下配置项缺失或未设置: {missing_keys}")
+        logger.warning("   请检查 .env 文件中的配置")
+    else:
+        logger.info("✅ 所有关键配置已正确加载")
 
     # ========== 飞书集成启动（移除 Redis 强制依赖） ==========
     feishu_enabled = os.getenv("FEISHU_ENABLED", "false").lower() == "true"

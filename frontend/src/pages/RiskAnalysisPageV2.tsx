@@ -185,7 +185,7 @@ const RiskAnalysisPageV2: React.FC = () => {
   const [hasRestoredOnce, setHasRestoredOnce] = useState<boolean>(false);
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
-  
+
   const selectedPackages = selectedPackageIds.map(id => allPackages.find(pkg => pkg.package_id === id)).filter(Boolean) as RiskRulePackage[];
 
   // 声明函数，防止 hoisting 问题
@@ -206,7 +206,7 @@ const RiskAnalysisPageV2: React.FC = () => {
         let riskLevel = item.risk_level?.toLowerCase();
         if (riskLevel === 'critical') riskLevel = 'high';
         if (!['high', 'medium', 'low'].includes(riskLevel)) riskLevel = 'low';
-        
+
         return {
           risk_id: item.id.toString(),
           risk_title: item.title,
@@ -289,11 +289,11 @@ const RiskAnalysisPageV2: React.FC = () => {
         setAnalysisState(prev => ({ ...prev, status: 'failed', message: data.message }));
         message.error(data.message);
         break;
-        
+
       case 'comparison':
         setAnalysisState(prev => ({ ...prev, comparison: data.comparison }));
         break;
-        
+
       case 'diagram':
         setAnalysisState(prev => ({ ...prev, diagrams: [...(prev.diagrams || []), data.diagram] }));
         break;
@@ -310,7 +310,7 @@ const RiskAnalysisPageV2: React.FC = () => {
     const restoreSession = async () => {
       const urlSessionId = searchParams.get('session_id');
       if (!urlSessionId || isCreatingNewSession || hasRestoredOnce) return;
-      
+
       if (analysisState.sessionId === urlSessionId && ['analyzing', 'processing', 'uploading'].includes(analysisState.status)) return;
 
       try {
@@ -385,13 +385,37 @@ const RiskAnalysisPageV2: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // ========== 智能引导上下文穿透 ==========
+  // ========== 智能引导和上下文复用穿透 ==========
   useEffect(() => {
     // 从智能引导页面传递过来的参数
-    const state = location.state as { description?: string } | null;
+    const state = location.state as {
+      description?: string;
+      consultationContext?: {
+        target_module: string;
+        data: any;
+        summary: string;
+      };
+    } | null;
+
     if (state?.description) {
       setUserInput(state.description);
       message.success('已根据您的描述自动填充内容');
+    }
+
+    // 【新增】处理从咨询复用的上下文
+    if (state?.consultationContext) {
+      const { summary } = state.consultationContext;
+      console.log('[RiskAnalysis] 接收到复用上下文:', state.consultationContext);
+
+      // 填充用户输入
+      if (summary) {
+        setUserInput(prev => {
+          return prev ? `${prev}\n\n【案情摘要】\n${summary}` : `【案情摘要】\n${summary}`;
+        });
+        message.success('已自动导入咨询案情信息');
+      }
+
+      // 注意：这里不做 replaceState，因为 Risk 页面的状态管理较复杂，保留 state 可能有助于恢复
     }
   }, [location.state]);
 
@@ -695,7 +719,7 @@ const RiskAnalysisPageV2: React.FC = () => {
                     {summary.document_purpose && <Descriptions.Item label="文档目的">{summary.document_purpose}</Descriptions.Item>}
                     <Descriptions.Item label="核心内容">{summary.summary}</Descriptions.Item>
                   </Descriptions>
-                  
+
                   {/* 恢复：详细要素展示 (原版功能) */}
                   <div style={{ marginTop: 12 }}>
                     {summary.key_parties && summary.key_parties.length > 0 && <div style={{ marginBottom: 4 }}><Text type="secondary">主体：</Text><Text>{summary.key_parties.join('、')}</Text></div>}

@@ -18,9 +18,9 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.contract import ContractDoc, ContractStatus
 from app.utils.office_utils import OfficeTokenManager
-from app.services.document_preprocessor import get_preprocessor
-from app.services.document_structurer import get_structurer
-from app.services.document_renderer import get_renderer
+from app.services.common.document_preprocessor import get_preprocessor
+from app.services.common.document_structurer import get_structurer
+from app.services.common.document_renderer import get_renderer
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +166,7 @@ def convert_docx_to_pdf(docx_path: str) -> str:
         PDF 文件路径
     """
     try:
-        from app.services.converter import convert_to_pdf_via_onlyoffice
+        from app.services.common.converter import convert_to_pdf_via_onlyoffice
 
         filename = os.path.basename(docx_path)
         success, pdf_content = convert_to_pdf_via_onlyoffice(filename)

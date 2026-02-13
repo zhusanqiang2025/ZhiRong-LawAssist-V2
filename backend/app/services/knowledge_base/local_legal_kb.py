@@ -164,7 +164,8 @@ class LocalLegalKnowledgeBase(BaseKnowledgeStore):
         self,
         query: str,
         domain: str = "",
-        limit: int = 5
+        limit: int = 5,
+        user_id: Optional[int] = None
     ) -> List[KnowledgeItem]:
         """
         搜索知识

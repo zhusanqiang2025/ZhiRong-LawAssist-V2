@@ -356,11 +356,10 @@ def seed_production_data():
 
 
 if __name__ == "__main__":
-    # 配置日志
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    # 使用新的日志配置
+    from app.core.logger import setup_logging
+    setup_logging()
+    logger = logging.getLogger("legal_assistant")
 
     # 执行数据种子
     seed_production_data()

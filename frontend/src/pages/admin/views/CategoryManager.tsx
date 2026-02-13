@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
   Card, Tree, Button, Space, Tag, Modal, Form, Input, Switch,
-  message, Popconfirm, TreeSelect, Typography, Row, Col, Divider, Descriptions, Upload
+  message, Popconfirm, TreeSelect, Typography, Row, Col, Divider, Descriptions, Upload,
+  Collapse, Alert
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined,
-  FolderOutlined, FolderOpenOutlined, DownloadOutlined, UploadOutlined
+  FolderOutlined, FolderOpenOutlined, DownloadOutlined, UploadOutlined,
+  CodeOutlined, InfoCircleOutlined
 } from '@ant-design/icons';
 import { contractTemplateApi } from '../../../api/contractTemplates';
 import { systemApi } from '../../../api/system';
 import type { CategoryTreeItem } from '../../../types/contract';
 
 const { Text, Paragraph } = Typography;
+const { Panel } = Collapse;
 
 const CategoryManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -55,11 +58,23 @@ const CategoryManager: React.FC = () => {
   // 提交表单（新增/修改）
   const handleSubmit = async (values: any) => {
     try {
+      // 处理 meta_info：将 JSON 字符串转换为对象
+      const submitData = { ...values };
+      if (values.meta_info_json) {
+        try {
+          submitData.meta_info = JSON.parse(values.meta_info_json);
+        } catch (e) {
+          message.error('元数据 JSON 格式不正确');
+          return;
+        }
+      }
+      delete submitData.meta_info_json;
+
       if (editingId) {
-        await contractTemplateApi.updateCategory(editingId, values);
+        await contractTemplateApi.updateCategory(editingId, submitData);
         message.success('更新成功');
       } else {
-        await contractTemplateApi.createCategory(values);
+        await contractTemplateApi.createCategory(submitData);
         message.success('创建成功');
       }
       setModalVisible(false);
@@ -147,7 +162,11 @@ const CategoryManager: React.FC = () => {
       code: record.code,
       description: record.description,
       parent_id: record.parent_id,
-      is_active: record.is_active
+      is_active: record.is_active,
+      // 将 meta_info 对象转换为 JSON 字符串用于编辑
+      meta_info_json: record.meta_info ? JSON.stringify(record.meta_info, null, 2) : '{}',
+      // 快捷字段
+      force_rag: record.meta_info?.force_rag || false,
     });
     setModalVisible(true);
   };
@@ -158,7 +177,10 @@ const CategoryManager: React.FC = () => {
     form.resetFields();
     form.setFieldsValue({
       parent_id: parentId,
-      is_active: true
+      is_active: true,
+      // 初始化空的 meta_info JSON
+      meta_info_json: '{}',
+      force_rag: false,
     });
     setModalVisible(true);
   };
@@ -416,6 +438,56 @@ const CategoryManager: React.FC = () => {
               <Switch checkedChildren="启用" unCheckedChildren="禁用" />
             </Form.Item>
           </Space>
+
+          <Collapse style={{ marginTop: 16 }} defaultActiveKey={['meta']}>
+            <Panel header="扩展元数据 (meta_info)" key="meta" extra={<InfoCircleOutlined />}>
+              <Alert
+                message="meta_info 用于存储分类的扩展属性"
+                type="info"
+                showIcon
+                style={{ marginBottom: 16 }}
+              >
+                <div style={{ fontSize: 12 }}>
+                  <p>• <code>force_rag</code>: 是否强制使用 RAG 检索此分类下的文档</p>
+                  <p>• 可以添加其他自定义属性，以 JSON 格式存储</p>
+                </div>
+              </Alert>
+
+              <Form.Item
+                name="force_rag"
+                label="强制使用 RAG"
+                valuePropName="checked"
+                tooltip="启用后，查询此分类相关内容时会强制使用 RAG 检索"
+              >
+                <Switch checkedChildren="是" unCheckedChildren="否" />
+              </Form.Item>
+
+              <Form.Item
+                name="meta_info_json"
+                label="完整元数据 (JSON)"
+                extra="可编辑完整的 JSON 元数据，支持自定义属性"
+                rules={[
+                  {
+                    validator: (_, value) => {
+                      if (!value) return Promise.resolve();
+                      try {
+                        JSON.parse(value);
+                        return Promise.resolve();
+                      } catch (e) {
+                        return Promise.reject(new Error('JSON 格式不正确'));
+                      }
+                    }
+                  }
+                ]}
+              >
+                <Input.TextArea
+                  rows={6}
+                  placeholder='{"force_rag": false, "custom_field": "value"}'
+                  style={{ fontFamily: 'monospace', fontSize: 12 }}
+                />
+              </Form.Item>
+            </Panel>
+          </Collapse>
         </Form>
       </Modal>
     </>

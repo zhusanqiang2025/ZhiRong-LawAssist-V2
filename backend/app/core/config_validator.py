@@ -61,19 +61,19 @@ def validate_multi_model_planning_config() -> ConfigValidationResult:
     result = ConfigValidationResult()
 
     # 1. 验证必需的基础配置
-    if not settings.LANGCHAIN_API_KEY:
-        result.add_error("LANGCHAIN_API_KEY 未设置，多模型规划无法使用")
+    if not settings.QWEN3_API_KEY:
+        result.add_error("QWEN3_API_KEY 未设置，多模型规划无法使用")
 
-    if not settings.LANGCHAIN_API_BASE_URL:
-        result.add_error("LANGCHAIN_API_BASE_URL 未设置，多模型规划无法使用")
+    if not settings.QWEN3_API_BASE:
+        result.add_error("QWEN3_API_BASE 未设置，多模型规划无法使用")
 
-    if not settings.MODEL_NAME:
-        result.add_error("MODEL_NAME 未设置，多模型规划无法使用")
+    if not settings.QWEN3_MODEL:
+        result.add_warning("QWEN3_MODEL 未设置，将使用默认模型")
 
     # 2. 验证可选的模型配置
-    # Qwen3-Thinking 模型配置
-    if not settings.LANGCHAIN_API_KEY:
-        result.add_warning("Qwen3-Thinking 模型未配置（LANGCHAIN_API_KEY 缺失）")
+    # Qwen3 模型配置
+    if not settings.QWEN3_API_KEY:
+        result.add_warning("Qwen3 模型未配置（QWEN3_API_KEY 缺失）")
 
     # DeepSeek 模型配置
     if not settings.DEEPSEEK_API_KEY:
@@ -82,14 +82,14 @@ def validate_multi_model_planning_config() -> ConfigValidationResult:
         result.add_warning("DeepSeek API URL 未配置（DEEPSEEK_API_URL 缺失）")
 
     # GPT-OSS 模型配置
-    gpt_oss_configured = bool(settings.OPENAI_API_KEY and settings.OPENAI_API_BASE)
+    gpt_oss_configured = bool(settings.GPT_OSS_120B_API_KEY and settings.GPT_OSS_120B_API_URL)
     if not gpt_oss_configured:
-        result.add_warning("GPT-OSS 模型未配置（OPENAI_API_KEY 或 OPENAI_API_BASE 缺失）")
+        result.add_warning("GPT-OSS 模型未配置（GPT_OSS_120B_API_KEY 或 GPT_OSS_120B_API_URL 缺失）")
 
     # 3. 统计可用模型数量
     available_models = []
-    if settings.LANGCHAIN_API_KEY and settings.MODEL_NAME:
-        available_models.append("Qwen3-Thinking")
+    if settings.QWEN3_API_KEY and settings.QWEN3_MODEL:
+        available_models.append("Qwen3")
     if settings.DEEPSEEK_API_KEY and settings.DEEPSEEK_API_URL:
         available_models.append("DeepSeek")
     if gpt_oss_configured:
@@ -146,8 +146,8 @@ def validate_contract_generation_config() -> ConfigValidationResult:
 
     # 3. 验证必需的 API 配置
     required_apis = {
-        "LANGCHAIN_API_KEY": settings.LANGCHAIN_API_KEY,
-        "LANGCHAIN_API_BASE_URL": settings.LANGCHAIN_API_BASE_URL,
+        "QWEN3_API_KEY": settings.QWEN3_API_KEY,
+        "QWEN3_API_BASE": settings.QWEN3_API_BASE,
     }
 
     for api_name, api_value in required_apis.items():
@@ -214,7 +214,7 @@ def _extract_available_models(info_messages: List[str]) -> List[str]:
     for msg in info_messages:
         if "模型可用" in msg:
             # 提取模型名称
-            for model in ["Qwen3-Thinking", "DeepSeek", "GPT-OSS"]:
+            for model in ["Qwen3", "DeepSeek", "GPT-OSS"]:
                 if model in msg:
                     models.append(model)
     return models

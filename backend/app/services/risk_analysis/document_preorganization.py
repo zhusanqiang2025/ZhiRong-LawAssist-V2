@@ -11,7 +11,7 @@ from dataclasses import asdict
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from app.services.unified_document_service import StructuredDocumentResult
+from app.services.common.unified_document_service import StructuredDocumentResult
 from app.schemas.risk_analysis_preorganization import (
     DocumentCategory,  # 使用 Schema 中的枚举作为主数据结构
     DocumentQuality,

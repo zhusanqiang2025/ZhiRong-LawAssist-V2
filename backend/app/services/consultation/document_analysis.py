@@ -22,7 +22,7 @@ from app.services.common.document_preorganization import (
     PreorganizedDocuments,
     DocumentSummary
 )
-from app.services.unified_document_service import StructuredDocumentResult
+from app.services.common.unified_document_service import StructuredDocumentResult
 
 logger = logging.getLogger(__name__)
 

@@ -55,14 +55,14 @@ MODELS.append({
 })
 
 # Qwen3 配置（如果启用）
-qwen3_key = os.getenv("QWEN3_THINKING_API_KEY", "")
-qwen3_url = os.getenv("QWEN3_THINKING_API_URL", "")
-qwen3_enabled = os.getenv("QWEN3_THINKING_ENABLED", "false").lower() == "true"
+qwen3_key = os.getenv("QWEN3_API_KEY", "")
+qwen3_url = os.getenv("QWEN3_API_BASE", "")
+qwen3_enabled = os.getenv("QWEN3_ENABLED", "false").lower() == "true"
 
 if qwen3_enabled and qwen3_key and qwen3_url:
     MODELS.append({
         "name": "Qwen3-Worker",
-        "model": os.getenv("QWEN3_THINKING_MODEL", "Qwen3-235B-A22B-Thinking-2507"),
+        "model": os.getenv("QWEN3_MODEL", "Qwen3-235B-A22B-Thinking-2507"),
         "api_key": qwen3_key,
         "base_url": qwen3_url
     })

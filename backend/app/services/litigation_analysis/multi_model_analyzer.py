@@ -98,20 +98,20 @@ class MultiModelAnalyzer:
     def _initialize_models_pool(self) -> Dict[str, ChatOpenAI]:
         """根据环境变量初始化所有可用模型"""
         models = {}
-        
-        # 1. Qwen3-235B-Thinking (主力模型)
-        # 对应配置: QWEN3_THINKING_...
-        if getattr(settings, "QWEN3_THINKING_ENABLED", False) and settings.QWEN3_THINKING_API_KEY:
+
+        # 1. Qwen3 (主力模型)
+        # 对应配置: QWEN3_API_...
+        if getattr(settings, "QWEN3_ENABLED", False) and settings.QWEN3_API_KEY:
             try:
                 models["qwen"] = ChatOpenAI(
-                    model=settings.QWEN3_THINKING_MODEL,
-                    api_key=settings.QWEN3_THINKING_API_KEY,
-                    base_url=settings.QWEN3_THINKING_API_URL,
+                    model=settings.QWEN3_MODEL,
+                    api_key=settings.QWEN3_API_KEY,
+                    base_url=settings.QWEN3_API_BASE,
                     temperature=0.1, # 法律分析需要严谨
                     max_tokens=4000,
-                    timeout=settings.QWEN3_THINKING_TIMEOUT
+                    timeout=settings.QWEN3_TIMEOUT
                 )
-                logger.info("[Analyzer] Qwen3-235B (主力) 模型加载成功")
+                logger.info("[Analyzer] Qwen3 (主力) 模型加载成功")
             except Exception as e:
                 logger.warning(f"Qwen3 加载失败: {e}")
 

@@ -9,7 +9,7 @@ from app.database import get_db
 from app.models.contract_template import ContractTemplate
 from app.models.user import User
 from app.api.deps import get_current_user
-from app.services.embedding_service import get_text_embedding # 👈 引用新服务
+from app.services.knowledge_base.embedding_service import get_text_embedding # 👈 引用新服务
 
 logger = logging.getLogger(__name__)
 

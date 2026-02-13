@@ -13,10 +13,10 @@ from app.models.contract import ContractDoc, ContractReviewItem, ContractStatus
 from app.models.user import User
 from app.models.category import Category  # ✅ 核心增强：引入分类模型
 from app.schemas import ContractDocOut, ContractMetadataSchema
-from app.services.contract_review_service import ContractReviewService
-from app.services.langgraph_review_service import run_langgraph_review, run_langgraph_review_async
-from app.services.document_preprocessor import get_preprocessor, ConversionResult
-from app.services.converter import convert_to_pdf_via_onlyoffice
+from app.services.contract_review.contract_review_service import ContractReviewService
+from app.services.contract_review.langgraph_review_service import run_langgraph_review, run_langgraph_review_async
+from app.services.common.document_preprocessor import get_preprocessor, ConversionResult
+from app.services.common.converter import convert_to_pdf_via_onlyoffice
 from app.utils.office_utils import OfficeTokenManager
 from app.utils.onlyoffice_config import get_review_mode_config
 from app.api.deps import get_current_user
@@ -423,14 +423,14 @@ def apply_revisions(contract_id: int, request_data: ApplyRevisionRequest, db: Se
     file_ext = working_path.rsplit('.', 1)[-1].lower()
     
     if file_ext in ('pdf', 'doc'):
-        from app.services.docx_editor import DocxEditor
+        from app.services.common.docx_editor import DocxEditor
         if file_ext == 'pdf':
             success, path, _ = DocxEditor.convert_pdf_to_docx(working_path)
             if not success:
                 raise HTTPException(status_code=500, detail="PDF转换失败")
             working_path = path
         else:  # .doc
-            from app.services.converter import convert_doc_to_docx
+            from app.services.common.converter import convert_doc_to_docx
             success, filename, _ = convert_doc_to_docx(os.path.basename(working_path))
             if not success:
                 raise HTTPException(status_code=500, detail=".doc转换失败")
@@ -438,7 +438,7 @@ def apply_revisions(contract_id: int, request_data: ApplyRevisionRequest, db: Se
     
     # 应用修订
     revision_path = working_path.replace('.docx', '.revised.docx').replace('.converted.', '.')
-    from app.services.docx_editor import DocxEditor
+    from app.services.common.docx_editor import DocxEditor
     editor = DocxEditor(working_path)
     results = editor.apply_revisions([{"quote": i.quote, "suggestion": i.suggestion} for i in items])
     editor.save(revision_path)

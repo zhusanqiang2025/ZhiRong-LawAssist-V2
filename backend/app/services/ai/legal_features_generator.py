@@ -25,15 +25,15 @@ class LegalFeaturesGenerator:
     """
     AI 法律特征生成器
 
-    使用 Qwen3-235B 模型为合同类型生成专业的法律特征。
+    使用 Qwen3 模型为合同类型生成专业的法律特征。
     """
 
     def __init__(self):
         # 使用硬编码配置
-        self.api_url = settings.QWEN3_THINKING_API_URL
-        self.api_key = settings.QWEN3_THINKING_API_KEY
-        self.model_name = settings.QWEN3_THINKING_MODEL
-        self.timeout = settings.QWEN3_THINKING_TIMEOUT
+        self.api_url = settings.QWEN3_API_BASE
+        self.api_key = settings.QWEN3_API_KEY
+        self.model_name = settings.QWEN3_MODEL
+        self.timeout = settings.QWEN3_TIMEOUT
 
         if not self.api_url or not self.api_key:
             logger.warning("[LegalFeaturesGenerator] AI 模型配置缺失，无法使用 AI 功能")

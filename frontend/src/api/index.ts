@@ -218,6 +218,12 @@ interface ApiClient {
   getRiskAnalysisStatus: (sessionId: string) => Promise<AxiosResponse<any>>;
   getRiskAnalysisResult: (sessionId: string) => Promise<AxiosResponse<any>>;
 
+  // --- 知识图谱法律特征API（新增）---
+  getKnowledgeGraphContractTypes: () => Promise<AxiosResponse<any>>;
+  getKnowledgeGraphByKeywords: (query: string) => Promise<AxiosResponse<any>>;
+  getKnowledgeGraphByCategory: (category: string, subcategory?: string) => Promise<AxiosResponse<any>>;
+  getKnowledgeGraphLegalFeatures: (contractName: string) => Promise<AxiosResponse<any>>;
+
   // --- 全局搜索接口 ---
   globalSearch: (params: SearchParams) => Promise<AxiosResponse<SearchResponse>>;
 
@@ -642,6 +648,14 @@ export const consultLaw = async (data: ConsultationRequest): Promise<Consultatio
   return response.data;
 };
 
+// 更新会话状态
+export const updateConsultationSession = async (sessionId: string, updates: Record<string, any>): Promise<any> => {
+  const response = await axiosInstance.patch(`/consultation/session/${sessionId}`, {
+    updates
+  });
+  return response.data;
+};
+
 // 创建新会话
 export const createNewConsultationSession = async (): Promise<{ session_id: string; message: string }> => {
   const response = await axiosInstance.post('/consultation/new-session');
@@ -651,6 +665,19 @@ export const createNewConsultationSession = async (): Promise<{ session_id: stri
 // 重置会话
 export const resetConsultationSession = async (sessionId: string): Promise<{ message: string; session_id: string }> => {
   const response = await axiosInstance.post(`/consultation/reset-session/${sessionId}`);
+  return response.data;
+};
+
+// 【新增】用户决策 API：处理用户确认/取消操作
+export const submitConsultationDecision = async (
+  sessionId: string,
+  decision: {
+    action: 'confirm' | 'cancel';
+    selected_suggested_questions?: string[];
+    custom_question?: string;
+  }
+): Promise<any> => {
+  const response = await axiosInstance.post(`/consultation/${sessionId}/decision`, decision);
   return response.data;
 };
 

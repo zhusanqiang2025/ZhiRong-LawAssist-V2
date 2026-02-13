@@ -363,7 +363,9 @@ def optimize_database():
 
 if __name__ == "__main__":
     # 如果直接运行此脚本，则创建索引
-    logging.basicConfig(level=logging.INFO)
+    from app.core.logger import setup_logging
+    setup_logging()
+    logger = logging.getLogger("legal_assistant")
     logger.info("开始创建数据库索引...")
 
     success = create_database_indexes()

@@ -9,7 +9,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 from dotenv import load_dotenv
 
-from app.core.llm_config import get_qwen_llm, validate_llm_config
+from app.core.llm_config import get_qwen3_llm as get_qwen3_llm, validate_llm_config
 
 # 加载环境变量
 load_dotenv()
@@ -28,7 +28,7 @@ async def check_llm_status():
     """
     try:
         # 测试 LLM 初始化
-        llm = get_qwen_llm()
+        llm = get_qwen3_llm()
         validation = validate_llm_config()
 
         # 提取模型信息

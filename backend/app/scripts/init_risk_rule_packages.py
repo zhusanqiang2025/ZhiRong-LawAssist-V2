@@ -18,8 +18,10 @@ from app.models.risk_analysis import RiskRulePackage
 from datetime import datetime
 import logging
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# 使用新的日志配置
+from app.core.logger import setup_logging
+setup_logging()
+logger = logging.getLogger("legal_assistant")
 
 
 # 预设规则包数据

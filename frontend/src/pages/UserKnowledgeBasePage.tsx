@@ -27,6 +27,7 @@ import {
   Empty,
   Divider,
   Select,
+  TreeSelect,
 } from 'antd';
 import {
   DeleteOutlined,
@@ -39,10 +40,12 @@ import {
   CloseCircleOutlined,
   ArrowLeftOutlined,
   SearchOutlined,
+  FolderOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { knowledgeBaseApi } from '../api/knowledgeBase';
-import type { UploadFile } from 'antd/es/upload/interface';
+import { contractTemplateApi } from '../api/contractTemplates';
+import type { CategoryTreeItem } from '../types/contract';
 import './UserKnowledgeBasePage.css';
 
 const { Title, Text, Paragraph } = Typography;
@@ -57,6 +60,8 @@ interface UserKbDocument {
   title: string;
   content: string;
   category?: string;
+  category_id?: number;
+  category_name_cache?: string;
   tags?: string[];
   source_type: string;
   status: string;
@@ -123,7 +128,19 @@ const UserKnowledgeBasePage: React.FC = () => {
     public: 0,
   });
 
+  // 分类树数据
+  const [categoryTree, setCategoryTree] = useState<CategoryTreeItem[]>([]);
+
   // ==================== 数据加载 ====================
+
+  const fetchCategories = async () => {
+    try {
+      const data = await contractTemplateApi.getCategoryTree(true);
+      setCategoryTree(data);
+    } catch (error: any) {
+      console.error('加载分类失败:', error);
+    }
+  };
 
   const fetchDocuments = async (page = 1, pageSize = 10) => {
     setLoading(true);
@@ -158,6 +175,7 @@ const UserKnowledgeBasePage: React.FC = () => {
 
   useEffect(() => {
     fetchDocuments();
+    fetchCategories();
   }, [searchQuery]);
 
   // ==================== 上传流程 ====================
@@ -317,8 +335,8 @@ const UserKnowledgeBasePage: React.FC = () => {
         formData.append('title', values.title);
       }
       // 不再发送 content，由后端 DocumentPreprocessor 处理
-      if (values.category) {
-        formData.append('category', values.category);
+      if (values.category_id) {
+        formData.append('category_id', values.category_id.toString());
       }
       if (values.tags) {
         formData.append('tags', JSON.stringify(values.tags));
@@ -345,7 +363,7 @@ const UserKnowledgeBasePage: React.FC = () => {
     editForm.setFieldsValue({
       title: record.title,
       content: record.content,
-      category: record.category,
+      category_id: record.category_id,
       tags: record.tags,
       is_public: record.is_public,
     });
@@ -361,7 +379,7 @@ const UserKnowledgeBasePage: React.FC = () => {
       await knowledgeBaseApi.updateUserDocument(editingDocument.id.toString(), {
         title: values.title,
         content: values.content,
-        category: values.category,
+        category_id: values.category_id,
         tags: values.tags,
         is_public: values.is_public,
       });
@@ -386,6 +404,19 @@ const UserKnowledgeBasePage: React.FC = () => {
 
   // ==================== 表格列定义 ====================
 
+  // 转换分类树为 TreeSelect 数据格式
+  const convertCategoryTreeToTreeSelect = (categories: CategoryTreeItem[]): any[] => {
+    return categories.map(cat => ({
+      title: cat.name,
+      value: cat.id,
+      key: cat.id,
+      children: cat.children && cat.children.length > 0
+        ? convertCategoryTreeToTreeSelect(cat.children)
+        : undefined,
+      icon: <FolderOutlined />,
+    }));
+  };
+
   const columns = [
     {
       title: '标题',
@@ -403,10 +434,13 @@ const UserKnowledgeBasePage: React.FC = () => {
     },
     {
       title: '分类',
-      dataIndex: 'category',
-      key: 'category',
-      width: 120,
-      render: (category: string) => (category ? <Tag color="blue">{category}</Tag> : '-'),
+      dataIndex: 'category_id',
+      key: 'category_id',
+      width: 150,
+      render: (_: any, record: UserKbDocument) => {
+        const categoryName = record.category_name_cache || record.category;
+        return categoryName ? <Tag color="blue">{categoryName}</Tag> : '-';
+      },
     },
     {
       title: '标签',
@@ -678,16 +712,15 @@ const UserKnowledgeBasePage: React.FC = () => {
                   <Input placeholder="请输入文档标题" />
                 </Form.Item>
 
-                <Form.Item name="category" label="分类">
-                  <Select placeholder="选择分类" allowClear>
-                    <Option value="民法">民法</Option>
-                    <Option value="合同法">合同法</Option>
-                    <Option value="公司法">公司法</Option>
-                    <Option value="劳动法">劳动法</Option>
-                    <Option value="刑法">刑法</Option>
-                    <Option value="行政法">行政法</Option>
-                    <Option value="其他">其他</Option>
-                  </Select>
+                <Form.Item name="category_id" label="文档分类">
+                  <TreeSelect
+                    placeholder="选择文档所属分类"
+                    allowClear
+                    showSearch
+                    treeDefaultExpandAll
+                    treeNodeFilterProp="title"
+                    treeData={convertCategoryTreeToTreeSelect(categoryTree)}
+                  />
                 </Form.Item>
 
                 <Form.Item name="tags" label="标签">
@@ -738,16 +771,15 @@ const UserKnowledgeBasePage: React.FC = () => {
             <TextArea rows={10} placeholder="请输入文档内容" />
           </Form.Item>
 
-          <Form.Item name="category" label="分类">
-            <Select placeholder="选择分类" allowClear>
-              <Option value="民法">民法</Option>
-              <Option value="合同法">合同法</Option>
-              <Option value="公司法">公司法</Option>
-              <Option value="劳动法">劳动法</Option>
-              <Option value="刑法">刑法</Option>
-              <Option value="行政法">行政法</Option>
-              <Option value="其他">其他</Option>
-            </Select>
+          <Form.Item name="category_id" label="文档分类">
+            <TreeSelect
+              placeholder="选择文档所属分类"
+              allowClear
+              showSearch
+              treeDefaultExpandAll
+              treeNodeFilterProp="title"
+              treeData={convertCategoryTreeToTreeSelect(categoryTree)}
+            />
           </Form.Item>
 
           <Form.Item name="tags" label="标签">

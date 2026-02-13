@@ -176,13 +176,39 @@ const DocumentDraftingPage: React.FC = () => {
   }, [currentStep, selectedType, userInput, generatedContent]);
   // ========== 会话持久化结束 ==========
 
-  // ========== 智能引导上下文穿透 ==========
+  // ========== 智能引导和上下文复用穿透 ==========
   useEffect(() => {
     // 从智能引导页面传递过来的参数
-    const state = location.state as { requirement?: string } | null;
+    const state = location.state as {
+      requirement?: string;
+      consultationContext?: {
+        target_module: string;
+        data: any;
+        summary: string;
+      };
+    } | null;
+
     if (state?.requirement) {
       setUserInput(state.requirement);
       message.success('已根据您的需求自动填充内容');
+    }
+
+    // 【新增】处理从咨询复用的上下文
+    if (state?.consultationContext) {
+      const { summary } = state.consultationContext;
+      console.log('[DocumentDrafting] 接收到复用上下文:', state.consultationContext);
+
+      // 填充用户输入
+      if (summary) {
+        setUserInput(prev => {
+          return prev ? `${prev}\n\n【案情摘要】\n${summary}` : `【案情摘要】\n${summary}`;
+        });
+        message.success('已自动导入咨询案情信息');
+        // 可选：如果 consultationContext.data 中包含 doctype，也可以在这里自动 setSelectedType
+        // if (state.consultationContext.data?.document_type) {
+        //   setSelectedType(state.consultationContext.data.document_type);
+        // }
+      }
     }
   }, [location.state]);
 

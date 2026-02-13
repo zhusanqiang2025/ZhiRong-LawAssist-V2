@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 from app.api.v1.endpoints import auth, contract_templates, admin, categories, tasks, smart_chat, rag_management
 from app.api.v1.endpoints import contract_knowledge_graph_db, risk_analysis
 from app.api.v1.endpoints import litigation_analysis, document_drafting, search
-from app.api.v1.endpoints import knowledge_base, consultation_history, health, system
+from app.api.v1.endpoints import knowledge_base, consultation_history, health, system, consultation_context
 
 # ==================== 飞书集成条件导入 ====================
 # 飞书集成模块导入可能导致事件循环冲突，需要特殊处理
@@ -103,6 +103,9 @@ api_router.include_router(knowledge_base.router, prefix="/knowledge-base", tags=
 
 # 对话历史管理 API
 api_router.include_router(consultation_history.router, tags=["Consultation History"])
+
+# 咨询上下文提取 API
+api_router.include_router(consultation_context.router, prefix="/consultation/context", tags=["Consultation Context"])
 
 # 健康检查 API
 api_router.include_router(health.router, prefix="/health", tags=["Health"])

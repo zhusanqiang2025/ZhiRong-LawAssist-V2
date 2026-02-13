@@ -107,26 +107,23 @@ class MultiModelAnalyzer:
         except Exception:
             pass
 
-        # 3. Qwen3-235B-Thinking - 深度分析师
-        if settings.LANGCHAIN_API_KEY:
-            models["qwen3_235b"] = ChatOpenAI(
-                model=settings.MODEL_NAME or "Qwen3-235B-A22B-Thinking-2507",
-                api_key=settings.LANGCHAIN_API_KEY,
-                base_url=settings.LANGCHAIN_API_BASE_URL,
-                max_tokens=16000,
-                **common_kwargs
-            )
-            logger.info("[MultiModelAnalyzer] Qwen3-235B 初始化成功")
+        # 3. Qwen3 - 深度分析师
+        try:
+            from app.core.llm_config import get_qwen3_llm
+            models["qwen3"] = get_qwen3_llm()
+            logger.info("[MultiModelAnalyzer] Qwen3 初始化成功")
+        except Exception as e:
+            logger.warning(f"[MultiModelAnalyzer] Qwen3 初始化失败: {e}")
 
         return models
 
     def _get_synthesis_model(self) -> Optional[ChatOpenAI]:
         try:
-            from app.core.llm_config import get_qwen3_thinking_llm
-            return get_qwen3_thinking_llm()
+            from app.core.llm_config import get_qwen3_llm
+            return get_qwen3_llm()
         except Exception:
-            # 降级使用 qwen3_235b
-            return self.models.get("qwen3_235b")
+            # 降级使用 qwen3
+            return self.models.get("qwen3")
 
     def _build_system_prompt_for_model(self, model_name: str, enhanced_data: Optional[Dict]) -> str:
         """
@@ -140,7 +137,7 @@ class MultiModelAnalyzer:
         base_prompts = {
             "deepseek": "你是'规则执行者'，专注于严格按照给定的法律规则进行条款扫描。宁可错杀，不可漏过。",
             "gpt_oss": "你是'结构分析专家'，专注于评估交易架构的逻辑性、完整性以及条款间的制衡关系。",
-            "qwen3_235b": "你是'深度分析师'，擅长通过多步推理发现隐蔽的法律陷阱和商业风险。"
+            "qwen3": "你是'深度分析师'，擅长通过多步推理发现隐蔽的法律陷阱和商业风险。"
         }
         base = base_prompts.get(model_name, base_prompts["deepseek"])
 
@@ -190,7 +187,7 @@ class MultiModelAnalyzer:
                 target_models = {selected_model: self.models[selected_model]}
             else:
                 # 默认降级：优先 Qwen，其次 DeepSeek
-                default_model = "qwen3_235b" if "qwen3_235b" in self.models else "deepseek"
+                default_model = "qwen3" if "qwen3" in self.models else "deepseek"
                 if default_model in self.models:
                     target_models = {default_model: self.models[default_model]}
                     logger.info(f"[MultiModelAnalyzer] 单模型模式未指定或指定错误，降级使用: {default_model}")

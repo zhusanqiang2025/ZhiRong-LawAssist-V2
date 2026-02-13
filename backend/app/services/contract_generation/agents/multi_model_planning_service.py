@@ -629,7 +629,7 @@ def get_multi_model_planning_service() -> Optional[MultiModelPlanningService]:
 
     if _multi_model_planning_instance is None:
         from app.core.llm_config import (
-            get_qwen3_thinking_llm,
+            get_qwen3_llm,
             get_deepseek_llm,
             get_gpt_oss_llm,
             validate_llm_config
@@ -644,7 +644,7 @@ def get_multi_model_planning_service() -> Optional[MultiModelPlanningService]:
             return None
 
         try:
-            qwen3_llm = get_qwen3_thinking_llm() if config.get("qwen3_thinking") else None
+            qwen3_llm = get_qwen3_llm() if config.get("qwen3_thinking") else None
             deepseek_llm = get_deepseek_llm() if config.get("deepseek") else None
             gpt_oss_llm = get_gpt_oss_llm() if config.get("gpt_oss") else None
 

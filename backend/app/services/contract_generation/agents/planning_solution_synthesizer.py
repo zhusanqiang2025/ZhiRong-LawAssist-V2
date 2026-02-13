@@ -479,7 +479,7 @@ def get_solution_synthesizer(llm: Optional[ChatOpenAI] = None) -> PlanningSoluti
     if _synthesizer_instance is None:
         if llm is None:
             # 默认使用 Qwen3-Thinking 作为综合分析模型
-            from app.core.llm_config import get_qwen3_thinking_llm
-            llm = get_qwen3_thinking_llm()
+            from app.core.llm_config import get_qwen3_llm
+            llm = get_qwen3_llm()
         _synthesizer_instance = PlanningSolutionSynthesizer(llm)
     return _synthesizer_instance

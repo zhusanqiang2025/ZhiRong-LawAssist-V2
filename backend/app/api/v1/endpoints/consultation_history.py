@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import logging
 
-from app.services.consultation_history_service import consultation_history_service
+from app.services.consultation.history_service import consultation_history_service
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/consultation/history", tags=["对话历史"])

@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.services.document_preprocessor import (
+from app.services.common.document_preprocessor import (
     DocumentPreprocessor,
     get_preprocessor,
     ConversionResult,
@@ -293,7 +293,7 @@ async def get_preprocessor_stats():
 
     返回支持的功能、格式统计等
     """
-    from app.services.document_preprocessor import get_preprocessor
+    from app.services.common.document_preprocessor import get_preprocessor
 
     preprocessor = get_preprocessor()
 
@@ -357,7 +357,7 @@ async def get_ai_status():
 
     检查 AI 服务是否可用及配置情况
     """
-    from app.services.document_preprocessor import get_preprocessor
+    from app.services.common.document_preprocessor import get_preprocessor
     from app.services.ai_document_helper import get_ai_helper
 
     preprocessor = get_preprocessor()
@@ -383,7 +383,7 @@ async def toggle_ai_feature(enabled: bool = Query(..., description="是否启用
 
     无需重启服务即可切换 AI 功能
     """
-    from app.services.document_preprocessor import get_preprocessor
+    from app.services.common.document_preprocessor import get_preprocessor
 
     preprocessor = get_preprocessor()
     preprocessor.ENABLE_AI_POSTPROCESSING = enabled
@@ -407,7 +407,7 @@ async def convert_document_async(
 
     使用异步处理模式，避免阻塞 API
     """
-    from app.services.unified_document_service import get_unified_document_service
+    from app.services.common.unified_document_service import get_unified_document_service
 
     UPLOAD_DIR = "storage/uploads"
     os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -450,7 +450,7 @@ async def convert_structured(
 
     返回包含段落、表格、标题、签名等结构化信息的处理结果
     """
-    from app.services.unified_document_service import get_unified_document_service
+    from app.services.common.unified_document_service import get_unified_document_service
 
     UPLOAD_DIR = "storage/uploads"
     os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -501,7 +501,7 @@ async def batch_convert_async(
 
     使用异步并发处理多个文档，提高处理效率
     """
-    from app.services.unified_document_service import get_unified_document_service
+    from app.services.common.unified_document_service import get_unified_document_service
 
     UPLOAD_DIR = "storage/uploads"
     os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -558,7 +558,7 @@ async def get_file_hash_info(filename: str):
 
     用于缓存验证，返回文件的唯一哈希标识
     """
-    from app.services.unified_document_service import get_unified_document_service
+    from app.services.common.unified_document_service import get_unified_document_service
 
     UPLOAD_DIR = "storage/uploads"
     file_path = os.path.join(UPLOAD_DIR, filename)

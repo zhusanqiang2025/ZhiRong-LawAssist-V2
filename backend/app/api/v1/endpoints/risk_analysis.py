@@ -36,15 +36,15 @@ from app.schemas.risk_analysis_diagram import (
     DiagramLLMGenerateRequest
 )
 from app.core.config import settings
-from app.services.unified_document_service import get_unified_document_service
+from app.services.common.unified_document_service import get_unified_document_service
 from app.services.risk_analysis import (
     get_document_preorganization_service,
     get_diagram_generator_service,
     get_risk_rule_assembler
 )
 from app.services.risk_analysis.workflow import run_risk_analysis_workflow
-from app.services.preorganization_report_generator import get_preorganization_report_generator
-from app.services.risk_analysis_report_generator import get_risk_analysis_report_generator
+from app.services.risk_analysis.preorganization_report_generator import get_preorganization_report_generator
+from app.services.risk_analysis.risk_analysis_report_generator import get_risk_analysis_report_generator
 from langchain_openai import ChatOpenAI
 
 router = APIRouter()
@@ -837,13 +837,9 @@ async def preorganize_documents(
                 message="文档处理全部失败"
             )
 
-        # 创建 LLM 实例
-        llm = ChatOpenAI(
-            model=settings.MODEL_NAME or "Qwen3-235B-A22B-Thinking-2507",
-            api_key=settings.LANGCHAIN_API_KEY,
-            base_url=settings.LANGCHAIN_API_BASE_URL,
-            temperature=0
-        )
+        # 使用统一的 LLM 配置
+        from app.core.llm_config import get_qwen3_llm
+        llm = get_qwen3_llm()
 
         # 预整理
         preorg_service = get_document_preorganization_service(llm)
@@ -895,13 +891,9 @@ async def generate_diagram_from_text(
     LLM 自动提取图表数据，然后生成图表
     """
     try:
-        # 创建 LLM 实例
-        llm = ChatOpenAI(
-            model=settings.MODEL_NAME or "Qwen3-235B-A22B-Thinking-2507",
-            api_key=settings.LANGCHAIN_API_KEY,
-            base_url=settings.LANGCHAIN_API_BASE_URL,
-            temperature=0
-        )
+        # 使用统一的 LLM 配置
+        from app.core.llm_config import get_qwen3_llm
+        llm = get_qwen3_llm()
 
         # 使用 LLM 提取图表数据
         from langchain_core.messages import SystemMessage, HumanMessage

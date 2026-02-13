@@ -17,12 +17,10 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.services.unified_document_service import get_unified_document_service
+from app.services.common.unified_document_service import get_unified_document_service
 
 # 导入费用计算模块
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from cost_calculation import calculate_litigation_costs
+from app.services.cost_calculation import calculate_litigation_costs, calculate_lawyer_fee, CostItem as CalcCostItem
 
 logger = logging.getLogger(__name__)
 
@@ -398,8 +396,8 @@ async def _extract_case_info_with_ai(content: str) -> CaseInfo:
     http_client = httpx.Client(verify=False, trust_env=False)
 
     # 使用 Qwen3 Thinking 模型（硬编码配置）
-    from app.core.llm_config import get_qwen_llm
-    llm = get_qwen_llm()
+    from app.core.llm_config import get_qwen3_llm as get_qwen3_llm
+    llm = get_qwen3_llm()
     if not llm:
         raise HTTPException(status_code=500, detail="LLM 初始化失败")
     # 使用自定义 http_client
@@ -506,12 +504,6 @@ def _recalculate_lawyer_fee(
         fee_rate: 律师费率（百分比）
         case_amount: 标的额
     """
-    # 导入 cost_calculation 模块的 CostItem（避免与路由模型的 CostItem 冲突）
-    import sys
-    import os
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    from cost_calculation import CostItem as CalcCostItem, calculate_lawyer_fee
-
     # 移除原有的律师费
     new_breakdown = [
         item for item in original_result.cost_breakdown

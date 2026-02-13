@@ -20,12 +20,10 @@ import json
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# 配置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# 使用新的日志配置
+from app.core.logger import setup_logging
+setup_logging()
+logger = logging.getLogger("legal_assistant")
 
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine

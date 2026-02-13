@@ -47,13 +47,13 @@ _executor = ThreadPoolExecutor(max_workers=4)
 
 def _get_llm():
     """获取 LLM 实例（使用硬编码配置）"""
-    from app.core.llm_config import get_qwen_llm
+    from app.core.llm_config import get_qwen3_llm
 
-    llm = get_qwen_llm()
+    llm = get_qwen3_llm()
     if not llm:
         logger.error("[_get_llm] LLM 初始化失败！请检查 API Key 配置")
         # 【修复】抛出异常而不是返回 None，以便快速发现问题
-        raise ValueError("LLM 初始化失败：API Key 未配置或无效。请检查 QWEN3_THINKING_API_KEY 环境变量。")
+        raise ValueError("LLM 初始化失败：API Key 未配置或无效。请检查 QWEN3_API_KEY 环境变量。")
 
     return llm
 
@@ -142,7 +142,7 @@ async def process_user_input(state: ContractGenerationState) -> ContractGenerati
     # 【✨ 优化】异步并发提取文档逻辑，防止阻塞 Event Loop
     if uploaded_files:
         try:
-            from app.services.unified_document_service import get_unified_document_service
+            from app.services.common.unified_document_service import get_unified_document_service
             doc_service = get_unified_document_service()
             
             extracted_texts = []

@@ -19,6 +19,7 @@ from app.api.deps import get_current_user, get_db
 from app.database import SessionLocal
 from app.models.user import User
 from app.models.knowledge_base import KnowledgeBaseConfig, UserModulePreference, KnowledgeDocument
+from app.models.category import Category
 from app.services.knowledge_base import (
     get_unified_kb_service,
     UnifiedKnowledgeService,
@@ -533,6 +534,8 @@ async def get_user_documents(
             "title": doc.title,
             "content": doc.content,
             "category": doc.category,
+            "category_id": doc.category_id,
+            "category_name_cache": doc.category_name_cache,
             "tags": doc.tags,
             "source_type": doc.source_type,
             "status": doc.status,
@@ -560,6 +563,7 @@ async def upload_user_document(
     title: Optional[str] = Form(None),
     content: Optional[str] = Form(None),
     category: Optional[str] = Form(None),
+    category_id: Optional[int] = Form(None),
     tags: Optional[str] = Form(None),
     is_public: Optional[bool] = Form(False),
     current_user: User = Depends(get_current_user),
@@ -598,7 +602,7 @@ async def upload_user_document(
             logger.info(f"[知识库API] 文件已保存到临时路径: {temp_file_path}, 大小: {len(file_bytes)} bytes")
 
             # 使用 DocumentPreprocessor 提取文本
-            from app.services.document_preprocessor import get_preprocessor
+            from app.services.common.document_preprocessor import get_preprocessor
 
             preprocessor = get_preprocessor()
 
@@ -659,6 +663,17 @@ async def upload_user_document(
     # 生成唯一文档 ID
     doc_id = f"user_{current_user.id}_{uuid.uuid4().hex[:12]}"
 
+    # 处理分类关联
+    category_name_cache = None
+    if category_id:
+        # 根据 category_id 查找分类名称
+        category_obj = db.query(Category).filter(Category.id == category_id).first()
+        if category_obj:
+            category_name_cache = category_obj.name
+        else:
+            # 如果分类不存在，忽略 category_id
+            category_id = None
+
     # 准备 extra_data，包含处理元数据
     extra_data = {
         "original_filename": file.filename if file else None,
@@ -674,6 +689,8 @@ async def upload_user_document(
         title=doc_title,
         content=file_text,
         category=category,
+        category_id=category_id,
+        category_name_cache=category_name_cache,
         tags=doc_tags,
         source_type="upload",
         source_id=file.filename if file else None,
@@ -736,6 +753,21 @@ async def update_user_document(
         document.content = request["content"]
     if "category" in request:
         document.category = request["category"]
+    if "category_id" in request:
+        # 更新 category_id 和 category_name_cache
+        category_id = request["category_id"]
+        if category_id is not None:
+            category_obj = db.query(Category).filter(Category.id == category_id).first()
+            if category_obj:
+                document.category_id = category_id
+                document.category_name_cache = category_obj.name
+            else:
+                # 如果分类不存在，清除关联
+                document.category_id = None
+                document.category_name_cache = None
+        else:
+            document.category_id = None
+            document.category_name_cache = None
     if "tags" in request:
         document.tags = request["tags"]
     if "is_public" in request:
@@ -830,6 +862,8 @@ async def get_user_document_detail(
             "title": document.title,
             "content": document.content,
             "category": document.category,
+            "category_id": document.category_id,
+            "category_name_cache": document.category_name_cache,
             "tags": document.tags,
             "source_type": document.source_type,
             "status": document.status,

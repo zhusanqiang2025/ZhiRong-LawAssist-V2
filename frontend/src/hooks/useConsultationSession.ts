@@ -268,24 +268,68 @@ export function useConsultationSession() {
   }, [historySessions.length, loadHistorySessions]);
 
   /**
+   * 验证会话是否仍然有效
+   */
+  const validateSession = useCallback(async (sessionId: string) => {
+    try {
+      const response = await api.get(`/consultation/session/${sessionId}/validate`);
+      return response.data?.valid || false;
+    } catch (error) {
+      console.error('[会话管理] 验证会话失败:', error);
+      return false;
+    }
+  }, []);
+
+  /**
    * 初始化：检查是否有现有会话
    */
   const initializeSession = useCallback(async () => {
     const savedSessionId = sessionStorage.getItem('consultation_session_id');
 
     if (savedSessionId) {
-      // 有session_id，设置为当前会话（但不加载消息，让用户自己选择）
-      setCurrentSession({
-        sessionId: savedSessionId,
-        title: '继续对话',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        messageCount: 0,
-        messages: [],
-        status: 'active'
-      });
+      // 【新增】验证会话是否仍然有效
+      const isValid = await validateSession(savedSessionId);
 
-      console.log('[会话管理] 检测到现有会话:', savedSessionId);
+      if (isValid) {
+        // 检查会话状态，如果已完成则提示用户
+        try {
+          const response = await api.get(`/consultation/session/${savedSessionId}/validate`);
+          const sessionState = response.data;
+
+          if (sessionState?.status === 'completed' || sessionState?.is_in_specialist_mode) {
+            // 【新增】用户友好提示
+            const confirmNew = window.confirm('检测到上一个已完成的咨询，是否开启新对话？');
+            if (confirmNew) {
+              sessionStorage.removeItem('consultation_session_id');
+              await createNewSession();
+              return;
+            }
+          }
+
+          // 会话有效，设置为当前会话
+          setCurrentSession({
+            sessionId: savedSessionId,
+            title: '继续对话',
+            createdAt: new Date().toISOString(),
+            updatedAt: sessionState?.updated_at || new Date().toISOString(),
+            messageCount: 0,
+            messages: [],
+            status: sessionState?.status || 'active',
+            specialistType: sessionState?.specialist_type
+          });
+
+          console.log('[会话管理] 检测到现有会话:', savedSessionId);
+        } catch (error) {
+          console.error('[会话管理] 获取会话状态失败:', error);
+          // 失败则创建新会话
+          sessionStorage.removeItem('consultation_session_id');
+          await createNewSession();
+        }
+      } else {
+        // 会话无效，创建新会话
+        sessionStorage.removeItem('consultation_session_id');
+        await createNewSession();
+      }
     } else {
       // 无session_id，创建新会话
       await createNewSession();
@@ -293,7 +337,7 @@ export function useConsultationSession() {
 
     // 加载历史列表
     await loadHistorySessions();
-  }, [createNewSession, loadHistorySessions]);
+  }, [createNewSession, loadHistorySessions, validateSession]);
 
   return {
     // 状态

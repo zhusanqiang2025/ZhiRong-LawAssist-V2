@@ -49,9 +49,9 @@ class TwoStageContractDrafter:
             filling_llm: 内容填充模型（默认：DeepSeek-R1-0528）
         """
         # 这里的 import 放在内部是为了避免循环导入，假设您有相应的配置模块
-        from app.core.llm_config import get_qwen3_thinking_llm, get_deepseek_llm
+        from app.core.llm_config import get_qwen3_llm, get_deepseek_llm
 
-        self.framework_llm = framework_llm or get_qwen3_thinking_llm()
+        self.framework_llm = framework_llm or get_qwen3_llm()
         self.filling_llm = filling_llm or get_deepseek_llm()
 
         self.framework_system_prompt = self._build_framework_system_prompt()

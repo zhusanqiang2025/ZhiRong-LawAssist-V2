@@ -1,12 +1,12 @@
 // frontend/src/pages/LegalConsultationPage.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Input, Layout, message, Typography, Card, Space, Avatar, Divider, Tag, Alert, Checkbox, Tooltip, List } from 'antd';
+import { Button, Input, Layout, message, Typography, Card, Space, Avatar, Divider, Tag, Checkbox, Tooltip, List } from 'antd';
 import { 
-  SendOutlined, UserOutlined, CrownOutlined, BankOutlined, SecurityScanOutlined, 
-  CheckCircleOutlined, CloseCircleOutlined, PaperClipOutlined, DeleteOutlined, 
-  BookOutlined, FileOutlined, PlusCircleOutlined, AppstoreOutlined, SafetyOutlined, 
+  SendOutlined, UserOutlined, CrownOutlined, BankOutlined, 
+  CheckCircleOutlined, PaperClipOutlined, 
+  AppstoreOutlined, SafetyOutlined, 
   FileProtectOutlined, DiffOutlined, EditOutlined, FileTextOutlined, CalculatorOutlined,
-  HistoryOutlined, RobotOutlined, ClearOutlined
+  HistoryOutlined, RobotOutlined, ClearOutlined, FileOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -15,7 +15,6 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import EnhancedModuleNavBar from '../components/ModuleNavBar/EnhancedModuleNavBar';
 import ModuleKnowledgeToggle from '../components/ModuleKnowledgeToggle';
 import ConsultationHistorySidebar from '../components/ConsultationHistorySidebar';
-import SessionHistoryButton from '../components/SessionHistoryButton';
 import { useConsultationSession } from '../hooks/useConsultationSession';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -27,7 +26,7 @@ const { Title, Text, Paragraph } = Typography;
 
 // ================= 类型定义 =================
 
-interface ActionButton {
+export interface ActionButton {
   id?: string;
   title?: string;
   text?: string;
@@ -39,7 +38,7 @@ interface ActionButton {
   description?: string;
 }
 
-interface UploadedFile {
+export interface UploadedFile {
   file_id: string;
   filename: string;
   file_type: string;
@@ -47,7 +46,7 @@ interface UploadedFile {
   status: 'uploading' | 'done' | 'error';
 }
 
-interface Message {
+export interface Message {
   id: string;
   content: string;
   role: 'user' | 'assistant' | 'assistant_specialist';
@@ -60,16 +59,27 @@ interface Message {
   onReject?: () => void;
   suggestedQuestions?: string[];
   directQuestions?: string[];
-}
-
-interface ExpertProfile {
-  name: string;
-  title: string;
-  experience: string;
-  specializations: string[];
-  cases: number;
-  success_rate: string;
-  avatar: string;
+  // 【新增】专家信息字段
+  persona_definition?: {
+    role_title?: string;
+    professional_background?: string;
+    years_of_experience?: string;
+    expertise_area?: string;
+    approach_style?: string;
+  };
+  strategic_focus?: {
+    analysis_angle?: string;
+    key_points?: string[];
+    risk_alerts?: string[];
+    attention_matters?: string[];
+  };
+  specialist_role?: string;
+  primary_type?: string;
+  // 【关键】专家分析相关字段 - 用于前端渲染
+  analysis?: string;
+  advice?: string;
+  actionSteps?: string[];
+  riskWarning?: string;
 }
 
 // ================= 主组件 =================
@@ -83,12 +93,10 @@ const LegalConsultationPage: React.FC = () => {
   // 会话管理 Hook
   const {
     currentSession,
-    historySessions,
     isHistorySidebarOpen,
     createNewSession,
     continueSession,
     saveCurrentSession,
-    deleteSession,
     toggleHistorySidebar,
     initializeSession,
   } = useConsultationSession();
@@ -120,6 +128,9 @@ const LegalConsultationPage: React.FC = () => {
     isInSpecialistMode: boolean;
   } | null>(null);
 
+  // 用于轮询异步任务的定时器ID
+  const pollingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -132,6 +143,15 @@ const LegalConsultationPage: React.FC = () => {
   const uploadedFilesRef = useRef<UploadedFile[]>([]);
 
   // ================= 副作用处理 =================
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (pollingTimerRef.current) {
+        clearInterval(pollingTimerRef.current);
+      }
+    };
+  }, []);
 
   // 初始化会话
   useEffect(() => {
@@ -161,10 +181,8 @@ const LegalConsultationPage: React.FC = () => {
     if (state?.initial_input) {
       setInputValue(state.initial_input);
       setConsultationStarted(true);
-      // 延迟自动发送，提升体验
       setTimeout(() => handleSendMessage(state.initial_input), 500);
       message.success('已自动带入您的咨询需求');
-      // 清除 state 防止刷新重复触发 (React Router 默认保留 state)
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -188,17 +206,13 @@ const LegalConsultationPage: React.FC = () => {
     }
   }, []);
 
-  // 【修复闭包陷阱】同步 Ref 与 State：保持 selectedQuestionsRef 始终最新
+  // 同步 Refs
   useEffect(() => {
     selectedQuestionsRef.current = selectedSuggestedQuestions;
   }, [selectedSuggestedQuestions]);
-
-  // 【修复闭包陷阱】同步 Ref 与 State：保持 customQuestionsRef 始终最新
   useEffect(() => {
     customQuestionsRef.current = customQuestions;
   }, [customQuestions]);
-
-  // 【修复闭包陷阱】同步 Ref 与 State：保持 uploadedFilesRef 始终最新
   useEffect(() => {
     uploadedFilesRef.current = uploadedFiles;
   }, [uploadedFiles]);
@@ -230,21 +244,20 @@ const LegalConsultationPage: React.FC = () => {
 
   // 开启新会话
   const handleNewChat = async () => {
-    if (messages.length > 1) { // 只有欢迎语时不保存
+    if (messages.length > 1) { 
       await saveCurrentSession(messages);
     }
-    setMessages([]); // 这里会触发 useEffect 重新加载欢迎语
+    setMessages([]); 
     setConsultationStarted(false);
     setCurrentExpertType('assistant');
     setUploadedFiles([]);
     setSelectedSuggestedQuestions({});
     setCustomQuestions({});
     setConsultationSession(null);
-    setDynamicSpecialistInfo({}); // 清空动态专家信息
+    setDynamicSpecialistInfo({}); 
     sessionStorage.removeItem('consultation_session_id');
     setCurrentSessionId(null);
 
-    // 【关键】调用后端 API 重置会话
     if (currentSession?.sessionId) {
       try {
         await resetConsultationSession(currentSession.sessionId);
@@ -271,24 +284,245 @@ const LegalConsultationPage: React.FC = () => {
     setCustomQuestions({});
     setUploadedFiles([]);
     
-    // 更新当前 Session ID
     sessionStorage.setItem('consultation_session_id', sessionId);
     setCurrentSessionId(sessionId);
     
     message.success('历史记录已加载');
   };
 
-  // 发送消息核心逻辑
+  // 轮询获取任务状态 - 【本次修复核心】
+  const pollTaskStatus = async (sessionId: string, options?: { excludeConfirmationId?: string; skipInitialMessage?: boolean }) => {
+    const { excludeConfirmationId, skipInitialMessage = false } = options || {};
+
+    if (pollingTimerRef.current) {
+      clearInterval(pollingTimerRef.current);
+    }
+
+    // 【修复】如果已经在轮询中，避免重复轮询
+    if (isTyping) {
+      console.log('[DEBUG] 已在处理中，跳过重复轮询');
+      return;
+    }
+
+    setIsTyping(true);
+
+    // 【修复】只有在不跳过初始消息时才添加"正在处理"消息
+    if (!skipInitialMessage) {
+      const processingMessage: Message = {
+        id: `processing-${Date.now()}`,
+        content: '正在处理您的咨询请求，请稍候...',
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, processingMessage]);
+    }
+
+    pollingTimerRef.current = setInterval(async () => {
+      try {
+        const response = await api.get(`/consultation/task-status/${sessionId}`);
+
+        if (response.data.status === 'completed' || response.data.status === 'waiting_confirmation') {
+          if (pollingTimerRef.current) {
+            clearInterval(pollingTimerRef.current);
+            pollingTimerRef.current = null;
+          }
+
+          setIsTyping(false);
+          // 移除处理中消息
+          setMessages(prev => prev.filter(m => !m.content.includes('正在处理您的咨询请求')));
+
+          if (response.data.status === 'waiting_confirmation') {
+            // 【修复】检查是否已存在确认卡片（排除正在被处理的确认卡片）
+            setMessages(prev => {
+              const hasExistingConfirmation = prev.some(m =>
+                m.isConfirmation &&
+                m.id !== excludeConfirmationId
+              );
+              if (hasExistingConfirmation) {
+                console.log('[DEBUG] 已存在确认卡片，跳过重复创建');
+                return prev;
+              }
+              return prev;
+            });
+
+            // 【修复】移除旧的确认卡片（如果有）
+            setMessages(prev => prev.filter(m => !m.isConfirmation || m.id === excludeConfirmationId));
+
+            // 【修复】提前捕获数据到常量，避免闭包陷阱
+            const primaryType = response.data.primary_type || '未知';
+            const specialistRole = response.data.specialist_role;
+            const personaDefinition = response.data.persona_definition;
+            const strategicFocus = response.data.strategic_focus;
+            const suggestedQuestions = response.data.suggested_questions || [];
+            const directQuestions = response.data.direct_questions || [];
+
+            // 【修复】先定义 confirmId，避免闭包陷阱
+            const confirmId = `confirm-${Date.now()}`;
+            console.log('[DEBUG] 创建确认卡片, confirmId:', confirmId, 'primaryType:', primaryType);
+
+            const confirmationMessage: Message = {
+              id: confirmId,
+              content: `初步分析完成。您的问题属于【${primaryType}】领域。\n\n建议转交专业律师进行深度分析。`,
+              role: 'assistant',
+              timestamp: new Date(),
+              isConfirmation: true,
+              suggestedQuestions: suggestedQuestions,
+              directQuestions: directQuestions,
+              persona_definition: personaDefinition,
+              strategic_focus: strategicFocus,
+              specialist_role: specialistRole,
+              primary_type: primaryType,
+              onConfirm: async () => {
+                console.log('[DEBUG] onConfirm 被调用, confirmId:', confirmId, 'primaryType:', primaryType);
+
+                // 【修复】使用 uploadedFilesRef.current 避免闭包陷阱
+                const uploadedFileIds = uploadedFilesRef.current.filter(f => f.status === 'done').map(f => f.file_id);
+                const selected = selectedQuestionsRef.current[confirmId] || [];
+                const custom = customQuestionsRef.current[confirmId];
+                const allQuestions = [...selected, ...(custom ? [custom] : [])];
+
+                const loadingId = `proc-${Date.now()}`;
+                console.log('[DEBUG] 移除确认卡片, 添加 loading 消息, loadingId:', loadingId);
+
+                // 【修复】使用捕获的常量 primaryType 而不是 response.data.primary_type
+                setMessages(prev => [...prev.filter(m => m.id !== confirmId), {
+                  id: loadingId,
+                  content: `已转交【${primaryType}】专家律师，正在进行深度思考与分析...`,
+                  role: 'assistant_specialist',
+                  timestamp: new Date()
+                }]);
+                setCurrentExpertType('specialist');
+
+                try {
+                  console.log('[DEBUG] 调用 consultLaw API, session_id:', sessionId);
+                  const secondResponse = await consultLaw({
+                    question: lastUserQuestionRef.current,
+                    user_confirmed: true,
+                    selected_suggested_questions: allQuestions.length > 0 ? allQuestions : undefined,
+                    uploaded_files: uploadedFileIds.length > 0 ? uploadedFileIds : undefined,
+                    session_id: sessionId
+                  });
+
+                  console.log('[DEBUG] consultLaw 响应:', secondResponse.ui_action);
+
+                  if (secondResponse.ui_action === 'async_processing') {
+                    // 【修复】传递对象参数，跳过初始消息并排除确认卡片ID
+                    pollTaskStatus(sessionId, { excludeConfirmationId: confirmId, skipInitialMessage: true });
+                  } else {
+                    // 如果直接返回结果
+                     handleNormalResponse(secondResponse);
+                  }
+
+                  // 移除 loading 消息
+                  setMessages(prev => prev.filter(m => m.id !== loadingId));
+
+                } catch (e) {
+                  console.error('[DEBUG] consultLaw 请求失败:', e);
+                  message.error('专业分析请求失败');
+                  setMessages(prev => prev.filter(m => m.id !== loadingId));
+                }
+              },
+              onReject: () => {
+                setMessages(prev => [...prev, {
+                  id: `sys-${Date.now()}`,
+                  content: '已取消转交。您可以继续向我提问，或重新描述问题。',
+                  role: 'assistant',
+                  timestamp: new Date()
+                }]);
+              }
+            };
+            setMessages(prev => [...prev, confirmationMessage]);
+          } 
+          else if (response.data.result) {
+            // 处理完成状态 (专家节点完成)
+            const result = response.data.result;
+            console.log('[DEBUG] Task Result (Raw):', result); 
+            
+            // 1. 尝试从 specialist_output 对象中提取数据
+            // 2. 如果 specialist_output 为空，尝试从 result 顶层提取 (兼容性)
+            let specialistData = result.specialist_output || {};
+            if (!specialistData.analysis && !specialistData.advice) {
+                console.log('[DEBUG] specialist_output empty, falling back to top-level');
+                specialistData = result;
+            }
+
+            // 3. 提取核心字段 (处理下划线 vs 驼峰)
+            const analysis = specialistData.analysis;
+            const advice = specialistData.advice;
+            // 处理 action_steps: 可能是 action_steps (Python) 或 actionSteps (JS)
+            const actionSteps = specialistData.action_steps || specialistData.actionSteps || [];
+            const riskWarning = specialistData.risk_warning || specialistData.riskWarning || '';
+            
+            // 4. 判断是否有专家内容
+            const hasSpecialistContent = !!(analysis || advice || (actionSteps && actionSteps.length > 0) || riskWarning);
+            
+            console.log('[DEBUG] Extracted Fields:', { analysis, advice, actionSteps, riskWarning, hasSpecialistContent });
+
+            const assistantMessage: Message = {
+              id: `assistant-${Date.now()}`,
+              // 如果有结构化字段，content 仅作为后备；否则显示普通回答
+              content: hasSpecialistContent 
+                ? (analysis || result.response || result.answer || '分析完成') 
+                : (result.response || result.answer || '暂无内容'),
+              role: result.final_report || hasSpecialistContent ? 'assistant_specialist' : 'assistant',
+              timestamp: new Date(),
+              suggestions: result.suggestions,
+              actionButtons: result.action_buttons?.map((btn: any) => ({
+                id: btn.key,
+                title: btn.label,
+                action: btn.key,
+                route: btn.key === 'risk_analysis' ? '/risk-analysis' : undefined 
+              })),
+              // 【关键】映射提取到的字段到消息对象
+              analysis: analysis,
+              advice: advice,
+              actionSteps: actionSteps,
+              riskWarning: riskWarning,
+              confidence: result.confidence
+            };
+            
+            setMessages(prev => [...prev, assistantMessage]);
+            
+            // 更新会话状态为专家模式
+            if (result.final_report || hasSpecialistContent) {
+              setConsultationSession(prev => ({
+                sessionId: result.session_id || sessionId,
+                specialistOutput: result,
+                isInSpecialistMode: true
+              }));
+            }
+          }
+        } else if (response.data.status === 'failed') {
+          if (pollingTimerRef.current) {
+            clearInterval(pollingTimerRef.current);
+            pollingTimerRef.current = null;
+          }
+          setMessages(prev => prev.filter(m => !m.content.includes('正在处理您的咨询请求')));
+          setMessages(prev => [...prev, {
+            id: `error-${Date.now()}`,
+            content: '咨询处理失败，请稍后重试',
+            role: 'assistant',
+            timestamp: new Date()
+          }]);
+        }
+      } catch (error) {
+        console.error('轮询任务状态失败:', error);
+        if (pollingTimerRef.current) {
+          clearInterval(pollingTimerRef.current);
+          pollingTimerRef.current = null;
+        }
+      }
+    }, 2000); 
+  };
+// 发送消息核心逻辑
   const handleSendMessage = async (manualInput?: string) => {
     const contentToSend = manualInput || inputValue;
     if (!contentToSend.trim() && uploadedFiles.length === 0) return;
 
-    // 【关键修复】保存用户原始问题，用于第二阶段调用
     lastUserQuestionRef.current = contentToSend;
 
     if (!consultationStarted) setConsultationStarted(true);
 
-    // 构建用户消息
     let displayContent = contentToSend;
     if (uploadedFiles.length > 0) {
       const fileNames = uploadedFiles.map(f => f.filename).join('、');
@@ -311,31 +545,29 @@ const LegalConsultationPage: React.FC = () => {
     try {
       const uploadedFileIds = uploadedFiles.filter(f => f.status === 'done').map(f => f.file_id);
       const sessionIdFromStorage = sessionStorage.getItem('consultation_session_id');
-
-      // 【关键】判断是否为新对话的第一条消息
-      const isFirstMessageOfNewChat = messages.length <= 1; // 只有欢迎语
+      // 【修复】只有在没有当前会话时才重置会话
+      // 如果存在 currentSessionId，说明会话仍在进行中（包括专家模式），不应该重置
+      const isFirstMessageOfNewChat = !sessionIdFromStorage && messages.length <= 1;
 
       const requestParams: any = {
         question: contentToSend || '请分析我上传的文件',
         uploaded_files: uploadedFileIds.length > 0 ? uploadedFileIds : undefined,
         session_id: sessionIdFromStorage || null,
-        // 【关键】如果是新对话的第一条消息，请求后端重置会话
         reset_session: isFirstMessageOfNewChat
       };
 
       const response = await consultLaw(requestParams);
 
-      // 更新 Session ID
       if (response.session_id) {
         sessionStorage.setItem('consultation_session_id', response.session_id);
         setCurrentSessionId(response.session_id);
       }
 
-      setUploadedFiles([]); // 发送后清空上传列表
+      setUploadedFiles([]); 
 
-      // 处理响应
-      if (response.need_confirmation) {
-        // 【关键修复】传递文件 ID 列表给确认回调
+      if (response.ui_action === 'async_processing') {
+        await pollTaskStatus(response.session_id, {});
+      } else if (response.need_confirmation) {
         handleConfirmationResponse(response, uploadedFileIds);
       } else {
         handleNormalResponse(response);
@@ -355,26 +587,43 @@ const LegalConsultationPage: React.FC = () => {
     }
   };
 
-  // 处理普通响应
+  // 处理普通响应 (同步返回)
   const handleNormalResponse = (response: any) => {
+    // 同样应用数据提取逻辑，以防同步返回也包含专家结构
+    let specialistData = response.specialist_output || {};
+    if (!specialistData.analysis && !specialistData.advice) {
+        specialistData = response; 
+    }
+    const analysis = specialistData.analysis;
+    const advice = specialistData.advice;
+    const actionSteps = specialistData.action_steps || specialistData.actionSteps || [];
+    const riskWarning = specialistData.risk_warning || specialistData.riskWarning || '';
+    const hasSpecialistContent = !!(analysis || advice || (actionSteps && actionSteps.length > 0) || riskWarning);
+
     const assistantMessage: Message = {
       id: `assistant-${Date.now()}`,
-      content: response.response || response.answer,
-      role: response.final_report ? 'assistant_specialist' : 'assistant',
+      content: hasSpecialistContent 
+        ? (analysis || response.response || response.answer || '分析完成') 
+        : (response.response || response.answer),
+      role: response.final_report || hasSpecialistContent ? 'assistant_specialist' : 'assistant',
       timestamp: new Date(),
       suggestions: response.suggestions,
       actionButtons: response.action_buttons?.map((btn: any) => ({
         id: btn.key,
         title: btn.label,
         action: btn.key,
-        // 根据后端 key 映射到前端 route (简单示例)
         route: btn.key === 'risk_analysis' ? '/risk-analysis' : undefined 
       })),
-      confidence: response.confidence
+      confidence: response.confidence,
+      // 映射字段
+      analysis: analysis,
+      advice: advice,
+      actionSteps: actionSteps,
+      riskWarning: riskWarning
     };
     setMessages(prev => [...prev, assistantMessage]);
     
-    if (response.final_report) {
+    if (response.final_report || hasSpecialistContent) {
       setConsultationSession(prev => ({
         sessionId: response.session_id,
         specialistOutput: response,
@@ -383,9 +632,8 @@ const LegalConsultationPage: React.FC = () => {
     }
   };
 
-  // 处理需要确认的响应（两阶段）
+  // 处理需要确认的响应
   const handleConfirmationResponse = (response: any, fileIds: string[] = []) => {
-    // 保存专家信息到状态
     if (response.specialist_role || response.primary_type) {
       setDynamicSpecialistInfo({
         role: response.specialist_role,
@@ -393,82 +641,67 @@ const LegalConsultationPage: React.FC = () => {
       });
     }
 
-    // 构建确认卡片内容
+    // 【修复】提前捕获数据到常量，避免闭包陷阱
+    const primaryType = response.primary_type || '未知';
+    const suggestedQuestions = response.suggested_questions || [];
+    const directQuestions = response.direct_questions || [];
+
     const confirmId = `confirm-${Date.now()}`;
+    console.log('[DEBUG] handleConfirmationResponse 创建确认卡片, confirmId:', confirmId, 'primaryType:', primaryType);
+
     const confirmationMessage: Message = {
       id: confirmId,
-      content: `初步分析完成。您的问题属于【${response.primary_type}】领域。\n\n建议转交专业律师进行深度分析。`,
+      content: `初步分析完成。您的问题属于【${primaryType}】领域。\n\n建议转交专业律师进行深度分析。`,
       role: 'assistant',
       timestamp: new Date(),
       isConfirmation: true,
-      suggestedQuestions: response.suggested_questions || [],
-      directQuestions: response.direct_questions || [],
+      suggestedQuestions: suggestedQuestions,
+      directQuestions: directQuestions,
       onConfirm: async () => {
-        // 【关键修复】使用传入的 fileIds 参数，而非从 state/ref 读取
-        // 因为 uploadedFiles 在 handleSendMessage 中已被清空
-        console.log('[DEBUG Frontend] onConfirm 使用传入的 fileIds:', fileIds);
+        console.log('[DEBUG] handle onConfirm 被调用, confirmId:', confirmId, 'primaryType:', primaryType);
 
-        const uploadedFileIds = fileIds;  // 直接使用传入参数
-
-        // 用户点击确认
-        // 【修复闭包陷阱】使用 Ref 获取最新状态，而非闭包捕获的旧 State
+        const uploadedFileIds = fileIds;
         const selected = selectedQuestionsRef.current[confirmId] || [];
         const custom = customQuestionsRef.current[confirmId];
         const allQuestions = [...selected, ...(custom ? [custom] : [])];
 
-        // 【调试增强】详细的调试日志
-        console.log('[DEBUG Frontend] ===== 用户确认时的调试信息 =====');
-        console.log('[DEBUG Frontend] confirmId:', confirmId);
-        console.log('[DEBUG Frontend] selectedQuestionsRef.current:', selectedQuestionsRef.current);
-        console.log('[DEBUG Frontend] customQuestionsRef.current:', customQuestionsRef.current);
-        console.log('[DEBUG Frontend] uploadedFilesRef.current (可能为空):', uploadedFilesRef.current);
-        console.log('[DEBUG Frontend] fileIds (传入参数):', fileIds);  // 新增
-        console.log('[DEBUG Frontend] uploadedFileIds (最终使用):', uploadedFileIds);  // 更新
-        console.log('[DEBUG Frontend] selected (用户选择的补充问题):', selected);
-        console.log('[DEBUG Frontend] custom (用户自定义问题):', custom);
-        console.log('[DEBUG Frontend] allQuestions (最终问题列表):', allQuestions);
-        console.log('[DEBUG Frontend] allQuestions.length:', allQuestions.length);
-        console.log('[DEBUG Frontend] lastUserQuestionRef.current:', lastUserQuestionRef.current);
-        console.log('[DEBUG Frontend] response.direct_questions:', response.direct_questions);
-        console.log('[DEBUG Frontend] response.suggested_questions:', response.suggested_questions);
-        console.log('[DEBUG Frontend] 将发送的 selected_suggested_questions:', allQuestions.length > 0 ? allQuestions : undefined);
-        console.log('[DEBUG Frontend] 将发送的 uploaded_files:', uploadedFileIds.length > 0 ? uploadedFileIds : undefined);
-        console.log('[DEBUG Frontend] ===== 调试信息结束 =====');
-
-        // 添加"正在转交"提示
         const loadingId = `proc-${Date.now()}`;
-        setMessages(prev => [...prev, {
+        console.log('[DEBUG] 移除确认卡片, 添加 loading 消息, loadingId:', loadingId);
+
+        // 【修复】使用捕获的常量 primaryType 而不是 response.primary_type
+        setMessages(prev => [...prev.filter(m => m.id !== confirmId), {
           id: loadingId,
-          content: `已转交【${response.primary_type}】专家律师，正在进行深度思考与分析...`,
+          content: `已转交【${primaryType}】专家律师，正在进行深度思考与分析...`,
           role: 'assistant_specialist',
           timestamp: new Date()
         }]);
         setCurrentExpertType('specialist');
 
         try {
+          const sessionId = sessionStorage.getItem('consultation_session_id');
+          console.log('[DEBUG] 调用 consultLaw API, session_id:', sessionId);
           const secondResponse = await consultLaw({
-            // 【关键修复】使用用户原始问题，而非占位符
             question: lastUserQuestionRef.current,
             user_confirmed: true,
             selected_suggested_questions: allQuestions.length > 0 ? allQuestions : undefined,
-            // 【修复闭包陷阱】传递上传的文件ID列表
             uploaded_files: uploadedFileIds.length > 0 ? uploadedFileIds : undefined,
-            session_id: sessionStorage.getItem('consultation_session_id')
+            session_id: sessionId
           });
 
-          // 移除 loading 消息，添加结果
-          setMessages(prev => {
-            const filtered = prev.filter(m => m.id !== loadingId);
-            return [...filtered, {
-              id: `specialist-${Date.now()}`,
-              content: secondResponse.response || secondResponse.answer,
-              role: 'assistant_specialist',
-              timestamp: new Date(),
-              suggestions: secondResponse.suggestions,
-              actionButtons: secondResponse.action_buttons
-            }];
-          });
+          console.log('[DEBUG] consultLaw 响应:', secondResponse.ui_action);
+
+          // 如果是异步处理
+          if (secondResponse.ui_action === 'async_processing') {
+             // 【修复】传递对象参数，跳过初始消息并排除确认卡片ID
+             pollTaskStatus(secondResponse.session_id, { excludeConfirmationId: confirmId, skipInitialMessage: true });
+             setMessages(prev => prev.filter(m => m.id !== loadingId)); // 移除"转交中"，pollTaskStatus会添加"处理中"
+          } else {
+             // 同步返回
+             handleNormalResponse(secondResponse);
+             setMessages(prev => prev.filter(m => m.id !== loadingId));
+          }
         } catch (e) {
+          console.error('[DEBUG] consultLaw 请求失败:', e);
           message.error('专业分析请求失败');
           setMessages(prev => prev.filter(m => m.id !== loadingId));
         }
@@ -485,7 +718,6 @@ const LegalConsultationPage: React.FC = () => {
     setMessages(prev => [...prev, confirmationMessage]);
   };
 
-  // 文件上传
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
     const file = e.target.files[0];
@@ -516,8 +748,6 @@ const LegalConsultationPage: React.FC = () => {
     }
   };
 
-  // ================= 渲染辅助函数 =================
-
   const getFileIcon = (type: string) => {
     const t = type.toLowerCase();
     if (t.includes('pdf')) return <FileTextOutlined style={{ color: '#ff4d4f' }} />;
@@ -546,7 +776,6 @@ const LegalConsultationPage: React.FC = () => {
       />
 
       <Layout style={{ overflow: 'hidden' }}>
-        {/* 历史记录侧边栏 */}
         <ConsultationHistorySidebar
           visible={isHistorySidebarOpen}
           onClose={() => toggleHistorySidebar()}
@@ -554,9 +783,7 @@ const LegalConsultationPage: React.FC = () => {
           onNewChat={handleNewChat}
         />
 
-        {/* 主聊天区域 */}
         <Content style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 0 }}>
-          {/* 消息流区域 */}
           <div className="messages-container" style={{ flex: 1, overflowY: 'auto', padding: '20px 10%' }}>
             {messages.map((msg) => (
               <div key={msg.id} className={`message-row ${msg.role === 'user' ? 'user-row' : 'bot-row'}`}>
@@ -568,7 +795,6 @@ const LegalConsultationPage: React.FC = () => {
                 </div>
                 
                 <div className="message-bubble-container">
-                  {/* 发言人名字 */}
                   {msg.role !== 'user' && (
                     <div className="message-sender-name">
                       {msg.role === 'assistant_specialist' ? '专业律师' : '律师助理'}
@@ -576,14 +802,62 @@ const LegalConsultationPage: React.FC = () => {
                     </div>
                   )}
 
-                  {/* 消息气泡 */}
                   <div className={`message-bubble ${msg.role}`}>
                     {msg.isConfirmation ? (
-                      // 确认卡片 UI
                       <div className="confirmation-card">
                         <Text strong style={{ fontSize: 16 }}>🔎 初步诊断完成</Text>
-                        <Paragraph style={{ margin: '12px 0' }}>{msg.content.split('\n\n')[0]}</Paragraph>
-                        
+                        <Paragraph style={{ margin: '12px 0' }}>
+                          您的问题属于【{msg.primary_type || '未知'}】领域
+                          {msg.specialist_role && `，建议由【${msg.specialist_role}】处理`}
+                        </Paragraph>
+
+                        {msg.persona_definition && (
+                          <Card size="small" style={{ margin: '12px 0', background: '#f0f5ff' }}>
+                            <Text strong>👨‍⚖️ 专家律师</Text>
+                            <Paragraph style={{ margin: '8px 0' }}>
+                              <Text>{msg.persona_definition.professional_background}</Text>
+                            </Paragraph>
+                            <div style={{ marginTop: 8 }}>
+                              <Text type="secondary">执业年限：{msg.persona_definition.years_of_experience}</Text>
+                            </div>
+                            {msg.persona_definition.expertise_area && (
+                              <div style={{ marginTop: 8 }}>
+                                <Text strong>专业领域：</Text>
+                                <Tag color="blue">{msg.persona_definition.expertise_area}</Tag>
+                              </div>
+                            )}
+                          </Card>
+                        )}
+
+                        {msg.strategic_focus && (
+                          <Card size="small" style={{ margin: '12px 0', background: '#fff7e6' }}>
+                            <Text strong>🎯 分析策略</Text>
+                            <Paragraph style={{ margin: '8px 0' }}>
+                              <Text>分析角度：{msg.strategic_focus.analysis_angle}</Text>
+                            </Paragraph>
+                            {msg.strategic_focus.key_points && msg.strategic_focus.key_points.length > 0 && (
+                              <div style={{ marginTop: 8 }}>
+                                <Text strong>关键关注点：</Text>
+                                <ul style={{ marginTop: 4, paddingLeft: 16 }}>
+                                  {msg.strategic_focus.key_points.map((point, idx) => (
+                                    <li key={idx}>{point}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {msg.strategic_focus.risk_alerts && msg.strategic_focus.risk_alerts.length > 0 && (
+                              <div style={{ marginTop: 8 }}>
+                                <Text strong style={{ color: '#ff4d4f' }}>⚠️ 风险提示：</Text>
+                                <ul style={{ marginTop: 4, paddingLeft: 16 }}>
+                                  {msg.strategic_focus.risk_alerts.map((alert, idx) => (
+                                    <li key={idx} style={{ color: '#ff4d4f' }}>{alert}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </Card>
+                        )}
+
                         {msg.suggestedQuestions && msg.suggestedQuestions.length > 0 && (
                           <div className="suggestion-selection">
                             <Divider plain style={{ margin: '12px 0' }}>您可以勾选补充问题</Divider>
@@ -637,24 +911,53 @@ const LegalConsultationPage: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      // 普通 Markdown 消息
-                      <div className="markdown-body">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            h1: ({...props}) => <Title level={3 as const} {...props} />,
-                            h2: ({...props}) => <Title level={4 as const} {...props} />,
-                            h3: ({...props}) => <Title level={5 as const} {...props} />,
-                            li: ({...props}) => <li style={{ marginLeft: 20 }} {...props} />
-                          }}
-                        >
-                          {msg.content}
-                        </ReactMarkdown>
+                      // 普通 Markdown 或 专家分析结构化展示
+                      <div className="message-bubble">
+                        {msg.role === 'assistant_specialist' && (msg.analysis || msg.advice || msg.riskWarning || (msg.actionSteps && msg.actionSteps.length > 0)) ? (
+                          <div>
+                            {msg.analysis && (
+                              <div style={{ marginBottom: 16 }}>
+                                <h3>📋 问题解答</h3>
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.analysis}</ReactMarkdown>
+                              </div>
+                            )}
+                            
+                            {msg.advice && (
+                              <div style={{ marginBottom: 16 }}>
+                                <h3>💡 专业建议</h3>
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.advice}</ReactMarkdown>
+                              </div>
+                            )}
+                            
+                            {msg.actionSteps && msg.actionSteps.length > 0 && (
+                              <div style={{ marginBottom: 16 }}>
+                                <h3>✅ 行动步骤</h3>
+                                <List
+                                  size="small"
+                                  dataSource={msg.actionSteps}
+                                  renderItem={(item, index) => (
+                                    <List.Item key={index}>
+                                      <Text>{item}</Text>
+                                    </List.Item>
+                                  )}
+                                />
+                              </div>
+                            )}
+                            
+                            {msg.riskWarning && (
+                              <div style={{ marginBottom: 16 }}>
+                                <h3>⚠️ 风险提示</h3>
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.riskWarning}</ReactMarkdown>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                        )}
                       </div>
                     )}
                   </div>
 
-                  {/* 消息底部操作区（建议/按钮） */}
                   {msg.actionButtons && (
                     <div className="message-footer-actions">
                       <Space wrap size={[8, 8]}>
@@ -686,9 +989,7 @@ const LegalConsultationPage: React.FC = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* 底部输入区域 */}
           <div className="input-area-wrapper" style={{ padding: '16px 10%', background: '#fff', borderTop: '1px solid #e8e8e8' }}>
-            {/* 上传文件预览 */}
             {uploadedFiles.length > 0 && (
               <div className="upload-preview-bar">
                 <Space>
@@ -734,7 +1035,16 @@ const LegalConsultationPage: React.FC = () => {
                 </Button>
                 {currentSessionId && (
                   <Tooltip title="结束当前对话，开启新话题">
-                    <Button icon={<ClearOutlined />} size="small" onClick={handleNewChat} />
+                    <Button
+                      type="primary"
+                      danger
+                      size="small"
+                      icon={<ClearOutlined />}
+                      onClick={handleNewChat}
+                      style={{ fontWeight: 'bold' }}
+                    >
+                      开启新对话
+                    </Button>
                   </Tooltip>
                 )}
               </div>
@@ -745,11 +1055,8 @@ const LegalConsultationPage: React.FC = () => {
           </div>
         </Content>
 
-        {/* 右侧辅助面板 */}
         <Sider width={280} theme="light" style={{ borderLeft: '1px solid #f0f0f0', padding: 16 }}>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            
-            {/* 当前专家卡片 */}
             <Card size="small" bordered={false} className="expert-card-right">
               <div style={{ textAlign: 'center' }}>
                 <Avatar size={64} src={currentExpertProfile.avatar} icon={<UserOutlined />} style={{ marginBottom: 12, backgroundColor: currentExpertType === 'assistant' ? '#52c41a' : '#722ed1' }} />
@@ -771,28 +1078,19 @@ const LegalConsultationPage: React.FC = () => {
               </div>
             </Card>
 
-            {/* 知识库开关 */}
             <ModuleKnowledgeToggle moduleName="consultation" moduleLabel="智能咨询" />
 
-            {/* 快捷工具 - 更新版 */}
             <div className="quick-tools">
               <Divider orientation="left" style={{ margin: '12px 0' }}>
                 <Text type="secondary" style={{ fontSize: 12 }}>快捷工具</Text>
               </Divider>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                {/* 第一排：核心分析 */}
                 <Button block size="small" icon={<SafetyOutlined />} onClick={() => navigate('/risk-analysis')}>风险评估</Button>
                 <Button block size="small" icon={<BankOutlined />} onClick={() => navigate('/litigation-analysis')}>案件分析</Button>
-                
-                {/* 第二排：合同业务 */}
                 <Button block size="small" icon={<FileProtectOutlined />} onClick={() => navigate('/contract/generate')}>合同生成</Button>
                 <Button block size="small" icon={<DiffOutlined />} onClick={() => navigate('/contract/review')}>合同审查</Button>
-                
-                {/* 第三排：查询与处理 (新增) */}
                 <Button block size="small" icon={<AppstoreOutlined />} onClick={() => navigate('/contract')}>模板查询</Button>
                 <Button block size="small" icon={<EditOutlined />} onClick={() => navigate('/document-processing')}>文档处理</Button>
-                
-                {/* 第四排：工具箱 (新增) */}
                 <Button block size="small" icon={<FileTextOutlined />} onClick={() => navigate('/document-drafting')}>文书起草</Button>
                 <Button block size="small" icon={<CalculatorOutlined />} onClick={() => navigate('/cost-calculation')}>费用测算</Button>
               </div>
@@ -805,4 +1103,4 @@ const LegalConsultationPage: React.FC = () => {
   );
 };
 
-export default LegalConsultationPage;
+export default LegalConsultationPage; 

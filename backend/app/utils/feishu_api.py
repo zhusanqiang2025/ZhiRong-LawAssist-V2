@@ -57,6 +57,7 @@ FEISHU_TENANT_TOKEN_EXPIRE_SECONDS = int(
 )
 
 # Redis 配置
+REDIS_ENABLED = os.getenv("REDIS_ENABLED", "false").lower() in ("true", "1", "yes", "on")
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "123myredissecret")
@@ -123,6 +124,10 @@ def _get_redis_connection():
     Returns:
         redis.Redis: Redis 连接对象，失败时返回 None
     """
+    # 如果 Redis 未启用，直接返回 None
+    if not REDIS_ENABLED:
+        return None
+
     try:
         import redis
         return redis.Redis(
@@ -135,7 +140,7 @@ def _get_redis_connection():
             socket_timeout=5
         )
     except Exception as e:
-        logger.warning(f"Redis 连接失败: {e}")
+        logger.debug(f"Redis 连接失败: {e}")
         return None
 
 
@@ -151,16 +156,17 @@ def _clear_tenant_token_cache() -> bool:
     # 清除内存缓存
     _memory_tenant_token_store = None
 
-    # 清除 Redis 缓存
-    try:
-        redis_client = _get_redis_connection()
-        if redis_client:
-            redis_client.delete(FEISHU_TENANT_TOKEN_CACHE_KEY)
-            logger.info("已清除 Redis 中的 tenant_access_token 缓存")
-    except Exception as e:
-        logger.warning(f"清除 Redis 缓存失败: {e}")
+    # 清除 Redis 缓存（仅在 Redis 启用时）
+    if REDIS_ENABLED:
+        try:
+            redis_client = _get_redis_connection()
+            if redis_client:
+                redis_client.delete(FEISHU_TENANT_TOKEN_CACHE_KEY)
+                logger.debug("已清除 Redis 中的 tenant_access_token 缓存")
+        except Exception as e:
+            logger.debug(f"清除 Redis 缓存失败: {e}")
 
-    logger.info("tenant_access_token 缓存已清除（内存+Redis）")
+    logger.debug("tenant_access_token 缓存已清除（内存+Redis）")
     return True
 
 
@@ -187,19 +193,20 @@ def _save_tenant_token_to_cache(token: str, expire_time: float) -> bool:
         "expire_time": expire_time
     }
 
-    # 保存到 Redis
-    try:
-        redis_client = _get_redis_connection()
-        if redis_client:
-            redis_client.setex(
-                FEISHU_TENANT_TOKEN_CACHE_KEY,
-                int(expire_time - time.time()),
-                token
-            )
-            logger.debug(f"tenant_access_token 已保存到 Redis")
-            return True
-    except Exception as e:
-        logger.warning(f"保存 tenant_access_token 到 Redis 失败: {e}")
+    # 保存到 Redis（仅在 Redis 启用时）
+    if REDIS_ENABLED:
+        try:
+            redis_client = _get_redis_connection()
+            if redis_client:
+                redis_client.setex(
+                    FEISHU_TENANT_TOKEN_CACHE_KEY,
+                    int(expire_time - time.time()),
+                    token
+                )
+                logger.debug(f"tenant_access_token 已保存到 Redis")
+                return True
+        except Exception as e:
+            logger.debug(f"保存 tenant_access_token 到 Redis 失败: {e}")
 
     return False
 
@@ -213,33 +220,34 @@ def _load_tenant_token_from_cache() -> Optional[str]:
     """
     global _memory_tenant_token_store
 
-    # 先从 Redis 加载
-    try:
-        redis_client = _get_redis_connection()
-        if redis_client:
-            token = redis_client.get(FEISHU_TENANT_TOKEN_CACHE_KEY)
-            if token:
-                logger.info(f"✅ 从 Redis 加载 tenant_access_token | 长度: {len(token)} 字符")
-                # 同步到内存
-                _memory_tenant_token_store = {
-                    "token": token,
-                    "expire_time": time.time() + FEISHU_TENANT_TOKEN_EXPIRE_SECONDS
-                }
-                return token
-            else:
-                logger.info(f"⚠️  Redis 中无 tenant_access_token 缓存")
-    except Exception as e:
-        logger.warning(f"从 Redis 加载 tenant_access_token 失败: {e}")
+    # 先从 Redis 加载（仅在 Redis 启用时）
+    if REDIS_ENABLED:
+        try:
+            redis_client = _get_redis_connection()
+            if redis_client:
+                token = redis_client.get(FEISHU_TENANT_TOKEN_CACHE_KEY)
+                if token:
+                    logger.debug(f"从 Redis 加载 tenant_access_token | 长度: {len(token)} 字符")
+                    # 同步到内存
+                    _memory_tenant_token_store = {
+                        "token": token,
+                        "expire_time": time.time() + FEISHU_TENANT_TOKEN_EXPIRE_SECONDS
+                    }
+                    return token
+                else:
+                    logger.debug(f"Redis 中无 tenant_access_token 缓存")
+        except Exception as e:
+            logger.debug(f"从 Redis 加载 tenant_access_token 失败: {e}")
 
     # Redis 无数据时，从内存加载
     if _memory_tenant_token_store:
         token = _memory_tenant_token_store["token"]
         expire_time = _memory_tenant_token_store["expire_time"]
         if time.time() < expire_time:
-            logger.info(f"✅ 从内存加载 tenant_access_token | 长度: {len(token)} 字符")
+            logger.debug(f"从内存加载 tenant_access_token | 长度: {len(token)} 字符")
             return token
         else:
-            logger.info(f"⚠️  内存中的 tenant_access_token 已过期")
+            logger.debug(f"内存中的 tenant_access_token 已过期")
 
     return None
 

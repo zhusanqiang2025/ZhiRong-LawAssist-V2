@@ -19,12 +19,12 @@ logger = logging.getLogger(__name__)
 
 def get_model(json_mode=False):
     """初始化 LLM 模型（使用硬编码配置）"""
-    from app.core.llm_config import get_qwen_llm
+    from app.core.llm_config import get_qwen3_llm as get_qwen3_llm
 
     # 使用 httpx 忽略 SSL 证书问题 (沿用你之前的配置)
     http_client = httpx.Client(verify=False, trust_env=False)
 
-    llm = get_qwen_llm()
+    llm = get_qwen3_llm()
     if not llm:
         raise ValueError("LLM 初始化失败")
 
@@ -184,7 +184,7 @@ def execute_stage_3(
     from ..json_parser import create_robust_parser
 
     # 根据模型能力决定是否启用JSON模式（使用硬编码配置）
-    model_name = settings.QWEN3_THINKING_MODEL
+    model_name = settings.QWEN3_MODEL
     use_json_mode = not any(keyword in model_name.lower()
                            for keyword in ["deepseek", "qwen", "baichuan", "yi", "chatglm"])
 
@@ -600,7 +600,7 @@ def _review_single_window(
 
     # 根据模型能力决定是否启用JSON模式（使用硬编码配置）
     # 某些模型（如DeepSeek、Qwen）对JSON模式支持不佳，使用文本模式更稳定
-    model_name = settings.QWEN3_THINKING_MODEL
+    model_name = settings.QWEN3_MODEL
 
     # 对于国产模型，禁用JSON模式以提高稳定性
     use_json_mode = not any(keyword in model_name.lower()

@@ -106,6 +106,7 @@ export interface UploadUserDocumentRequest {
   title?: string;
   content?: string;
   category?: string;
+  category_id?: number;
   tags?: string[];
   is_public?: boolean;
 }
@@ -114,6 +115,7 @@ export interface UpdateUserDocumentRequest {
   title?: string;
   content?: string;
   category?: string;
+  category_id?: number;
   tags?: string[];
   is_public?: boolean;
   status?: string;

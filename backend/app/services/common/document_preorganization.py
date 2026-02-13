@@ -31,7 +31,7 @@ from enum import Enum
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from app.services.unified_document_service import StructuredDocumentResult
+from app.services.common.unified_document_service import StructuredDocumentResult
 
 logger = logging.getLogger(__name__)
 

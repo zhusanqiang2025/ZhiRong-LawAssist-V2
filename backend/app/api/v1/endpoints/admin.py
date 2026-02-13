@@ -27,7 +27,7 @@ from app.schemas import (
     StanceRuleOut
 )
 from app.api.deps import get_current_user
-from app.services.review_rules_service import review_rules_service
+from app.services.common.review_rules_service import review_rules_service
 from app.api.websocket import manager
 
 logger = logging.getLogger(__name__)

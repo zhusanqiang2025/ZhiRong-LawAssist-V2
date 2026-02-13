@@ -57,7 +57,7 @@ from app.services.litigation_analysis.case_rule_assembler import CaseRuleAssembl
 from app.services.litigation_analysis.enhanced_case_preorganization import (
     get_enhanced_case_preorganization_service
 )
-from app.services.unified_document_service import UnifiedDocumentService, StructuredDocumentResult
+from app.services.common.unified_document_service import UnifiedDocumentService, StructuredDocumentResult
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -182,8 +182,8 @@ async def preorganize_litigation_documents(
 
         # 3. 调用 EnhancedPreorganizationService
         # 注意：不指定 case_position，默认为中立视角
-        from app.core.llm_config import get_qwen_llm
-        llm = get_qwen_llm()
+        from app.core.llm_config import get_qwen3_llm as get_qwen3_llm
+        llm = get_qwen3_llm()
 
         # 验证 LLM 初始化
         if llm is None:
@@ -556,7 +556,7 @@ async def download_preorganization_report(
         raise HTTPException(status_code=400, detail="预整理数据格式错误")
 
     # 3. 生成报告
-    from app.services.litigation_preorganization_report_generator import (
+    from app.services.litigation_analysis.litigation_preorganization_report_generator import (
         get_litigation_preorganization_report_generator
     )
     generator = get_litigation_preorganization_report_generator()
@@ -630,7 +630,7 @@ async def download_analysis_report(
     }
 
     # 3. 生成报告
-    from app.services.litigation_analysis_report_generator import (
+    from app.services.litigation_analysis.litigation_analysis_report_generator import (
         get_litigation_analysis_report_generator
     )
     generator = get_litigation_analysis_report_generator()

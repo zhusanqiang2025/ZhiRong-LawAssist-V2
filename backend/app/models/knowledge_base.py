@@ -93,7 +93,12 @@ class KnowledgeDocument(Base):
     source_url = Column(String(1000))  # 原始 URL
 
     # 分类信息
-    category = Column(String(100))  # 法律分类
+    category_id = Column(Integer, ForeignKey("categories.id"), nullable=True, index=True)
+    category_name_cache = Column(String(100), comment="分类名称缓存") # 替代原 category 字段
+    
+    # category = Column(String(100))  # Deprecated
+    
+    category_rel = relationship("Category", backref="documents")
     tags = Column(JSON)  # 标签列表
 
     # 扩展信息（不使用 metadata 因为是 SQLAlchemy 保留字）

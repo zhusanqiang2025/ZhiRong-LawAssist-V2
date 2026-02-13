@@ -28,8 +28,8 @@ from app.models.contract_knowledge import ContractKnowledgeType
 from app.api.deps import get_current_user
 
 # 引入文档处理和向量服务
-from app.services.unified_document_service import get_unified_document_service
-from app.services.embedding_service import get_text_embedding
+from app.services.common.unified_document_service import get_unified_document_service
+from app.services.knowledge_base.embedding_service import get_text_embedding
 from fastapi import Body # 记得在文件头部导入 Body
 
 import logging

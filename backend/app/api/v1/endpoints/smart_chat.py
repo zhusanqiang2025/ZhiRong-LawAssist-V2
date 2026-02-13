@@ -5,7 +5,7 @@ from typing import Dict, Any, List
 from pydantic import BaseModel
 
 from app.api import deps
-from app.services.deepseek_service import deepseek_service
+from app.services.common.deepseek_service import deepseek_service
 
 router = APIRouter()
 

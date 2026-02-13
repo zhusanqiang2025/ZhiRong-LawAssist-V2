@@ -13,8 +13,8 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models.contract_review_task import ContractReviewTask
 from app.models.contract import ContractDoc, ContractStatus
-from app.services.langgraph_review_service import LangGraphReviewService
-from app.services.contract_review_service import ContractReviewService
+from app.services.contract_review.langgraph_review_service import LangGraphReviewService
+from app.services.contract_review.contract_review_service import ContractReviewService
 from app.tasks.celery_app import celery_app
 from app.tasks.base_task import DatabaseTask
 

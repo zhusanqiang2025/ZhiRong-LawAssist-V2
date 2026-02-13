@@ -58,6 +58,22 @@ class UnifiedKnowledgeService:
         # 注册本地法律知识库
         local_kb = get_local_legal_kb()
         self.register_store(local_kb)
+        
+        # 注册数据库知识库
+        try:
+            from .database_kb import DatabaseKnowledgeStore
+            db_kb = DatabaseKnowledgeStore()
+            self.register_store(db_kb)
+        except Exception as e:
+            logger.error(f"[UnifiedService] Failed to register DatabaseKB: {e}")
+
+        # 注册网络搜索知识库
+        try:
+            from .web_search_store import WebSearchStore
+            web_kb = WebSearchStore()
+            self.register_store(web_kb)
+        except Exception as e:
+            logger.error(f"[UnifiedService] Failed to register WebSearchStore: {e}")
 
     @property
     def reranker(self):
@@ -95,7 +111,9 @@ class UnifiedKnowledgeService:
         query: str,
         domain: str = "",
         limit: int = 5,
-        enabled_stores: Optional[List[str]] = None
+        enabled_stores: Optional[List[str]] = None,
+        user_id: Optional[int] = None,
+        session_id: Optional[str] = None
     ) -> KnowledgeSearchResult:
         """
         多源并发搜索 + Rerank 重排序（优化版）
@@ -117,16 +135,21 @@ class UnifiedKnowledgeService:
             domain: 法律领域（可选）
             limit: 返回结果数量
             enabled_stores: 启用的知识库列表（可选）
+            user_id: 用户ID（可选）
+            session_id: 会话ID（可选，用于多轮对话缓存隔离）
 
         Returns:
             搜索结果
         """
-        # 检查缓存
-        cache_key = f"{query}_{domain}_{limit}_{enabled_stores}"
+        # 修复：添加会话ID到缓存键，确保多轮对话中不同问题不误用缓存
+        if session_id:
+            cache_key = f"{session_id}:{query}_{domain}_{limit}_{enabled_stores}"
+        else:
+            cache_key = f"{query}_{domain}_{limit}_{enabled_stores}"
         if cache_key in self._cache:
             cached_items, cached_time = self._cache[cache_key]
             if (datetime.now() - cached_time).seconds < self._cache_ttl:
-                logger.info(f"[统一知识服务] 使用缓存结果: {cache_key}")
+                logger.info(f"[统一知识服务] 使用缓存结果: {cache_key[:100]}...")  # 缩短日志避免过长
                 return KnowledgeSearchResult(
                     query=query,
                     items=cached_items,
@@ -158,7 +181,8 @@ class UnifiedKnowledgeService:
             store.search(
                 query=search_intent.optimized_query,
                 domain=domain,
-                limit=top_n_per_store
+                limit=top_n_per_store,
+                user_id=user_id
             )
             for store in active_stores
         ]

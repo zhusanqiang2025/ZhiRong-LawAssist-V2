@@ -26,18 +26,24 @@ PROGRESS_CHANNEL_PREFIX = "task_progress:"
 redis_client = None
 _redis_available = False
 
-try:
-    import redis
-    REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
-    redis_client = redis.from_url(REDIS_URL, decode_responses=True)
-    # 尝试 ping Redis 检查是否可用
-    redis_client.ping()
-    _redis_available = True
-    logger.info("[Progress] Redis 已启用，支持 Pub/Sub 进度推送")
-except Exception as e:
-    logger.warning(f"[Progress] Redis 不可用，仅使用数据库存储进度: {e}")
-    redis_client = None
-    _redis_available = False
+# 检查是否启用 Redis（通过环境变量控制）
+REDIS_ENABLED = os.getenv("REDIS_ENABLED", "false").lower() in ("true", "1", "yes", "on")
+
+if REDIS_ENABLED:
+    try:
+        import redis
+        REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
+        redis_client = redis.from_url(REDIS_URL, decode_responses=True)
+        # 尝试 ping Redis 检查是否可用
+        redis_client.ping()
+        _redis_available = True
+        logger.info("[Progress] Redis 已启用，支持 Pub/Sub 进度推送")
+    except Exception as e:
+        logger.debug(f"[Progress] Redis 连接失败，仅使用数据库存储进度: {e}")
+        redis_client = None
+        _redis_available = False
+else:
+    logger.debug("[Progress] Redis 已禁用，仅使用数据库存储进度")
 
 
 async def update_progress(

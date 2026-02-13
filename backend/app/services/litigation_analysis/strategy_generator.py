@@ -66,11 +66,11 @@ class StrategyGenerator:
     def _init_llm(self) -> ChatOpenAI:
         """初始化 LLM (复用配置逻辑)"""
         # 优先 Qwen3 (长文本规划能力强)
-        if getattr(settings, "QWEN3_THINKING_ENABLED", False) and settings.QWEN3_THINKING_API_KEY:
+        if getattr(settings, "QWEN3_ENABLED", False) and settings.QWEN3_API_KEY:
             return ChatOpenAI(
-                model=settings.QWEN3_THINKING_MODEL,
-                api_key=settings.QWEN3_THINKING_API_KEY,
-                base_url=settings.QWEN3_THINKING_API_URL,
+                model=settings.QWEN3_MODEL,
+                api_key=settings.QWEN3_API_KEY,
+                base_url=settings.QWEN3_API_BASE,
                 temperature=0.3, # 策略需要一点灵活性
                 max_tokens=4000
             )

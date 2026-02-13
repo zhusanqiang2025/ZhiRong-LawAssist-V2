@@ -19,7 +19,7 @@ from dataclasses import asdict
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
-from app.services.unified_document_service import UnifiedDocumentService
+from app.services.common.unified_document_service import UnifiedDocumentService
 # 使用统一的增强版服务
 from app.services.litigation_analysis.enhanced_case_preorganization import (
     get_enhanced_case_preorganization_service
@@ -155,8 +155,8 @@ async def preorganize_case_node(state: LitigationAnalysisState) -> Dict[str, Any
     logger.info(f"[{session_id}] 开始预整理 | 视角: {case_position or '自动识别(中立)'}")
 
     try:
-        from app.core.llm_config import get_qwen_llm
-        llm = get_qwen_llm()
+        from app.core.llm_config import get_qwen3_llm as get_qwen3_llm
+        llm = get_qwen3_llm()
 
         # 验证 LLM 是否正确初始化
         if llm is None:
@@ -490,7 +490,7 @@ async def generate_drafts_node(state: LitigationAnalysisState) -> Dict[str, Any]
 
         # 动态导入避免循环依赖
         from app.services.document_drafting.agents.document_drafter import DocumentDrafterAgent
-        from app.services.document_templates import TemplateManager
+        from app.services.common.document_templates import TemplateManager
 
         # 确定需要的文书类型
         document_types = _get_required_document_types(case_position, analysis_scenario)

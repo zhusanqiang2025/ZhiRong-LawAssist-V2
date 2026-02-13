@@ -103,7 +103,8 @@ class BaseKnowledgeStore(ABC):
         self,
         query: str,
         domain: str = "",
-        limit: int = 5
+        limit: int = 5,
+        user_id: Optional[int] = None
     ) -> List[KnowledgeItem]:
         """
         搜索知识
@@ -112,6 +113,7 @@ class BaseKnowledgeStore(ABC):
             query: 搜索查询
             domain: 法律领域（可选）
             limit: 返回结果数量
+            user_id: 用户ID（可选，用于私有知识库过滤）
 
         Returns:
             知识条目列表

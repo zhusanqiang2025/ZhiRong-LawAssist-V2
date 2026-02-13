@@ -180,33 +180,38 @@ export interface DocumentAnalysis {
 }
 
 export interface ConsultationResponse {
-  answer: string; // 修改为answer以匹配后端
-  response?: string; // 保留原有字段兼容性
+  response?: string;
+  answer?: string;
+  suggestions?: string[];
+  action_buttons?: Array<{ key: string; label: string }>;
+  need_confirmation?: boolean;
+  ui_action?: 'show_confirmation' | 'chat_only' | 'show_results' | 'async_processing';
   specialist_role?: string;
   primary_type?: string;
-  confidence?: number; // Confidence score
-  relevant_laws?: string[];
-  need_confirmation?: boolean; // 新增：是否需要用户确认转向专业律师
-  follow_up_questions?: string[];
-  suggestions?: string[]; // Action suggestions
-  action_buttons?: Array<{ key: string; label: string }>; // Action buttons - 使用 key/label 格式
-
-  // 新增字段：律师助理节点的增强输出
-  basic_summary?: string; // 案件基本情况总结
-  direct_questions?: string[]; // 直接提炼的问题
-  suggested_questions?: string[]; // 推测的建议问题（可选）
-  recommended_approach?: string; // 建议的处理方式
-
-  // 新增字段：资料分析节点输出
-  document_analysis?: DocumentAnalysis; // 文档深度分析结果
-
-  // 新增字段：多轮对话支持
-  final_report?: boolean; // 标识是否为最终专业律师报告
-  analysis?: string; // 问题分析
-  advice?: string; // 专业建议
-  risk_warning?: string; // 风险提醒
-  action_steps?: string[]; // 行动步骤
-  session_id?: string; // 会话ID（用于多轮对话）
+  suggested_questions?: string[];
+  direct_questions?: string[];
+  final_report?: any;
+  session_id?: string;
+  confidence?: number;
+  // 【新增】Celery任务ID（用于轮询）
+  task_id?: string;
+  // 【新增】RAG相关属性
+  rag_triggered?: boolean;
+  rag_sources?: string[];
+  // 【新增】动态人设和策略信息
+  persona_definition?: {
+    role_title?: string;
+    professional_background?: string;
+    years_of_experience?: string;
+    expertise_area?: string[];
+    approach_style?: string;
+  };
+  strategic_focus?: {
+    analysis_angle?: string;
+    key_points?: string[];
+    risk_alerts?: string[];
+    attention_matters?: string[];
+  };
 }
 
 // Contract Review types
@@ -456,6 +461,56 @@ export interface TaskStatusResponse {
   progress?: number;
   result?: any;
   error?: string;
+}
+
+// 【新增】法律咨询任务状态响应类型（用于轮询）
+export interface ConsultationTaskStatusResponse {
+  status: 'waiting_confirmation' | 'completed' | 'running' | 'not_found';
+  session_id: string;
+  task_type?: 'assistant' | 'specialist';  // 【新增】任务类型标识
+  // 当 status == "waiting_confirmation" 时
+  classification?: {
+    primary_type: string;
+    specialist_role: string;
+    suggested_questions: string[];
+    direct_questions: string[];
+    persona_definition?: any;
+    strategic_focus?: any;
+  };
+  // 当 status == "completed" 时
+  result?: {
+    legal_analysis: string;
+    legal_advice: string;
+    risk_warning: string;
+    action_steps: string[];
+    final_report: string;
+  };
+  // 当 status == "running" 时
+  progress?: number;
+  current_step?: string;
+  message?: string;
+  ui_action?: string;
+}
+
+// 【新增】用户决策请求类型
+export interface ConsultationDecisionRequest {
+  action: 'confirm' | 'cancel';
+  selected_suggested_questions?: string[];
+  custom_question?: string;
+}
+
+// 【新增】用户决策响应类型
+export interface ConsultationDecisionResponse {
+  success: boolean;
+  session_id: string;
+  action: 'confirm' | 'cancel';
+  // 确认时的响应字段
+  next_phase?: 'specialist';
+  new_task_id?: string;
+  status?: string;
+  message?: string;
+  // 取消时的响应字段
+  saved_to_history?: boolean;
 }
 
 // 合同审查请求类型

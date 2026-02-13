@@ -21,36 +21,33 @@ def _get_settings():
     return settings
 
 
-def get_qwen3_thinking_llm() -> ChatOpenAI:
+def get_qwen3_llm() -> ChatOpenAI:
     """
-    获取 Qwen3-235B-Thinking 模型（用于框架生成）
+    获取 Qwen3 模型
 
-    使用 Settings 中的硬编码配置：
-    - QWEN3_THINKING_API_URL
-    - QWEN3_THINKING_API_KEY
-    - QWEN3_THINKING_MODEL
+    使用 Settings 中的 QWEN3_API_* 配置
 
     Returns:
-        ChatOpenAI: Qwen3-235B-Thinking 模型实例
+        ChatOpenAI: Qwen3 模型实例
     """
     settings = _get_settings()
-    api_key = settings.QWEN3_THINKING_API_KEY
-    api_url = settings.QWEN3_THINKING_API_URL
-    model_name = settings.QWEN3_THINKING_MODEL
-    timeout = settings.QWEN3_THINKING_TIMEOUT
+    api_key = settings.QWEN3_API_KEY
+    api_url = settings.QWEN3_API_BASE
+    model_name = settings.QWEN3_MODEL
+    timeout = settings.QWEN3_TIMEOUT
 
     # 如果 Settings 中没有配置，尝试环境变量（兼容性）
     if not api_key:
-        api_key = os.getenv("QWEN3_THINKING_API_KEY")
+        api_key = os.getenv("QWEN3_API_KEY")
     if not api_url:
-        api_url = os.getenv("QWEN3_THINKING_API_URL")
+        api_url = os.getenv("QWEN3_API_BASE")
 
     if not api_key:
-        raise ValueError("缺少 QWEN3_THINKING_API_KEY 配置")
+        raise ValueError("缺少 QWEN3_API_KEY 配置")
     if not api_url:
-        raise ValueError("缺少 QWEN3_THINKING_API_URL 配置")
+        raise ValueError("缺少 QWEN3_API_BASE 配置")
 
-    logger.info(f"[LLMConfig] 初始化 Qwen3-235B-Thinking 模型: {model_name}")
+    logger.info(f"[LLMConfig] 初始化 Qwen3 模型: {model_name}")
 
     # 235B 模型推理需要更长时间，增加超时
     return ChatOpenAI(
@@ -58,44 +55,7 @@ def get_qwen3_thinking_llm() -> ChatOpenAI:
         api_key=api_key,
         base_url=api_url,
         temperature=0.3,
-        request_timeout=(30, 300),  # 连接30秒，读取5分钟
-        max_tokens=16000,
-        max_retries=2
-    )
-
-
-def get_qwen_llm() -> ChatOpenAI:
-    """
-    获取 Qwen 模型（用于案件分析模块）
-
-    使用 Qwen3-235B 模型，temperature=0 确保输出确定性
-
-    Returns:
-        ChatOpenAI: Qwen 模型实例
-    """
-    settings = _get_settings()
-    api_key = settings.QWEN3_THINKING_API_KEY
-    api_url = settings.QWEN3_THINKING_API_URL
-    model_name = settings.QWEN3_THINKING_MODEL
-
-    # 如果 Settings 中没有配置，尝试环境变量（兼容性）
-    if not api_key:
-        api_key = os.getenv("QWEN3_THINKING_API_KEY") or os.getenv("DEEPSEEK_API_KEY")
-    if not api_url:
-        api_url = os.getenv("QWEN3_THINKING_API_URL") or os.getenv("DEEPSEEK_API_URL")
-
-    if not api_key:
-        logger.warning("[LLMConfig] 未配置任何 LLM API Key")
-        return None
-
-    logger.info(f"[LLMConfig] 初始化 Qwen 模型用于案件分析: {model_name}")
-
-    return ChatOpenAI(
-        model=model_name,
-        api_key=api_key,
-        base_url=api_url,
-        temperature=0,
-        request_timeout=(30, 300),  # 连接30秒，读取5分钟
+        request_timeout=(30, timeout),
         max_tokens=16000,
         max_retries=2
     )
@@ -141,35 +101,12 @@ def get_deepseek_llm() -> ChatOpenAI:
 
 def get_default_llm() -> ChatOpenAI:
     """
-    获取默认 LLM（当前使用的配置）
-
-    使用 Settings 中的 OPENAI_* 配置
+    获取默认 LLM（Qwen3）
 
     Returns:
         ChatOpenAI: 默认模型实例
     """
-    settings = _get_settings()
-    api_key = settings.OPENAI_API_KEY
-    base_url = settings.OPENAI_API_BASE
-
-    # 如果 Settings 中没有配置，尝试环境变量（兼容性）
-    if not api_key:
-        api_key = os.getenv("OPENAI_API_KEY") or os.getenv("DEEPSEEK_API_KEY")
-    if not base_url:
-        base_url = os.getenv("OPENAI_API_BASE", "https://api.deepseek.com/v1")
-
-    if not api_key:
-        raise ValueError("缺少 OPENAI_API_KEY 配置")
-
-    logger.info("[LLMConfig] 初始化默认 LLM")
-
-    return ChatOpenAI(
-        model=settings.OPENAI_MODEL_NAME,
-        api_key=api_key,
-        base_url=base_url,
-        temperature=0.3,
-        max_tokens=16000
-    )
+    return get_qwen3_llm()
 
 
 def get_ai_postprocess_llm() -> ChatOpenAI:
@@ -247,6 +184,69 @@ def get_gpt_oss_llm() -> ChatOpenAI:
     )
 
 
+def get_assistant_model() -> ChatOpenAI:
+    """
+    Tier 1: 律师助理模型 (Fast)
+    
+    用于: 意图识别、简单交互、分类
+    配额: 32B参数 / 快速响应
+    """
+    settings = _get_settings()
+    api_key = settings.ASSISTANT_MODEL_API_KEY
+    api_url = settings.ASSISTANT_MODEL_API_URL
+    model_name = settings.ASSISTANT_MODEL_NAME
+    timeout = settings.ASSISTANT_MODEL_TIMEOUT
+    
+    # 兼容性检查
+    if not api_key:
+        api_key = os.getenv("AI_POSTPROCESS_API_KEY") # Fallback to existing key if not set
+    if not api_url:
+        api_url = os.getenv("AI_POSTPROCESS_API_URL")
+
+    logger.info(f"[LLMConfig] 初始化助理模型 (Tier 1): {model_name}")
+    
+    return ChatOpenAI(
+        model=model_name,
+        api_key=api_key,
+        base_url=api_url,
+        temperature=0.3, 
+        request_timeout=timeout,
+        max_retries=2
+    )
+
+
+def get_specialist_model() -> ChatOpenAI:
+    """
+    Tier 2: 专业律师模型 (Smart)
+
+    用于: 复杂法律分析、推理、建议生成
+    配额: 235B参数 / 深度思考
+    """
+    settings = _get_settings()
+    api_key = settings.SPECIALIST_MODEL_API_KEY
+    api_url = settings.SPECIALIST_MODEL_API_URL
+    model_name = settings.SPECIALIST_MODEL_NAME
+    timeout = settings.SPECIALIST_MODEL_TIMEOUT
+
+    # 兼容性检查
+    if not api_key:
+        api_key = os.getenv("QWEN3_API_KEY")
+    if not api_url:
+        api_url = os.getenv("QWEN3_API_BASE")
+
+    logger.info(f"[LLMConfig] 初始化专家模型 (Tier 2): {model_name}")
+
+    return ChatOpenAI(
+        model=model_name,
+        api_key=api_key,
+        base_url=api_url,
+        temperature=0.4,
+        request_timeout=timeout,
+        max_tokens=16000,
+        max_retries=2
+    )
+
+
 def validate_llm_config() -> dict:
     """
     验证所有 LLM 配置是否完整（使用 Settings）
@@ -261,21 +261,20 @@ def validate_llm_config() -> dict:
         return bool(value and str(value).strip() and value != "default-api-key-change-in-production")
 
     result = {
-        "qwen3_thinking": is_configured(settings.QWEN3_THINKING_API_KEY) and is_configured(settings.QWEN3_THINKING_API_URL),
+        "qwen3": is_configured(settings.QWEN3_API_KEY) and is_configured(settings.QWEN3_API_BASE),
         "deepseek": is_configured(settings.DEEPSEEK_API_KEY) and is_configured(settings.DEEPSEEK_API_URL),
-        "default": is_configured(settings.OPENAI_API_KEY) or is_configured(settings.DEEPSEEK_API_KEY),
+        "default": is_configured(settings.QWEN3_API_KEY),
         "ai_postprocess": is_configured(settings.AI_POSTPROCESS_API_KEY) and is_configured(settings.AI_POSTPROCESS_API_URL),
         "ai_text_classification": is_configured(settings.AI_TEXT_CLASSIFICATION_API_KEY) and is_configured(settings.AI_TEXT_CLASSIFICATION_API_URL),
-        "gpt_oss": is_configured(settings.GPT_OSS_120B_API_KEY) and is_configured(settings.GPT_OSS_120B_API_URL),  # GPT-OSS 使用 Settings 配置
-        "langchain": is_configured(settings.LANGCHAIN_API_KEY) and is_configured(settings.LANGCHAIN_API_BASE_URL),
+        "gpt_oss": is_configured(settings.GPT_OSS_120B_API_KEY) and is_configured(settings.GPT_OSS_120B_API_URL),
     }
 
     # 两阶段生成需要 Qwen3 和 DeepSeek 都可用
-    result["two_stage_ready"] = result["qwen3_thinking"] and result["deepseek"]
+    result["two_stage_ready"] = result["qwen3"] and result["deepseek"]
 
     # 多模型规划需要至少 2 个模型可用
     available_count = sum([
-        result["qwen3_thinking"],
+        result["qwen3"],
         result["deepseek"],
         result["gpt_oss"]
     ])
@@ -286,12 +285,20 @@ def validate_llm_config() -> dict:
     return result
 
 
+# 兼容性别名
+get_qwen3_thinking_llm = get_qwen3_llm
+get_qwen3_llm = get_qwen3_llm  # 兼容性别名（用于 health.py 等）
+
+
 __all__ = [
-    "get_qwen3_thinking_llm",
-    "get_qwen_llm",
+    "get_qwen3_llm",
+    "get_qwen_llm",  # 兼容性别名
+    "get_qwen3_thinking_llm",  # 兼容性别名
     "get_deepseek_llm",
     "get_default_llm",
     "get_ai_postprocess_llm",
     "get_gpt_oss_llm",
     "validate_llm_config",
+    "get_assistant_model",
+    "get_specialist_model",
 ]

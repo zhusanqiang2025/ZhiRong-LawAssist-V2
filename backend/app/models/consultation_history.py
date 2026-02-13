@@ -4,6 +4,7 @@
 """
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, JSON, Enum as SQLEnum, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -26,11 +27,19 @@ class ConsultationHistory(Base):
     message_count = Column(Integer, default=0, comment="消息数量")
 
     # 会话状态
-    status = Column(SQLEnum('active', 'archived', name='consultation_status'), default='active', comment="会话状态")
+    status = Column(SQLEnum('active', 'archived', 'cancelled', name='consultation_status'), default='active', comment="会话状态")
+    current_phase = Column(SQLEnum('initial', 'assistant', 'waiting_confirmation', 'specialist', 'completed', name='consultation_phase'), default='initial', comment="当前阶段")
+    user_decision = Column(SQLEnum('confirmed', 'cancelled', 'pending', name='user_decision'), default='pending', comment="用户决策")
 
     # 额外数据
     specialist_type = Column(String(50), comment="专业律师类型")
     classification = Column(JSON, comment="分类结果")
+
+    # 会话与上下文状态 - 修正字段类型为JSONB
+    session_state = Column(JSONB, nullable=True, comment="会话状态上下文(替代Redis)")
+
+    # Celery 任务跟踪
+    current_task_id = Column(String(64), nullable=True, comment="当前执行的Celery任务ID")
 
     # 关系
     # user = relationship("User", back_populates="consultation_history")
@@ -48,7 +57,8 @@ class ConsultationHistory(Base):
             "message_count": self.message_count,
             "status": self.status,
             "specialist_type": self.specialist_type,
-            "classification": self.classification
+            "classification": self.classification,
+            "session_state": self.session_state
         }
 
     class Config:

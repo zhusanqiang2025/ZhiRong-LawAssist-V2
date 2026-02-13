@@ -90,11 +90,11 @@ def _load_env_from_dockerfile():
         "AI_POSTPROCESS_ONLY_AMBIGUOUS": "true",
 
         # ==================== Qwen3-235B-A22B-Thinking-2507 模型配置 ====================
-        "QWEN3_THINKING_API_KEY": "7adb34bf-3cb3-4dea-af41-b79de8c08ca3",
-        "QWEN3_THINKING_API_URL": "https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1",
-        "QWEN3_THINKING_MODEL": "Qwen3-235B-A22B-Thinking-2507",
-        "QWEN3_THINKING_TIMEOUT": "120",
-        "QWEN3_THINKING_ENABLED": "true",
+        "QWEN3_API_KEY": "7adb34bf-3cb3-4dea-af41-b79de8c08ca3",
+        "QWEN3_API_BASE": "https://sd4a58h819ma6giel1ck0.apigateway-cn-beijing.volceapi.com/v1",
+        "QWEN3_MODEL": "Qwen3-235B-A22B-Thinking-2507",
+        "QWEN3_TIMEOUT": "120",
+        "QWEN3_ENABLED": "true",
 
         # ==================== GPT-OSS-120B 模型配置 ====================
         "GPT_OSS_120B_API_URL": "http://101.126.134.56:11434/v1",
@@ -143,7 +143,7 @@ print("[调试] 关键环境变量检查:")
 print(f"  OPENAI_API_KEY: {'✅ 已设置' if os.getenv('OPENAI_API_KEY') else '❌ 未设置'}")
 print(f"  DEEPSEEK_API_KEY: {'✅ 已设置' if os.getenv('DEEPSEEK_API_KEY') else '❌ 未设置'}")
 print(f"  LANGCHAIN_API_KEY: {'✅ 已设置' if os.getenv('LANGCHAIN_API_KEY') else '❌ 未设置'}")
-print(f"  QWEN3_THINKING_API_KEY: {'✅ 已设置' if os.getenv('QWEN3_THINKING_API_KEY') else '❌ 未设置'}")
+print(f"  QWEN3_API_KEY: {'✅ 已设置' if os.getenv('QWEN3_API_KEY') else '❌ 未设置'}")
 print("=" * 60)
 
 # 额外：也尝试加载 .env 文件（如果存在，可以覆盖 Dockerfile 配置）
@@ -310,7 +310,7 @@ async def debug_env_check():
             "OPENAI_API_KEY": f"✅ 已配置 (长度: {len(os.getenv('OPENAI_API_KEY', ''))})" if os.getenv("OPENAI_API_KEY") else "❌ 未配置",
             "LANGCHAIN_API_KEY": f"✅ 已配置 (长度: {len(os.getenv('LANGCHAIN_API_KEY', ''))})" if os.getenv("LANGCHAIN_API_KEY") else "❌ 未配置",
             "DEEPSEEK_API_KEY": f"✅ 已配置 (长度: {len(os.getenv('DEEPSEEK_API_KEY', ''))})" if os.getenv("DEEPSEEK_API_KEY") else "❌ 未配置",
-            "QWEN3_THINKING_API_KEY": f"✅ 已配置 (长度: {len(os.getenv('QWEN3_THINKING_API_KEY', ''))})" if os.getenv("QWEN3_THINKING_API_KEY") else "❌ 未配置",
+            "QWEN3_API_KEY": f"✅ 已配置 (长度: {len(os.getenv('QWEN3_API_KEY', ''))})" if os.getenv("QWEN3_API_KEY") else "❌ 未配置",
             "DATABASE_URL": f"✅ {os.getenv('DATABASE_URL', '')[:50]}..." if os.getenv("DATABASE_URL") else "❌ 未配置",
             "REDIS_URL": f"✅ 已配置" if os.getenv("REDIS_URL") else "❌ 未配置",
         },
